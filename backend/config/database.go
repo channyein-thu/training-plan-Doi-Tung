@@ -17,7 +17,7 @@ func ConnectionDB(config *Config) *gorm.DB {
 	}
 
 	//  Auto Migration
-	err = db.AutoMigrate(&model.Department{},&model.Course{})
+	err = db.AutoMigrate(&model.Department{}, &model.Course{}, &model.User{})
 	if err != nil {
 		log.Fatal("Migration failed:", err)
 	}
