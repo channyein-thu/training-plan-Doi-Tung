@@ -22,8 +22,8 @@ import (
 
 func main() {
 	app := fiber.New(fiber.Config{
-	ErrorHandler: middleware.ErrorHandler,
-})
+		ErrorHandler: middleware.ErrorHandler,
+	})
 
 	//  Load config
 	appConfig, err := config.LoadConfig(".")
@@ -34,7 +34,7 @@ func main() {
 	//  DB and migration
 	db := config.ConnectionDB(&appConfig)
 
-		// Init Redis
+	// Init Redis
 	redisClient := config.NewRedisClient()
 
 	app.Use(cors.New())
@@ -42,28 +42,27 @@ func main() {
 	app.Use(helmet.New())
 
 	app.Use(logger.New(logger.Config{
-    Format: "[${ip}]:${port} ${status} - ${method} ${path}\n",
+		Format: "[${ip}]:${port} ${status} - ${method} ${path}\n",
 	}))
 
 	app.Use(limiter.New(limiter.Config{
-    Max:            20,
-    Expiration:     30 * time.Second,
-    LimiterMiddleware: limiter.SlidingWindow{},
+		Max:               20,
+		Expiration:        30 * time.Second,
+		LimiterMiddleware: limiter.SlidingWindow{},
 	}))
 	//  Validator
 	validate := validator.New()
 
 	calendarService := helper.NewGoogleCalendarService(context.Background())
-  	location := helper.LoadLocation()
-
+	location := helper.LoadLocation()
 
 	//  Dependency Injection
 	departmentRepository := repository.NewDepartmentRepositoryImpl(db)
 	departmentService := service.NewDepartmentServiceImpl(departmentRepository, validate)
 	departmentController := controller.NewDepartmentController(departmentService)
 
-	// Course Injection 
-		courseRepo := repository.NewCourseRepositoryImpl(db)
+	// Course Injection
+	courseRepo := repository.NewCourseRepositoryImpl(db)
 	courseService := service.NewCourseServiceImpl(
 		courseRepo,
 		redisClient,
@@ -72,6 +71,9 @@ func main() {
 		location,
 	)
 	courseController := controller.NewCourseController(courseService)
+
+	// Auth Injection
+	authController := controller.NewAuthController(db)
 
 	//  Routes
 	api := app.Group("/api/v1")
@@ -84,7 +86,8 @@ func main() {
 	})
 
 	router.DepartmentRoutes(api, departmentController)
-	router.CourseRoutes(api,courseController)
+	router.CourseRoutes(api, courseController)
+	router.AuthRoutes(api, authController)
 
 	log.Fatal(app.Listen(":8080"))
 }

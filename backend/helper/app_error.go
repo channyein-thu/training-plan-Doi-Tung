@@ -32,3 +32,24 @@ func Internal(msg string) error {
 		Message:    msg,
 	}
 }
+
+func Unauthorized(msg string) error {
+	return &AppError{
+		StatusCode: http.StatusUnauthorized,
+		Message:    msg,
+	}
+}
+
+func Forbidden(msg string) error {
+	return &AppError{
+		StatusCode: http.StatusForbidden,
+		Message:    msg,
+	}
+}
+
+func InternalServerError(msg string) error {
+	return &AppError{
+		StatusCode: http.StatusInternalServerError,
+		Message:    msg,
+	}
+}
