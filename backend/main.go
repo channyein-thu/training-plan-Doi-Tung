@@ -5,12 +5,10 @@ import (
 	"log"
 	"time"
 	"training-plan-api/config"
-	"training-plan-api/controller"
+	"training-plan-api/container"
 	"training-plan-api/helper"
 	"training-plan-api/middleware"
-	"training-plan-api/repository"
 	"training-plan-api/router"
-	"training-plan-api/service"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
@@ -56,38 +54,51 @@ func main() {
 	calendarService := helper.NewGoogleCalendarService(context.Background())
 	location := helper.LoadLocation()
 
-	//  Dependency Injection
-	departmentRepository := repository.NewDepartmentRepositoryImpl(db)
-	departmentService := service.NewDepartmentServiceImpl(departmentRepository, validate)
-	departmentController := controller.NewDepartmentController(departmentService)
-
-	// Course Injection
-	courseRepo := repository.NewCourseRepositoryImpl(db)
-	courseService := service.NewCourseServiceImpl(
-		courseRepo,
+	deps := container.NewAppDependencies(
+		db,
 		redisClient,
 		validate,
 		calendarService,
 		location,
 	)
-	courseController := controller.NewCourseController(courseService)
-
-	// Auth Injection
-	authController := controller.NewAuthController(db)
 
 	//  Routes
-	api := app.Group("/api/v1")
-
-	api.Get("/healthchecker", func(c *fiber.Ctx) error {
-		return c.Status(200).JSON(fiber.Map{
-			"status":  "success",
-			"message": "Training Plan API is running",
-		})
-	})
-
-	router.DepartmentRoutes(api, departmentController)
-	router.CourseRoutes(api, courseController)
-	router.AuthRoutes(api, authController)
+	router.RegisterRoutes(app, deps)
+	
 
 	log.Fatal(app.Listen(":8080"))
 }
+
+
+// //  Dependency Injection
+// 	departmentRepository := repository.NewDepartmentRepositoryImpl(db)
+// 	departmentService := service.NewDepartmentServiceImpl(departmentRepository, validate, redisClient)
+// 	departmentController := controller.NewDepartmentController(departmentService)
+
+// 	// Course Injection
+// 	courseRepo := repository.NewCourseRepositoryImpl(db)
+// 	courseService := service.NewCourseServiceImpl(
+// 		courseRepo,
+// 		redisClient,
+// 		validate,
+// 		calendarService,
+// 		location,
+// 	)
+// 	courseController := controller.NewCourseController(courseService)
+
+// 	// Auth Injection
+// 	authController := controller.NewAuthController(db)
+
+// 	//  Routes
+// 	api := app.Group("/api/v1")
+
+// 	api.Get("/healthchecker", func(c *fiber.Ctx) error {
+// 		return c.Status(200).JSON(fiber.Map{
+// 			"status":  "success",
+// 			"message": "Training Plan API is running",
+// 		})
+// 	})
+
+// 	router.DepartmentRoutes(api, departmentController)
+// 	router.CourseRoutes(api, courseController)
+// 	router.AuthRoutes(api, authController)

@@ -29,11 +29,10 @@ func (c *DepartmentController) Create(ctx *fiber.Ctx) error {
 	}
 
 	if err := c.departmentService.Create(req); err != nil {
-		return err // 🔥 handled by global error handler
+		return err //  handled by global error handler
 	}
 
 	return ctx.Status(fiber.StatusCreated).JSON(response.Response{
-		Code:    fiber.StatusCreated,
 		Status:  "SUCCESS",
 		Message: "Department created successfully",
 	})
@@ -55,8 +54,7 @@ func (c *DepartmentController) Update(ctx *fiber.Ctx) error {
 		return err
 	}
 
-	return ctx.JSON(response.Response{
-		Code:    fiber.StatusOK,
+	return ctx.Status(fiber.StatusOK).JSON(response.Response{
 		Status:  "SUCCESS",
 		Message: "Department updated successfully",
 	})
@@ -72,8 +70,7 @@ func (c *DepartmentController) Delete(ctx *fiber.Ctx) error {
 		return err
 	}
 
-	return ctx.JSON(response.Response{
-		Code:    fiber.StatusOK,
+	return ctx.Status(fiber.StatusOK).JSON(response.Response{
 		Status:  "SUCCESS",
 		Message: "Department deleted successfully",
 	})
@@ -90,22 +87,22 @@ func (c *DepartmentController) FindById(ctx *fiber.Ctx) error {
 		return err
 	}
 
-	return ctx.JSON(response.Response{
-		Code:    fiber.StatusOK,
+	return ctx.Status(fiber.StatusOK).JSON(response.Response{
 		Status:  "SUCCESS",
 		Message: "Department retrieved successfully",
 		Data:    department,
 	})
 }
 
-func (c *DepartmentController) FindAll(ctx *fiber.Ctx) error {
-	departments, err := c.departmentService.FindAll()
+func (c *DepartmentController) FindPaginated(ctx *fiber.Ctx) error {
+	page, _ := strconv.Atoi(ctx.Query("page", "1"))
+	limit, _ := strconv.Atoi(ctx.Query("limit", "10"))
+	departments, err := c.departmentService.FindPaginated(page, limit)
 	if err != nil {
 		return err
 	}
 
-	return ctx.JSON(response.Response{
-		Code:    fiber.StatusOK,
+	return ctx.Status(fiber.StatusOK).JSON(response.Response{
 		Status:  "SUCCESS",
 		Message: "Departments retrieved successfully",
 		Data:    departments,

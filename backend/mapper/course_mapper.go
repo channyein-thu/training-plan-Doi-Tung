@@ -79,7 +79,7 @@ if req.Date != nil {
 }
 
 if req.Content != nil {
-	course.Content = req.Content
+	course.Content = *req.Content
 }
 
 if req.NumberOfDays != nil {

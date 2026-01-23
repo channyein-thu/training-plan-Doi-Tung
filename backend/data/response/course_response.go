@@ -11,15 +11,16 @@ type CourseResponse struct {
 	Category         string  `json:"category"`
 
 	Date    time.Time `json:"date"`
-	Content *string   `json:"content,omitempty"`
+	Content string   `json:"content"`
 
-	NumberOfDays   int
-	NumberOfHours  *int
-	Location        *string
-	TotalCost       *int
-	BudgetCode      *string
-	NumberOfPerson  int
-	CostPerPerson   *int
+	NumberOfDays  int     `json:"numberOfDays"`
+	NumberOfHours *int    `json:"numberOfHours,omitempty"`
+
+	Location       *string `json:"location,omitempty"`
+	TotalCost      *int    `json:"totalCost,omitempty"`
+	BudgetCode     *string `json:"budgetCode,omitempty"`
+	NumberOfPerson int     `json:"numberOfPerson"`
+	CostPerPerson  *int    `json:"costPerPerson,omitempty"`
 
 	CreatedAt int64 `json:"createdAt"`
 	UpdatedAt int64 `json:"updatedAt"`

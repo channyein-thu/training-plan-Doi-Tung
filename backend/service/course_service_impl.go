@@ -48,7 +48,9 @@ func NewCourseServiceImpl(
 // CREATE COURSE
 func (s *CourseServiceImpl) Create(req request.CreateCourseRequest) error {
 	if err := s.validate.Struct(req); err != nil {
-		return err
+		return helper.ValidationError(
+		helper.FormatValidationError(err),
+	)
 	}
 
 	course := mapper.ToCourseModel(req)
@@ -75,16 +77,16 @@ func (s *CourseServiceImpl) Create(req request.CreateCourseRequest) error {
 		hours = *course.NumberOfHours
 	}
 
-	description := "Training Plan"
-	if course.Content != nil && *course.Content != "" {
-		description = *course.Content
-	}
+	// description := "Training Plan"
+	// if course.Content != nil && *course.Content != "" {
+	// 	description = *course.Content
+	// }
 
 	eventID, err := helper.CreateCourseCalendarEvent(
 		context.Background(),
 		s.calendar,
 		course.Name,
-		description,
+		course.Content,
 		course.Date.In(s.location),
 		hours,
 	)
@@ -111,8 +113,6 @@ func (s *CourseServiceImpl) Delete(courseId int) error {
 	if err != nil {
 		return err
 	}
-
-	log.Println("Deleting calendar event ID:", course.CalendarEventID)
 
 	// Delete calendar event if exists
 	if course.CalendarEventID != nil {
@@ -216,7 +216,9 @@ func (s *CourseServiceImpl) FindPaginated(
 // UPDATE COURSE
 func (s *CourseServiceImpl) Update(courseId int, req request.UpdateCourseRequest) error {
 	if err := s.validate.Struct(req); err != nil {
-		return err
+			return helper.ValidationError(
+		helper.FormatValidationError(err),
+	)
 	}
 
 	course, err := s.repo.FindById(courseId)
@@ -255,17 +257,17 @@ func (s *CourseServiceImpl) Update(courseId int, req request.UpdateCourseRequest
 		hours = *course.NumberOfHours
 	}
 
-	description := "Training  Plan"
-	if course.Content != nil && *course.Content != "" {
-		description = *course.Content
-	}
+	// description := "Training  Plan"
+	// if course.Content != nil && *course.Content != "" {
+	// 	description = *course.Content
+	// }
 
 	if err := helper.UpdateCourseCalendarEvent(
 		context.Background(),
 		s.calendar,
 		*course.CalendarEventID,
 		course.Name,
-		description,
+		course.Content,
 		course.Date.In(s.location),
 		hours,
 	); err != nil {

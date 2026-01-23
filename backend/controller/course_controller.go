@@ -32,7 +32,6 @@ func (c *CourseController) Create(ctx *fiber.Ctx) error {
 	}
 
 	return ctx.Status(fiber.StatusCreated).JSON(response.Response{
-		Code:    fiber.StatusCreated,
 		Status:  "SUCCESS",
 		Message: "Course created successfully",
 	})
@@ -55,8 +54,7 @@ func (c *CourseController) Update(ctx *fiber.Ctx) error {
 		return err
 	}
 
-	return ctx.JSON(response.Response{
-		Code:    fiber.StatusOK,
+	return ctx.Status(fiber.StatusOK).JSON(response.Response{
 		Status:  "SUCCESS",
 		Message: "Course updated successfully",
 	})
@@ -73,8 +71,7 @@ func (c *CourseController) Delete(ctx *fiber.Ctx) error {
 		return err
 	}
 
-	return ctx.JSON(response.Response{
-		Code:    fiber.StatusOK,
+	return ctx.Status(fiber.StatusOK).JSON(response.Response{
 		Status:  "SUCCESS",
 		Message: "Course deleted successfully",
 	})
@@ -92,8 +89,7 @@ func (c *CourseController) FindById(ctx *fiber.Ctx) error {
 		return err
 	}
 
-	return ctx.JSON(response.Response{
-		Code:    fiber.StatusOK,
+	return ctx.Status(fiber.StatusOK).JSON(response.Response{
 		Status:  "SUCCESS",
 		Message: "Course retrieved successfully",
 		Data:    course,
@@ -110,8 +106,7 @@ func (c *CourseController) FindPaginated(ctx *fiber.Ctx) error {
 		return err
 	}
 
-	return ctx.JSON(response.Response{
-		Code:    fiber.StatusOK,
+	return ctx.Status(fiber.StatusOK).JSON(response.Response{
 		Status:  "SUCCESS",
 		Message: "Courses retrieved successfully",
 		Data:    result,
