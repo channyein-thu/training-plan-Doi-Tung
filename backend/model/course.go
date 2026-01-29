@@ -65,6 +65,6 @@ type Course struct {
 
 	CalendarEventID *string `gorm:"type:varchar(128);index"`
 
-	CreatedAt int64 `gorm:"autoCreateTime"`
-	UpdatedAt int64 `gorm:"autoUpdateTime"`
+	CreatedAt time.Time `gorm:"autoCreateTime"`
+	UpdatedAt time.Time `gorm:"autoUpdateTime"`
 }

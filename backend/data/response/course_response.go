@@ -22,6 +22,6 @@ type CourseResponse struct {
 	NumberOfPerson int     `json:"numberOfPerson"`
 	CostPerPerson  *int    `json:"costPerPerson,omitempty"`
 
-	CreatedAt int64 `json:"createdAt"`
-	UpdatedAt int64 `json:"updatedAt"`
+	CreatedAt time.Time `json:"createdAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
 }

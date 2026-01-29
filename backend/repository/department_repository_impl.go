@@ -8,7 +8,12 @@ import (
 
 	"gorm.io/gorm"
 )
-
+type DepartmentStaffCount struct {
+	ID         int
+	Name       string
+	Division   model.Division
+	TotalStaff int64
+}
 type DepartmentRepositoryImpl struct {
 	Db *gorm.DB
 }
@@ -118,12 +123,7 @@ func (r *DepartmentRepositoryImpl) Delete(departmentId int) error {
 	return nil
 }
 
-type DepartmentStaffCount struct {
-	ID         int
-	Name       string
-	Division   model.Division
-	TotalStaff int64
-}
+
 
 func (r *DepartmentRepositoryImpl) FindAllPaginated(offset, limit int) ([]DepartmentStaffCount, int64, error) {
 	var result []DepartmentStaffCount
