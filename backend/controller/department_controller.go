@@ -108,3 +108,16 @@ func (c *DepartmentController) FindPaginated(ctx *fiber.Ctx) error {
 		Data:    departments,
 	})
 }
+
+func (c *DepartmentController) GetDepartmentsList(ctx *fiber.Ctx) error {
+	departments, err := c.departmentService.FindDepartmentList()
+	if err != nil {
+		return err
+	}
+
+	return ctx.Status(fiber.StatusOK).JSON(response.Response{
+		Status:  "SUCCESS",
+		Message: "Departments list retrieved successfully",
+		Data:    departments,
+	})
+}

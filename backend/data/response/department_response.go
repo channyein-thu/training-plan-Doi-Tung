@@ -8,3 +8,8 @@ type DepartmentResponse struct {
 	Division   model.Division `json:"division"`
 	TotalStaff int64          `json:"totalStaff"`
 }
+
+type DepartmentListItem struct {
+	ID   int    `json:"id"`
+	Name string `json:"name"`
+}

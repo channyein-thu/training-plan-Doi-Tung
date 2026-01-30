@@ -156,6 +156,40 @@ func (d *DepartmentServiceImpl) FindById(departmentId int) (response.DepartmentR
 	return resp, nil
 }
 
+func (d *DepartmentServiceImpl) FindDepartmentList() ([]response.DepartmentListItem, error) {
+	cacheKey:= "department:list"
+
+	// CACHE HIT
+	cached, err := d.cache.Get(config.Ctx, cacheKey).Result()
+	if err == nil {
+		var resp []response.DepartmentListItem
+		_ = json.Unmarshal([]byte(cached), &resp)
+		log.Println("CACHE HIT:", cacheKey)
+		return resp, nil
+	} else if err != redis.Nil {
+		log.Println("Redis error:", err)
+	}
+
+	// CACHE MISS
+	result:= []response.DepartmentListItem{}
+
+	departments,  err := d.repo.FindDepartmentList()
+	if err != nil {
+		return result, err
+	}
+
+	for _, dept := range departments {
+		result = append(result, response.DepartmentListItem{
+			ID:   dept.ID,
+			Name: fmt.Sprintf("%s (%s)", dept.Name, dept.Division),
+		})
+	}
+
+	bytes, _ := json.Marshal(result)
+	_ = d.cache.Set(config.Ctx, cacheKey, bytes, time.Minute*10).Err()
+
+	return result, nil
+	}
 
 // Update implements DepartmentService.
 func (d *DepartmentServiceImpl) Update(departmentId int, req request.UpdateDepartmentRequest) error {

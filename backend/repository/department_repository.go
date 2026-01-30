@@ -74,7 +74,7 @@ func (r *DepartmentRepositoryImpl) FindByIdWithStaffCount(departmentId int) (Dep
 	return result, nil
 }
 
-func (r *DepartmentRepositoryImpl) FindAll() ([]model.Department, error) {
+func (r *DepartmentRepositoryImpl) FindDepartmentList() ([]model.Department, error) {
 	var departments []model.Department
 	err := r.Db.Order("id ASC").Find(&departments).Error
 	return departments, err

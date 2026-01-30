@@ -19,4 +19,5 @@ type DepartmentService interface {
 	Delete(int) error
 	FindById(int) (response.DepartmentResponse, error)
 	FindPaginated(page, pageSize int) (response.PaginatedResponse[response.DepartmentResponse], error)
+	FindDepartmentList() ([]response.DepartmentListItem, error)
 }
