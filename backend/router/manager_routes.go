@@ -15,8 +15,9 @@ func ManagerRoutes(r fiber.Router, deps *container.AppDependencies) {
 		})
 	})
 
-	// // User (read-only)
-	// r.Get("/users/:id", deps.UserController.FindById)
+	// User management (Manager can only create users in their department)
+	r.Post("/users", deps.UserController.ManagerCreate)
+	r.Get("/users", deps.UserController.ManagerFindDepartmentUsers)
 
 	// // Department (with staff list)
 	// r.Get("/departments/:id", deps.DepartmentController.FindByIdWithStaff)

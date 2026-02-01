@@ -1,6 +1,8 @@
 package controller
 
 import (
+	"time"
+
 	"training-plan-api/helper"
 	"training-plan-api/model"
 	"training-plan-api/utils"
@@ -86,18 +88,112 @@ func (ac *AuthController) handleLogin(c *fiber.Ctx, role model.Role) error {
 		return helper.Unauthorized("Invalid credentials")
 	}
 
-	token, err := utils.GenerateToken(user.ID, string(user.Role))
+	accessToken, err := utils.GenerateAccessToken(user.ID, string(user.Role))
 	if err != nil {
-		return helper.InternalServerError("Failed to generate token")
+		return helper.InternalServerError("Failed to generate access token")
 	}
 
-	ac.db.Model(&user).Update("jwt", token)
+	refreshToken, err := utils.GenerateRefreshToken()
+	if err != nil {
+		return helper.InternalServerError("Failed to generate refresh token")
+	}
+
+	ac.db.Model(&model.RefreshToken{}).
+		Where("user_id = ? AND revoked = ?", user.ID, false).
+		Update("revoked", true)
+
+	refreshTokenRecord := model.RefreshToken{
+		UserID:    user.ID,
+		Token:     refreshToken,
+		ExpiresAt: time.Now().Add(utils.RefreshTokenExpiry),
+		Revoked:   false,
+	}
+	if err := ac.db.Create(&refreshTokenRecord).Error; err != nil {
+		return helper.InternalServerError("Failed to store refresh token")
+	}
+
+	utils.SetAccessTokenCookie(c, accessToken)
+	utils.SetRefreshTokenCookie(c, refreshToken)
 
 	return c.JSON(fiber.Map{
 		"success": true,
 		"message": "Login successful",
-		"token":   token,
 		"user":    ac.buildUserResponse(&user),
+	})
+}
+
+func (ac *AuthController) Refresh(c *fiber.Ctx) error {
+	refreshToken := utils.GetRefreshTokenFromCookie(c)
+	if refreshToken == "" {
+		return helper.Unauthorized("Refresh token required")
+	}
+
+	var tokenRecord model.RefreshToken
+	if err := ac.db.Where("token = ?", refreshToken).First(&tokenRecord).Error; err != nil {
+		return helper.Unauthorized("Invalid refresh token")
+	}
+
+	if !tokenRecord.IsValid() {
+		utils.ClearAuthCookies(c)
+		return helper.Unauthorized("Refresh token is invalid or expired")
+	}
+
+	var user model.User
+	if err := ac.db.First(&user, tokenRecord.UserID).Error; err != nil {
+		return helper.Unauthorized("User not found")
+	}
+
+	if user.Status != model.UserStatusActive {
+		ac.db.Model(&tokenRecord).Update("revoked", true)
+		utils.ClearAuthCookies(c)
+		return helper.Unauthorized("Account is deactivated")
+	}
+
+	ac.db.Model(&tokenRecord).Update("revoked", true)
+
+	newAccessToken, err := utils.GenerateAccessToken(user.ID, string(user.Role))
+	if err != nil {
+		return helper.InternalServerError("Failed to generate access token")
+	}
+
+	newRefreshToken, err := utils.GenerateRefreshToken()
+	if err != nil {
+		return helper.InternalServerError("Failed to generate refresh token")
+	}
+
+	newTokenRecord := model.RefreshToken{
+		UserID:    user.ID,
+		Token:     newRefreshToken,
+		ExpiresAt: time.Now().Add(utils.RefreshTokenExpiry),
+		Revoked:   false,
+	}
+	if err := ac.db.Create(&newTokenRecord).Error; err != nil {
+		return helper.InternalServerError("Failed to store refresh token")
+	}
+
+	utils.SetAccessTokenCookie(c, newAccessToken)
+	utils.SetRefreshTokenCookie(c, newRefreshToken)
+
+	return c.JSON(fiber.Map{
+		"success": true,
+		"message": "Tokens refreshed successfully",
+	})
+}
+
+func (ac *AuthController) Logout(c *fiber.Ctx) error {
+	refreshToken := utils.GetRefreshTokenFromCookie(c)
+
+	if refreshToken != "" {
+		ac.db.Model(&model.RefreshToken{}).
+			Where("token = ?", refreshToken).
+			Update("revoked", true)
+	}
+
+	utils.ClearAuthCookies(c)
+
+	return c.JSON(fiber.Map{
+		"success": true,
+		"message": "Logged out successfully",
 	})
 }
 

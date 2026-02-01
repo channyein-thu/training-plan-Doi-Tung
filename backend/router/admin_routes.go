@@ -28,12 +28,12 @@ func AdminRoutes(r fiber.Router, deps *container.AppDependencies) {
 	// Department List for assigning to users
 	r.Get("/departments-list", deps.DepartmentController.GetDepartmentsList)
 
-
-	// // User management
-	// r.Post("/users", deps.UserController.Create) // creator role check in service
-	// r.Put("/users/:id", deps.UserController.Update)
-	// r.Delete("/users/:id", deps.UserController.Delete)
-	// r.Get("/users/:id", deps.UserController.FindByIdWithCertificates)
+	// User management (Admin has full CRUD)
+	r.Post("/users", deps.UserController.AdminCreate)
+	r.Put("/users/:id", deps.UserController.AdminUpdate)
+	r.Delete("/users/:id", deps.UserController.AdminDelete)
+	r.Get("/users", deps.UserController.AdminFindAll)
+	r.Get("/users/:id", deps.UserController.AdminFindById)
 
 	// Course management
 	r.Post("/courses", deps.CourseController.Create)

@@ -2,10 +2,10 @@ package router
 
 import (
 	"training-plan-api/container"
+	"training-plan-api/middleware"
 
 	"github.com/gofiber/fiber/v2"
 )
-
 
 func RegisterRoutes(app *fiber.App, deps *container.AppDependencies) {
 	api := app.Group("/api/v1")
@@ -13,23 +13,19 @@ func RegisterRoutes(app *fiber.App, deps *container.AppDependencies) {
 	// Public routes
 	AuthRoutes(api, deps.AuthController)
 
-	// Protected routes
-	// api.Use(middleware.JWTProtected)
-
-	// Role-based routes
+	// Role-based routes with JWT and role middleware
 	AdminRoutes(
-		api.Group("/admin", ),
+		api.Group("/admin", middleware.JWTProtected, middleware.AdminOnly),
 		deps,
 	)
 
 	ManagerRoutes(
-		api.Group("/manager", ),
-		// api.Group("/manager", middleware.RequireRole("MANAGER")),
+		api.Group("/manager", middleware.JWTProtected, middleware.ManagerOnly),
 		deps,
 	)
 
 	StaffRoutes(
-		api.Group("/staff", ),
+		api.Group("/staff", middleware.JWTProtected, middleware.StaffOnly),
 		deps,
 	)
 }
