@@ -16,6 +16,7 @@ type AppDependencies struct {
 	DepartmentController *controller.DepartmentController
 	CourseController     *controller.CourseController
 	AuthController       *controller.AuthController
+	UserController       *controller.UserController
 }
 
 func NewAppDependencies(
@@ -45,9 +46,15 @@ func NewAppDependencies(
 	// ---------- Auth ----------
 	authController := controller.NewAuthController(db)
 
+	// ---------- User ----------
+	userRepo := repository.NewUserRepositoryImpl(db)
+	userService := service.NewUserServiceImpl(userRepo, departmentRepo, validate)
+	userController := controller.NewUserController(userService, db)
+
 	return &AppDependencies{
 		DepartmentController: departmentController,
 		CourseController:     courseController,
 		AuthController:       authController,
+		UserController:       userController,
 	}
 }

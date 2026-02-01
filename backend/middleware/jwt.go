@@ -10,25 +10,30 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
+
 func JWTProtected(c *fiber.Ctx) error {
-	authHeader := c.Get("Authorization")
-	if authHeader == "" {
+	var tokenString string
+
+	tokenString = utils.GetAccessTokenFromCookie(c)
+
+	if tokenString == "" {
+		authHeader := c.Get("Authorization")
+		if authHeader != "" {
+			parts := strings.Split(authHeader, " ")
+			if len(parts) == 2 && parts[0] == "Bearer" {
+				tokenString = parts[1]
+			}
+		}
+	}
+
+	if tokenString == "" {
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
 			"success": false,
-			"message": "Missing authorization header",
+			"message": "Authentication required",
 		})
 	}
 
-	parts := strings.Split(authHeader, " ")
-	if len(parts) != 2 || parts[0] != "Bearer" {
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			"success": false,
-			"message": "Invalid authorization header format",
-		})
-	}
-
-	tokenString := parts[1]
-	claims, err := utils.VerifyToken(tokenString)
+	claims, err := utils.VerifyAccessToken(tokenString)
 	if err != nil {
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
 			"success": false,
