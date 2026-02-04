@@ -1,19 +1,18 @@
 "use client";
 
 import {
-  ArchiveIcon,
+  AwardIcon,
+  BellIcon,
   BookOpen,
   Calendar,
   DownloadIcon,
-  GoalIcon,
   Home,
   Inbox,
   Notebook,
-  PersonStandingIcon,
-  SaveIcon,
+  NotebookIcon,
   Search,
-  Settings,
   User,
+  UsersIcon,
 } from "lucide-react";
 
 import {
@@ -41,37 +40,37 @@ const items = [
   {
     title: "Department-Staff",
     url: "/department-staff",
-    icon: Inbox,
+    icon: UsersIcon,
   },
   {
     title: "Register Staff",
-    url: "/user-management",
+    url: "/register-staff",
     icon: User,
   },
   {
-    title: "Training Categories",
-    url: "/training-categories",
-    icon: Search,
+    title: "OJT Records",
+    url: "/ojt-records",
+    icon: NotebookIcon,
   },
   {
-    title: "Calendar",
-    url: "/calendar",
-    icon: Calendar,
+    title: "My Certificates",
+    url: "/my-certificates",
+    icon: AwardIcon,
   },
   {
-    title: "Training Plans",
-    url: "/training-plans",
-    icon: BookOpen,
+    title: "Upload Certificate",
+    url: "/upload-certificate",
+    icon: DownloadIcon,
   },
   {
-    title: "Training Records",
-    url: "/training-records",
+    title: "My Training Records",
+    url: "/my-training-records",
     icon: Notebook,
   },
   {
-    title: "Uploaded Certificates",
-    url: "/uploaded-certificates",
-    icon: DownloadIcon,
+    title: "Notifications",
+    url: "/notifications",
+    icon: BellIcon,
   },
 ];
 
