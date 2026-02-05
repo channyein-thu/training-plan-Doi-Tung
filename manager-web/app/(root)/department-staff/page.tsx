@@ -2,6 +2,7 @@ import PageHeader from "@/components/dashboard/pageHeader";
 import AddStaffForm from "@/components/department-staff/addStaffForm";
 import ButtonDialog from "@/components/department-staff/buttonDialog";
 import { Button } from "@/components/ui/button";
+import { Search } from "lucide-react";
 import React from "react";
 
 function DepartmentStaffPage() {
@@ -17,6 +18,18 @@ function DepartmentStaffPage() {
             </ButtonDialog>
           }
         />
+
+        {/* Search bar */}
+        <div className="border border-[#006022] rounded-lg p-2 flex items-center gap-2 mt-6">
+          <Search className="text-gray-400" />
+          <input
+            type="text"
+            placeholder="Search departments..."
+            className="w-full outline-none border-none focus:ring-0"
+            // value={searchTerm} // ✅ controlled value
+            // onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
       </div>
     </>
   );
