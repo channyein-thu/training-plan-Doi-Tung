@@ -54,51 +54,24 @@ func main() {
 	calendarService := helper.NewGoogleCalendarService(context.Background())
 	location := helper.LoadLocation()
 
+	// Initialize storage
+	storage := helper.NewLocalStorage(appConfig.UploadPath)
+
 	deps := container.NewAppDependencies(
 		db,
 		redisClient,
 		validate,
 		calendarService,
 		location,
+		storage,
 	)
 
 	//  Routes
 	router.RegisterRoutes(app, deps)
+
+	// Serve static files for uploads
+	app.Static("/uploads", appConfig.UploadPath)
 	
 
 	log.Fatal(app.Listen(":8080"))
 }
-
-
-// //  Dependency Injection
-// 	departmentRepository := repository.NewDepartmentRepositoryImpl(db)
-// 	departmentService := service.NewDepartmentServiceImpl(departmentRepository, validate, redisClient)
-// 	departmentController := controller.NewDepartmentController(departmentService)
-
-// 	// Course Injection
-// 	courseRepo := repository.NewCourseRepositoryImpl(db)
-// 	courseService := service.NewCourseServiceImpl(
-// 		courseRepo,
-// 		redisClient,
-// 		validate,
-// 		calendarService,
-// 		location,
-// 	)
-// 	courseController := controller.NewCourseController(courseService)
-
-// 	// Auth Injection
-// 	authController := controller.NewAuthController(db)
-
-// 	//  Routes
-// 	api := app.Group("/api/v1")
-
-// 	api.Get("/healthchecker", func(c *fiber.Ctx) error {
-// 		return c.Status(200).JSON(fiber.Map{
-// 			"status":  "success",
-// 			"message": "Training Plan API is running",
-// 		})
-// 	})
-
-// 	router.DepartmentRoutes(api, departmentController)
-// 	router.CourseRoutes(api, courseController)
-// 	router.AuthRoutes(api, authController)

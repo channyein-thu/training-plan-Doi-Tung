@@ -37,7 +37,10 @@ type Certificate struct {
 	UserID uint `gorm:"not null;index"`
 	User   *User `gorm:"foreignKey:UserID"`
 
-	TrainingName string `gorm:"type:varchar(255);not null"`
+	// TrainingName string `gorm:"type:varchar(255);not null"`
+	TrainingID    uint `gorm:"not null;index"`
+	Training     *Course `gorm:"foreignKey:TrainingID"`
+
 	Image        string `gorm:"type:text;not null"`
 	Description  *string `gorm:"type:text"`
 

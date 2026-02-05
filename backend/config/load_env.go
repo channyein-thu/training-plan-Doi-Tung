@@ -8,6 +8,7 @@ type Config struct {
 	DBName string `mapstructure:"MYSQL_DATABASE"`
 	DBUser string `mapstructure:"MYSQL_USER"`
 	DBPass string `mapstructure:"MYSQL_PASSWORD"`
+	UploadPath string `mapstructure:"UPLOAD_PATH"`
 }
 
 func LoadConfig(path string) (Config, error) {

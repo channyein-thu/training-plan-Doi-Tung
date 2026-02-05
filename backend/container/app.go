@@ -3,6 +3,7 @@ package container
 import (
 	"time"
 	"training-plan-api/controller"
+	"training-plan-api/helper"
 	"training-plan-api/repository"
 	"training-plan-api/service"
 
@@ -17,6 +18,7 @@ type AppDependencies struct {
 	CourseController     *controller.CourseController
 	AuthController       *controller.AuthController
 	UserController       *controller.UserController
+	CertificateController *controller.CertificateController
 }
 
 func NewAppDependencies(
@@ -25,7 +27,12 @@ func NewAppDependencies(
 	validate *validator.Validate,
 	calendarService *calendar.Service,
 	location *time.Location,
+	storage helper.Storage,
 ) *AppDependencies {
+		// ---------- Certificate ----------
+	certificateRepo := repository.NewCertificateRepositoryImpl(db)
+	certificateService := service.NewCertificateServiceImpl(certificateRepo, validate, redis, storage)
+	certificateController := controller.NewCertificateController(certificateService)
 
 	// ---------- Department ----------
 	departmentRepo := repository.NewDepartmentRepositoryImpl(db)
@@ -56,5 +63,6 @@ func NewAppDependencies(
 		CourseController:     courseController,
 		AuthController:       authController,
 		UserController:       userController,
-	}
+		CertificateController: certificateController,
+}
 }
