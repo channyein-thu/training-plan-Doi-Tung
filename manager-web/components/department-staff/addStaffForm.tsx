@@ -13,7 +13,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
+import { email, z } from "zod";
 import {
   DialogClose,
   DialogDescription,
@@ -21,11 +21,21 @@ import {
   DialogHeader,
   DialogTitle,
 } from "../ui/dialog";
-import { Label } from "../ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const formSchema = z.object({
   name: z.string().min(2).max(50),
-  division: z.string().min(2).max(50),
+  empId: z.string().min(2).max(50),
+  email: z.string().email(),
+  phone: z.string().min(10).max(15),
+  status: z.enum(["active", "inactive", "suspended"]),
 });
 
 function DialogForm() {
@@ -33,7 +43,10 @@ function DialogForm() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
-      division: "",
+      empId: "",
+      email: "",
+      phone: "",
+      status: "active",
     },
   });
 
@@ -46,18 +59,18 @@ function DialogForm() {
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
         <DialogHeader>
-          <DialogTitle>Add New Department</DialogTitle>
+          <DialogTitle>Add New Staff</DialogTitle>
         </DialogHeader>
 
-        <div className="grid gap-4 mt-4">
+        <div className="grid grid-cols-2 gap-4 mt-4">
           <FormField
             control={form.control}
             name="name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Add Department Name</FormLabel>
+                <FormLabel>Add Staff Name</FormLabel>
                 <FormControl>
-                  <Input placeholder="Enter Department Name" {...field} />
+                  <Input placeholder="Enter Staff Name" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -66,13 +79,69 @@ function DialogForm() {
 
           <FormField
             control={form.control}
-            name="division"
+            name="empId"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Add Division Name</FormLabel>
+                <FormLabel>Add Employee ID</FormLabel>
                 <FormControl>
-                  <Input placeholder="Enter Division Name" {...field} />
+                  <Input placeholder="Enter Employee ID" {...field} />
                 </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+        <div className="grid grid-cols-2 gap-4 mt-4">
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Email</FormLabel>
+                <FormControl>
+                  <Input placeholder="Enter Email" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="phone"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Phone</FormLabel>
+                <FormControl>
+                  <Input placeholder="Enter Phone" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        <div className="flex flex-col gap-4 mt-4">
+          <FormField
+            control={form.control}
+            name="status"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>User Status</FormLabel>
+
+                <Select value={field.value} onValueChange={field.onChange}>
+                  <FormControl>
+                    <SelectTrigger className="w-[265px]">
+                      <SelectValue placeholder="Select status" />
+                    </SelectTrigger>
+                  </FormControl>
+
+                  <SelectContent>
+                    <SelectItem value="active">Active</SelectItem>
+                    <SelectItem value="inactive">Inactive</SelectItem>
+                    <SelectItem value="suspended">Suspended</SelectItem>
+                  </SelectContent>
+                </Select>
+
                 <FormMessage />
               </FormItem>
             )}
