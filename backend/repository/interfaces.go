@@ -32,7 +32,7 @@ type DepartmentRepository interface {
 
 type CertificateRepository interface {
 	Save(certificate *model.Certificate) error
-	FindById(id int) (model.Certificate, error)
+	FindById(id int) (*model.Certificate, error)
 	FindByUserId(userId int) ([]model.Certificate, error)
 	Delete(id int) error
 	FindAllPending(offset, limit int) ([]model.Certificate, int64, error)

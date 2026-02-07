@@ -11,149 +11,126 @@ import (
 )
 
 type CertificateController struct {
-	certificateService service.CertificateService
+	service service.CertificateService
 }
 
-func NewCertificateController(certificateService service.CertificateService) *CertificateController {
-	return &CertificateController{
-		certificateService: certificateService,
-	}
-}	
+func NewCertificateController(service service.CertificateService) *CertificateController {
+	return &CertificateController{service: service}
+}
 
+// ================= USER =================
 
 func (c *CertificateController) FindByCurrentUser(ctx *fiber.Ctx) error {
 	userID := ctx.Locals("user_id").(uint)
 
-	certificates, err := c.certificateService.FindByCurrentUser(userID)
+	result, err := c.service.FindByCurrentUser(userID)
 	if err != nil {
 		return err
 	}
 
-	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{
-		"success": true,
-		"data":    certificates,
+	return ctx.Status(fiber.StatusOK).JSON(response.Response{
+		Status: "SUCCESS",
+		Data:   result,
 	})
 }
 
 func (c *CertificateController) Upload(ctx *fiber.Ctx) error {
 	userID := ctx.Locals("user_id").(uint)
 
-	// Parse multipart form
-	form, err := ctx.MultipartForm()
-	if err != nil {
-		return helper.BadRequest("Invalid form data")
-	}
-
-	// Get training ID
-	trainingIDStr := ctx.FormValue("trainingId")
-	if trainingIDStr == "" {
-		return helper.BadRequest("Training ID is required")
-	}
-
-	trainingID, err := strconv.ParseUint(trainingIDStr, 10, 32)
+	trainingID, err := strconv.Atoi(ctx.FormValue("trainingId"))
 	if err != nil {
 		return helper.BadRequest("Invalid training ID")
 	}
 
-	// Get file
-	files := form.File["image"]
-	if len(files) == 0 {
+	file, err := ctx.FormFile("image")
+	if err != nil {
 		return helper.BadRequest("Certificate image is required")
 	}
 
-	file := files[0]
-
-	// Get optional description
 	description := ctx.FormValue("description")
-	var descPtr *string
+	var desc *string
 	if description != "" {
-		descPtr = &description
+		desc = &description
 	}
 
 	req := request.CreateCertificateRequest{
 		TrainingID:   uint(trainingID),
-		Image:       file.Filename,
-		Description: descPtr,
+		Description: desc,
 	}
 
-	if err := c.certificateService.Upload(userID, req, file); err != nil {
+	if err := c.service.Upload(userID, req, file); err != nil {
 		return err
 	}
 
-	return ctx.Status(fiber.StatusCreated).JSON(fiber.Map{
-		"success": true,
-		"message": "Certificate uploaded successfully",
+	return ctx.Status(fiber.StatusCreated).JSON(response.Response{
+		Status:  "SUCCESS",
+		Message: "Certificate uploaded successfully",
 	})
 }
 
 func (c *CertificateController) Delete(ctx *fiber.Ctx) error {
 	userID := ctx.Locals("user_id").(uint)
 
-	certificateID, err := strconv.Atoi(ctx.Params("id"))
+	id, err := strconv.Atoi(ctx.Params("id"))
 	if err != nil {
 		return helper.BadRequest("Invalid certificate ID")
 	}
 
-	if err := c.certificateService.Delete(certificateID, userID); err != nil {
+	if err := c.service.Delete(id, userID); err != nil {
 		return err
-	}
-
-	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{
-		"success": true,
-		"message": "Certificate deleted successfully",
-	})
-}
-func (c *CertificateController) FindAllPending(ctx *fiber.Ctx) error {
-	page, err := strconv.Atoi(ctx.Query("page", "1"))
-	if err != nil {
-		page = 1
-	}
-
-	limit, err := strconv.Atoi(ctx.Query("limit", "10"))
-	if err != nil {
-		limit = 10
-	}
-
-	result, err := c.certificateService.FindAllPending(page, limit)
-	if err != nil {
-		return err // handled by global error middleware
 	}
 
 	return ctx.Status(fiber.StatusOK).JSON(response.Response{
 		Status:  "SUCCESS",
-		Message: "Pending certificates retrieved successfully",
-		Data:    result,
+		Message: "Certificate deleted successfully",
+	})
+}
+
+// ================= ADMIN =================
+
+func (c *CertificateController) FindAllPending(ctx *fiber.Ctx) error {
+	page, _ := strconv.Atoi(ctx.Query("page", "1"))
+	limit, _ := strconv.Atoi(ctx.Query("limit", "10"))
+
+	result, err := c.service.FindAllPending(page, limit)
+	if err != nil {
+		return err
+	}
+
+	return ctx.Status(fiber.StatusOK).JSON(response.Response{
+		Status: "SUCCESS",
+		Data:   result,
 	})
 }
 
 func (c *CertificateController) Approve(ctx *fiber.Ctx) error {
-	certificateID, err := strconv.Atoi(ctx.Params("id"))
+	id, err := strconv.Atoi(ctx.Params("id"))
 	if err != nil {
 		return helper.BadRequest("Invalid certificate ID")
 	}
 
-	if err := c.certificateService.Approve(certificateID); err != nil {
+	if err := c.service.Approve(id); err != nil {
 		return err
 	}
 
-	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{
-		"success": true,
-		"message": "Certificate approved successfully",
+	return ctx.Status(fiber.StatusOK).JSON(response.Response{
+		Status:  "SUCCESS",
+		Message: "Certificate approved successfully",
 	})
 }
 
 func (c *CertificateController) Reject(ctx *fiber.Ctx) error {
-	certificateID, err := strconv.Atoi(ctx.Params("id"))
+	id, err := strconv.Atoi(ctx.Params("id"))
 	if err != nil {
 		return helper.BadRequest("Invalid certificate ID")
 	}
 
-	if err := c.certificateService.Reject(certificateID); err != nil {
+	if err := c.service.Reject(id); err != nil {
 		return err
 	}
 
-	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{
-		"success": true,
-		"message": "Certificate rejected successfully",
+	return ctx.Status(fiber.StatusOK).JSON(response.Response{
+		Status:  "SUCCESS",
+		Message: "Certificate rejected successfully",
 	})
 }

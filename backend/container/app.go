@@ -31,7 +31,7 @@ func NewAppDependencies(
 ) *AppDependencies {
 		// ---------- Certificate ----------
 	certificateRepo := repository.NewCertificateRepositoryImpl(db)
-	certificateService := service.NewCertificateServiceImpl(certificateRepo, validate, redis, storage)
+	certificateService := service.NewCertificateServiceImpl(certificateRepo, validate, storage)
 	certificateController := controller.NewCertificateController(certificateService)
 
 	// ---------- Department ----------

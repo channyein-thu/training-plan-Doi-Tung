@@ -15,30 +15,28 @@ import (
 	"training-plan-api/repository"
 
 	"github.com/go-playground/validator/v10"
-	"github.com/redis/go-redis/v9"
 )
 
 type CertificateServiceImpl struct {
 	repo     repository.CertificateRepository
 	validate *validator.Validate
-	cache    *redis.Client
 	storage  helper.Storage
 }
+
 func NewCertificateServiceImpl(
 	repo repository.CertificateRepository,
 	validate *validator.Validate,
-	redisClient *redis.Client,
 	storage helper.Storage,
 ) CertificateService {
 	return &CertificateServiceImpl{
 		repo:     repo,
 		validate: validate,
-		cache:    redisClient,
 		storage:  storage,
 	}
 }
 
-// Approve implements CertificateService.
+// ================= ADMIN =================
+
 func (c *CertificateServiceImpl) Approve(certificateID int) error {
 	cert, err := c.repo.FindById(certificateID)
 	if err != nil {
@@ -52,11 +50,31 @@ func (c *CertificateServiceImpl) Approve(certificateID int) error {
 	return c.repo.UpdateStatus(certificateID, model.CertApproved)
 }
 
+func (c *CertificateServiceImpl) Reject(certificateID int) error {
+	cert, err := c.repo.FindById(certificateID)
+	if err != nil {
+		return err
+	}
 
-// FindAllPending implements CertificateService.
+	if cert.Status != model.CertPending {
+		return helper.BadRequest("certificate is not pending")
+	}
+
+	if err := c.repo.Delete(certificateID); err != nil {
+		return err
+	}
+
+	if cert.Image != "" {
+		if err := c.storage.Delete(cert.Image); err != nil {
+			log.Println("⚠ failed to delete certificate file:", err)
+		}
+	}
+
+	return nil
+}
+
 func (c *CertificateServiceImpl) FindAllPending(
-	page int,
-	limit int,
+	page, limit int,
 ) (response.PaginatedResponse[response.CertificateResponse], error) {
 
 	if page <= 0 {
@@ -103,53 +121,23 @@ func (c *CertificateServiceImpl) FindAllPending(
 	}, nil
 }
 
-// Reject implements CertificateService.
-func (c *CertificateServiceImpl) Reject(certificateID int) error {
-	// Find certificate
-	cert, err := c.repo.FindById(certificateID)
-	if err != nil {
-		return err
-	}
+// ================= USER =================
 
-	// Only pending certificates can be rejected
-	if cert.Status != model.CertPending {
-		return helper.BadRequest("certificate is not pending")
-	}
+func (c *CertificateServiceImpl) FindByCurrentUser(
+	userID uint,
+) ([]response.CertificateResponse, error) {
 
-	// Delete DB record FIRST
-	if err := c.repo.Delete(certificateID); err != nil {
-		return err
-	}
-
-	// Best-effort file delete
-	if cert.Image != "" {
-		if err := c.storage.Delete(cert.Image); err != nil {
-			// Do NOT fail request – DB already clean
-			// Just log it
-			log.Println("⚠ failed to delete certificate file:", err)
-		}
-	}
-
-	return nil
-}
-
-
-
-
-// GET CERTIFICATES BY CURRENT USER
-func (c *CertificateServiceImpl) FindByCurrentUser(userID uint) ([]response.CertificateResponse, error) {
 	certificates, err := c.repo.FindByUserId(int(userID))
 	if err != nil {
 		return nil, err
 	}
 
 	responses := make([]response.CertificateResponse, 0, len(certificates))
-
 	for _, cert := range certificates {
 		resp := response.CertificateResponse{
 			ID:          cert.ID,
 			UserID:      cert.UserID,
-			Image:       cert.Image, // object path
+			Image:       cert.Image,
 			Description: cert.Description,
 			Status:      string(cert.Status),
 			CreatedAt:   cert.CreatedAt,
@@ -159,7 +147,6 @@ func (c *CertificateServiceImpl) FindByCurrentUser(userID uint) ([]response.Cert
 		if cert.User != nil {
 			resp.UserName = cert.User.Name
 		}
-
 		if cert.Training != nil {
 			resp.TrainingID = cert.TrainingID
 			resp.TrainingName = cert.Training.Name
@@ -171,7 +158,6 @@ func (c *CertificateServiceImpl) FindByCurrentUser(userID uint) ([]response.Cert
 	return responses, nil
 }
 
-// UPLOAD CERTIFICATE (WITH ROLLBACK)
 func (c *CertificateServiceImpl) Upload(
 	userID uint,
 	req request.CreateCertificateRequest,
@@ -182,14 +168,12 @@ func (c *CertificateServiceImpl) Upload(
 		return helper.ValidationError(helper.FormatValidationError(err))
 	}
 
-	// Open uploaded file
 	file, err := fileHeader.Open()
 	if err != nil {
 		return helper.BadRequest("Failed to open uploaded file")
 	}
 	defer file.Close()
 
-	// Generate object path (NOT URL)
 	ext := filepath.Ext(fileHeader.Filename)
 	objectPath := fmt.Sprintf(
 		"certificates/user_%d/%d%s",
@@ -198,7 +182,6 @@ func (c *CertificateServiceImpl) Upload(
 		ext,
 	)
 
-	// Upload to storage
 	if _, err := c.storage.Upload(
 		objectPath,
 		file,
@@ -207,18 +190,15 @@ func (c *CertificateServiceImpl) Upload(
 		return helper.Internal("Failed to upload certificate")
 	}
 
-	// Prepare DB record
 	certificate := &model.Certificate{
 		UserID:      userID,
 		TrainingID:  req.TrainingID,
-		Image:       objectPath, // STORE OBJECT PATH
+		Image:       objectPath,
 		Description: req.Description,
 		Status:      model.CertPending,
 	}
 
-	// Save DB record
 	if err := c.repo.Save(certificate); err != nil {
-		// ROLLBACK FILE if DB fails
 		_ = c.storage.Delete(objectPath)
 		return err
 	}
@@ -226,24 +206,24 @@ func (c *CertificateServiceImpl) Upload(
 	return nil
 }
 
-// DELETE CERTIFICATE (DB FIRST, FILE SECOND)
-func (c *CertificateServiceImpl) Delete(certificateID int, userID uint) error {
+func (c *CertificateServiceImpl) Delete(
+	certificateID int,
+	userID uint,
+) error {
+
 	certificate, err := c.repo.FindById(certificateID)
 	if err != nil {
 		return err
 	}
 
-	// Ownership check
 	if certificate.UserID != userID {
 		return helper.Forbidden("You don't have permission to delete this certificate")
 	}
 
-	// Delete DB record first
 	if err := c.repo.Delete(certificateID); err != nil {
 		return err
 	}
 
-	// Best-effort file delete
 	if certificate.Image != "" {
 		_ = c.storage.Delete(certificate.Image)
 	}

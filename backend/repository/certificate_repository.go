@@ -1,13 +1,14 @@
 package repository
 
 import (
+	"errors"
 	"training-plan-api/helper"
 	"training-plan-api/model"
 
 	"gorm.io/gorm"
 )
 
-type CertificateRepositoryImpl struct{
+type CertificateRepositoryImpl struct {
 	DB *gorm.DB
 }
 
@@ -16,14 +17,21 @@ func NewCertificateRepositoryImpl(db *gorm.DB) CertificateRepository {
 }
 
 func (r *CertificateRepositoryImpl) Save(certificate *model.Certificate) error {
-	err := r.DB.Create(certificate).Error
-	return err
+	return r.DB.Create(certificate).Error
 }
 
-func (r *CertificateRepositoryImpl) FindById(id int) (model.Certificate, error) {
+func (r *CertificateRepositoryImpl) FindById(id int) (*model.Certificate, error) {
 	var certificate model.Certificate
+
 	err := r.DB.First(&certificate, id).Error
-	return certificate, err
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, helper.NotFound("certificate not found")
+		}
+		return nil, err
+	}
+
+	return &certificate, nil
 }
 
 func (r *CertificateRepositoryImpl) FindByUserId(userId int) ([]model.Certificate, error) {
@@ -33,6 +41,7 @@ func (r *CertificateRepositoryImpl) FindByUserId(userId int) ([]model.Certificat
 		Preload("User").
 		Preload("Training").
 		Where("user_id = ?", userId).
+		Order("created_at DESC").
 		Find(&certificates).
 		Error
 
@@ -41,9 +50,16 @@ func (r *CertificateRepositoryImpl) FindByUserId(userId int) ([]model.Certificat
 
 func (r *CertificateRepositoryImpl) Delete(id int) error {
 	result := r.DB.Delete(&model.Certificate{}, id)
-	return result.Error
-}
 
+	if result.Error != nil {
+		return result.Error
+	}
+	if result.RowsAffected == 0 {
+		return helper.NotFound("certificate not found")
+	}
+
+	return nil
+}
 
 func (r *CertificateRepositoryImpl) UpdateStatus(
 	id int,
@@ -56,7 +72,6 @@ func (r *CertificateRepositoryImpl) UpdateStatus(
 	if result.Error != nil {
 		return result.Error
 	}
-
 	if result.RowsAffected == 0 {
 		return helper.NotFound("certificate not found")
 	}
@@ -64,12 +79,11 @@ func (r *CertificateRepositoryImpl) UpdateStatus(
 	return nil
 }
 
-
 func (r *CertificateRepositoryImpl) FindAllPending(
 	offset, limit int,
 ) ([]model.Certificate, int64, error) {
 
-	var certs []model.Certificate
+	var certificates []model.Certificate
 	var total int64
 
 	r.DB.Model(&model.Certificate{}).
@@ -82,8 +96,8 @@ func (r *CertificateRepositoryImpl) FindAllPending(
 		Order("created_at DESC").
 		Offset(offset).
 		Limit(limit).
-		Find(&certs).
+		Find(&certificates).
 		Error
 
-	return certs, total, err
+	return certificates, total, err
 }
