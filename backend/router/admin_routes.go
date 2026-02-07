@@ -46,7 +46,7 @@ func AdminRoutes(r fiber.Router, deps *container.AppDependencies) {
 	// r.Get("/records", deps.RecordController.FindAllPaginated)
 
 	// // Certificates (approval flow)
-	// r.Get("/certificates", deps.CertificateController.FindAll)
-	// r.Put("/certificates/:id/approve", deps.CertificateController.Approve)
-	// r.Put("/certificates/:id/reject", deps.CertificateController.Reject)
+	r.Get("/certificates", deps.CertificateController.FindAllPending)
+	r.Put("/certificates/:id/approve", deps.CertificateController.Approve)
+	r.Put("/certificates/:id/reject", deps.CertificateController.Reject)
 }

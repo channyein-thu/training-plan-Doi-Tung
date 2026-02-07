@@ -35,6 +35,8 @@ type CertificateRepository interface {
 	FindById(id int) (model.Certificate, error)
 	FindByUserId(userId int) ([]model.Certificate, error)
 	Delete(id int) error
+	FindAllPending(offset, limit int) ([]model.Certificate, int64, error)
+	UpdateStatus(id int, status model.CertificateStatus) error
 }
 
 type UserRepository interface {

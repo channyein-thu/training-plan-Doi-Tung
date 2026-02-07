@@ -8,6 +8,7 @@ type CertificateResponse struct {
 	UserID   uint   `json:"userId"`
 	UserName string `json:"userName"`
 
+	TrainingID   uint   `json:"trainingId"`
 	TrainingName string  `json:"trainingName"`
 	Image        string  `json:"image"`
 	Description  *string `json:"description,omitempty"`

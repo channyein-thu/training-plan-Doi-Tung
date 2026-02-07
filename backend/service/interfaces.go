@@ -38,4 +38,7 @@ type CertificateService interface {
 	FindByCurrentUser(userID uint) ([]response.CertificateResponse, error)
 	Upload(userID uint, req request.CreateCertificateRequest, file *multipart.FileHeader) error
 	Delete(certificateID int, userID uint) error
+	FindAllPending(	page int,limit int,) (response.PaginatedResponse[response.CertificateResponse], error)
+	Approve(certificateID int) error
+	Reject(certificateID int) error
 }

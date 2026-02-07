@@ -9,6 +9,7 @@ import (
 	"training-plan-api/helper"
 	"training-plan-api/middleware"
 	"training-plan-api/router"
+	"training-plan-api/seed"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
@@ -31,6 +32,7 @@ func main() {
 
 	//  DB and migration
 	db := config.ConnectionDB(&appConfig)
+	seed.SeedAdmin(db)/// for development purpose only////////////
 
 	// Init Redis
 	redisClient := config.NewRedisClient()

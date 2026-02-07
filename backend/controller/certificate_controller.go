@@ -3,6 +3,7 @@ package controller
 import (
 	"strconv"
 	"training-plan-api/data/request"
+	"training-plan-api/data/response"
 	"training-plan-api/helper"
 	"training-plan-api/service"
 
@@ -100,5 +101,59 @@ func (c *CertificateController) Delete(ctx *fiber.Ctx) error {
 	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{
 		"success": true,
 		"message": "Certificate deleted successfully",
+	})
+}
+func (c *CertificateController) FindAllPending(ctx *fiber.Ctx) error {
+	page, err := strconv.Atoi(ctx.Query("page", "1"))
+	if err != nil {
+		page = 1
+	}
+
+	limit, err := strconv.Atoi(ctx.Query("limit", "10"))
+	if err != nil {
+		limit = 10
+	}
+
+	result, err := c.certificateService.FindAllPending(page, limit)
+	if err != nil {
+		return err // handled by global error middleware
+	}
+
+	return ctx.Status(fiber.StatusOK).JSON(response.Response{
+		Status:  "SUCCESS",
+		Message: "Pending certificates retrieved successfully",
+		Data:    result,
+	})
+}
+
+func (c *CertificateController) Approve(ctx *fiber.Ctx) error {
+	certificateID, err := strconv.Atoi(ctx.Params("id"))
+	if err != nil {
+		return helper.BadRequest("Invalid certificate ID")
+	}
+
+	if err := c.certificateService.Approve(certificateID); err != nil {
+		return err
+	}
+
+	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{
+		"success": true,
+		"message": "Certificate approved successfully",
+	})
+}
+
+func (c *CertificateController) Reject(ctx *fiber.Ctx) error {
+	certificateID, err := strconv.Atoi(ctx.Params("id"))
+	if err != nil {
+		return helper.BadRequest("Invalid certificate ID")
+	}
+
+	if err := c.certificateService.Reject(certificateID); err != nil {
+		return err
+	}
+
+	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{
+		"success": true,
+		"message": "Certificate rejected successfully",
 	})
 }
