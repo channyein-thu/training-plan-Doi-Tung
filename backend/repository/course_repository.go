@@ -52,18 +52,18 @@ func (r *CourseRepositoryImpl) FindAll() ([]model.Course, error) {
 }
 
 // FindById implements CourseRepository.
-func (r *CourseRepositoryImpl) FindById(courseId int) (model.Course, error) {
+func (r *CourseRepositoryImpl) FindById(courseId int) (*model.Course, error) {
 	var course model.Course
 
 	result := r.Db.First(&course, courseId)
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-			return course, errors.New("course not found")
+			return nil, errors.New("course not found")
 		}
-		return course, result.Error
+		return nil, result.Error
 	}
 
-	return course, nil
+	return &course, nil
 }
 
 // Save implements CourseRepository.

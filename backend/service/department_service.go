@@ -42,7 +42,7 @@ func (d *DepartmentServiceImpl) Create(req request.CreateDepartmentRequest) erro
 	)
 	}
 
-	department := model.Department{
+	department := &model.Department{
 		Name: req.Name,
 		Division: req.Division,
 	}

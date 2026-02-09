@@ -19,8 +19,8 @@ func NewDepartmentRepositoryImpl(db *gorm.DB) DepartmentRepository {
 
 // -------------------- CRUD --------------------
 
-func (r *DepartmentRepositoryImpl) Save(department model.Department) error {
-	err := r.Db.Create(&department).Error
+func (r *DepartmentRepositoryImpl) Save(department *model.Department) error {
+	err := r.Db.Create(department).Error
 	if err != nil {
 		// MySQL duplicate entry error (1062)
 		if strings.Contains(err.Error(), "idx_dept_division") {
@@ -31,20 +31,19 @@ func (r *DepartmentRepositoryImpl) Save(department model.Department) error {
 	return nil
 }
 
-func (r *DepartmentRepositoryImpl) FindById(departmentId int) (model.Department, error) {
+func (r *DepartmentRepositoryImpl) FindById(departmentId int) (*model.Department, error) {
 	var result model.Department
 
 	err := r.Db.First(&result, departmentId).Error
 
 	if err != nil {
-		return result, err
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errors.New("department not found")
+		}
+		return nil, err
 	}
 
-	if result.ID == 0 {
-		return result, errors.New("department not found")
-	}
-
-	return result, nil
+	return &result, nil
 }
 
 func (r *DepartmentRepositoryImpl) FindByIdWithStaffCount(departmentId int) (DepartmentStaffCount, error) {
@@ -80,7 +79,7 @@ func (r *DepartmentRepositoryImpl) FindDepartmentList() ([]model.Department, err
 	return departments, err
 }
 
-func (r *DepartmentRepositoryImpl) Update(department model.Department) error {
+func (r *DepartmentRepositoryImpl) Update(department *model.Department) error {
 	result := r.Db.
 		Model(&model.Department{}).
 		Where("id = ?", department.ID).

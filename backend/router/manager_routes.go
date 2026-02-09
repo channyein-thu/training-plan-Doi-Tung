@@ -23,14 +23,13 @@ func ManagerRoutes(r fiber.Router, deps *container.AppDependencies) {
 	// r.Get("/departments/:id", deps.DepartmentController.FindByIdWithStaff)
 
 	// // Register staff to course (YOUR FORM)
-	// r.Post(
-	// 	"/courses/:courseId/registrations",
-	// 	deps.RecordController.RegisterStaff,
-	// )
+	r.Post(
+		"/courses/:courseId/registrations",
+		deps.RecordController.RegisterStaff,
+	)
 
 	// // Records
-	// r.Get("/records", deps.RecordController.FindByDepartment)
-	// r.Get("/records/:id", deps.RecordController.FindById)
-	// r.Put("/records/:id", deps.RecordController.Update)
-	// r.Delete("/records/:id", deps.RecordController.Delete)
+	r.Get("/records/:id", deps.RecordController.FindById)
+	r.Put("/records/:id", deps.RecordController.Update)
+	r.Delete("/records/:id", deps.RecordController.Delete)
 }

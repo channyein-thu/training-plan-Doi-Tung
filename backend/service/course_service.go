@@ -154,7 +154,7 @@ func (s *CourseServiceImpl) FindById(courseId int) (response.CourseResponse, err
 		return response.CourseResponse{}, err
 	}
 
-	resp := mapper.ToCourseResponse(course)
+	resp := mapper.ToCourseResponse(*course)
 
 	bytes, _ := json.Marshal(resp)
 	_ = s.cache.Set(config.Ctx, cacheKey, bytes, time.Minute*10).Err()
@@ -226,9 +226,9 @@ func (s *CourseServiceImpl) Update(courseId int, req request.UpdateCourseRequest
 		return err
 	}
 
-	mapper.UpdateCourseFromRequest(&course, req)
+	mapper.UpdateCourseFromRequest(course, req)
 
-	if err := s.repo.Update(&course); err != nil {
+	if err := s.repo.Update(course); err != nil {
 		return err
 	}
 

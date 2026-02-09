@@ -15,10 +15,10 @@ type CourseService interface {
 }
 
 type DepartmentService interface {
-	Create(request.CreateDepartmentRequest) error
-	Update(int, request.UpdateDepartmentRequest) error
-	Delete(int) error
-	FindById(int) (response.DepartmentResponse, error)
+	Create(department request.CreateDepartmentRequest) error
+	Update(departmentId int, department request.UpdateDepartmentRequest) error
+	Delete(departmentId int) error
+	FindById(departmentId int) (response.DepartmentResponse, error)
 	FindPaginated(page, pageSize int) (response.PaginatedResponse[response.DepartmentResponse], error)
 	FindDepartmentList() ([]response.DepartmentListItem, error)
 }
@@ -41,4 +41,11 @@ type CertificateService interface {
 	FindAllPending(	page int,limit int,) (response.PaginatedResponse[response.CertificateResponse], error)
 	Approve(certificateID int) error
 	Reject(certificateID int) error
+}
+
+type RecordService interface {
+	RegisterStaff(courseId uint, req request.RegisterStaffRequest) error
+	FindById(id int) (response.RecordResponse, error)
+	Update(id int, req request.UpdateRecordRequest) error
+	Delete(id int) error
 }

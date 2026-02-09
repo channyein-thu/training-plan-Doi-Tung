@@ -18,8 +18,8 @@ func NewUserRepositoryImpl(db *gorm.DB) UserRepository {
 	return &UserRepositoryImpl{Db: db}
 }
 
-func (r *UserRepositoryImpl) Save(user model.User) error {
-	err := r.Db.Create(&user).Error
+func (r *UserRepositoryImpl) Save(user *model.User) error {
+	err := r.Db.Create(user).Error
 	if err != nil {
 		if strings.Contains(err.Error(), "Duplicate entry") {
 			if strings.Contains(err.Error(), "email") {
@@ -35,7 +35,7 @@ func (r *UserRepositoryImpl) Save(user model.User) error {
 	return nil
 }
 
-func (r *UserRepositoryImpl) Update(user model.User) error {
+func (r *UserRepositoryImpl) Update(user *model.User) error {
 	result := r.Db.Model(&model.User{}).Where("id = ?", user.ID).Updates(map[string]interface{}{
 		"name":          user.Name,
 		"email":         user.Email,
@@ -74,52 +74,52 @@ func (r *UserRepositoryImpl) Delete(userId uint) error {
 	return nil
 }
 
-func (r *UserRepositoryImpl) FindById(userId uint) (model.User, error) {
+func (r *UserRepositoryImpl) FindById(userId uint) (*model.User, error) {
 	var user model.User
 	err := r.Db.First(&user, userId).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
-			return user, helper.NotFound("User not found")
+			return nil, helper.NotFound("User not found")
 		}
-		return user, helper.InternalServerError("Failed to find user")
+		return nil, helper.InternalServerError("Failed to find user")
 	}
-	return user, nil
+	return &user, nil
 }
 
-func (r *UserRepositoryImpl) FindByIdWithDepartment(userId uint) (model.User, error) {
+func (r *UserRepositoryImpl) FindByIdWithDepartment(userId uint) (*model.User, error) {
 	var user model.User
 	err := r.Db.Preload("Department").First(&user, userId).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
-			return user, helper.NotFound("User not found")
+			return nil, helper.NotFound("User not found")
 		}
-		return user, helper.InternalServerError("Failed to find user")
+		return nil, helper.InternalServerError("Failed to find user")
 	}
-	return user, nil
+	return &user, nil
 }
 
-func (r *UserRepositoryImpl) FindByEmail(email string) (model.User, error) {
+func (r *UserRepositoryImpl) FindByEmail(email string) (*model.User, error) {
 	var user model.User
 	err := r.Db.Where("email = ?", email).First(&user).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
-			return user, helper.NotFound("User not found")
+			return nil, helper.NotFound("User not found")
 		}
-		return user, helper.InternalServerError("Failed to find user")
+		return nil, helper.InternalServerError("Failed to find user")
 	}
-	return user, nil
+	return &user, nil
 }
 
-func (r *UserRepositoryImpl) FindByEmployeeID(employeeID string) (model.User, error) {
+func (r *UserRepositoryImpl) FindByEmployeeID(employeeID string) (*model.User, error) {
 	var user model.User
 	err := r.Db.Where("employee_id = ?", employeeID).First(&user).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
-			return user, helper.NotFound("User not found")
+			return nil, helper.NotFound("User not found")
 		}
-		return user, helper.InternalServerError("Failed to find user")
+		return nil, helper.InternalServerError("Failed to find user")
 	}
-	return user, nil
+	return &user, nil
 }
 
 func (r *UserRepositoryImpl) FindAllPaginated(offset, limit int) ([]model.User, int64, error) {

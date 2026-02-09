@@ -49,7 +49,7 @@ func (s *UserServiceImpl) AdminCreate(req request.CreateUserRequest, creatorID u
 		return helper.BadRequest("Employee ID already registered")
 	}
 
-	user := model.User{
+	user := &model.User{
 		Name:         req.Name,
 		EmployeeID:   req.EmployeeID,
 		Email:        req.Email,
@@ -130,7 +130,7 @@ func (s *UserServiceImpl) AdminFindById(userID uint) (response.UserResponse, err
 	if err != nil {
 		return response.UserResponse{}, err
 	}
-	return response.ToUserResponse(user), nil
+	return response.ToUserResponse(*user), nil
 }
 
 func (s *UserServiceImpl) AdminFindAllForTable(params request.UserTableQueryParams) (response.PaginatedResponse[response.UserTableResponse], error) {
@@ -172,7 +172,7 @@ func (s *UserServiceImpl) ManagerCreate(req request.ManagerCreateUserRequest, ma
 		return helper.BadRequest("Employee ID already registered")
 	}
 
-	user := model.User{
+	user := &model.User{
 		Name:         req.Name,
 		EmployeeID:   req.EmployeeID,
 		Email:        req.Email,

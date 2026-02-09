@@ -9,21 +9,21 @@ import (
 )
 
 type CertificateRepositoryImpl struct {
-	DB *gorm.DB
+	Db *gorm.DB
 }
 
 func NewCertificateRepositoryImpl(db *gorm.DB) CertificateRepository {
-	return &CertificateRepositoryImpl{DB: db}
+	return &CertificateRepositoryImpl{Db: db}
 }
 
 func (r *CertificateRepositoryImpl) Save(certificate *model.Certificate) error {
-	return r.DB.Create(certificate).Error
+	return r.Db.Create(certificate).Error
 }
 
 func (r *CertificateRepositoryImpl) FindById(id int) (*model.Certificate, error) {
 	var certificate model.Certificate
 
-	err := r.DB.First(&certificate, id).Error
+	err := r.Db.First(&certificate, id).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, helper.NotFound("certificate not found")
@@ -37,7 +37,7 @@ func (r *CertificateRepositoryImpl) FindById(id int) (*model.Certificate, error)
 func (r *CertificateRepositoryImpl) FindByUserId(userId int) ([]model.Certificate, error) {
 	var certificates []model.Certificate
 
-	err := r.DB.
+	err := r.Db.
 		Preload("User").
 		Preload("Training").
 		Where("user_id = ?", userId).
@@ -49,7 +49,7 @@ func (r *CertificateRepositoryImpl) FindByUserId(userId int) ([]model.Certificat
 }
 
 func (r *CertificateRepositoryImpl) Delete(id int) error {
-	result := r.DB.Delete(&model.Certificate{}, id)
+	result := r.Db.Delete(&model.Certificate{}, id)
 
 	if result.Error != nil {
 		return result.Error
@@ -65,7 +65,7 @@ func (r *CertificateRepositoryImpl) UpdateStatus(
 	id int,
 	status model.CertificateStatus,
 ) error {
-	result := r.DB.Model(&model.Certificate{}).
+	result := r.Db.Model(&model.Certificate{}).
 		Where("id = ?", id).
 		Update("status", status)
 
@@ -86,11 +86,11 @@ func (r *CertificateRepositoryImpl) FindAllPending(
 	var certificates []model.Certificate
 	var total int64
 
-	r.DB.Model(&model.Certificate{}).
+	r.Db.Model(&model.Certificate{}).
 		Where("status = ?", model.CertPending).
 		Count(&total)
 
-	err := r.DB.
+	err := r.Db.
 		Preload("User").
 		Where("status = ?", model.CertPending).
 		Order("created_at DESC").

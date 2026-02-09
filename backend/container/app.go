@@ -19,6 +19,7 @@ type AppDependencies struct {
 	AuthController       *controller.AuthController
 	UserController       *controller.UserController
 	CertificateController *controller.CertificateController
+	RecordController     *controller.RecordController
 }
 
 func NewAppDependencies(
@@ -29,7 +30,12 @@ func NewAppDependencies(
 	location *time.Location,
 	storage helper.Storage,
 ) *AppDependencies {
-		// ---------- Certificate ----------
+	// ---------- Record ----------
+	recordRepo := repository.NewRecordRepositoryImpl(db)
+	recordService := service.NewRecordServiceImpl(recordRepo, validate)
+	recordController := controller.NewRecordController(recordService)
+
+	// ---------- Certificate ----------
 	certificateRepo := repository.NewCertificateRepositoryImpl(db)
 	certificateService := service.NewCertificateServiceImpl(certificateRepo, validate, storage)
 	certificateController := controller.NewCertificateController(certificateService)
@@ -64,5 +70,6 @@ func NewAppDependencies(
 		AuthController:       authController,
 		UserController:       userController,
 		CertificateController: certificateController,
-}
+		RecordController:     recordController,
+	}
 }
