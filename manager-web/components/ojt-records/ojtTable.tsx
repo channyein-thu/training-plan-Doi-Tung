@@ -23,6 +23,7 @@ import { useRouter } from "next/navigation";
 
 import { ojtRecords, trainingPlanStaff } from "@/data/data";
 import { OjtRecord } from "@/types/records";
+import { DeleteOjtDialog } from "./deleteOJTdialog";
 
 function OjtTable() {
   const router = useRouter();
@@ -74,11 +75,9 @@ function OjtTable() {
 
                     <DropdownMenuContent align="end">
                       <DropdownMenuItem
-                      // onClick={() => {
-                      //   setMode("edit");
-                      // //   setSelectedRecord(record);
-                      //   setOpen(true);
-                      // }}
+                        onClick={() =>
+                          router.push(`/ojt-records/${record.staff.id}`)
+                        }
                       >
                         Edit
                       </DropdownMenuItem>
@@ -91,11 +90,11 @@ function OjtTable() {
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         className="text-red-600"
-                        // onClick={() => {
-                        //   setMode("delete");
-                        // //   setSelectedRecord(record);
-                        //   setOpen(true);
-                        // }}
+                        onClick={() => {
+                          setMode("delete");
+                          setSelectedRecord(record);
+                          setOpen(true);
+                        }}
                       >
                         Delete
                       </DropdownMenuItem>
@@ -113,17 +112,17 @@ function OjtTable() {
                 user={selectedRecord?.staff ?? undefined}
                 onClose={() => setOpen(false)}
               />
-            )}
+            )} */}
             {mode === "delete" && (
-              <DeleteUserDialog
-                user={selectedRecord?.staff!}
+              <DeleteOjtDialog
+                record={selectedRecord!}
                 onConfirm={() => {
                   // deleteUser(selectedRecord!.staff.id);
                   setOpen(false);
                 }}
                 onCancel={() => setOpen(false)}
               />
-            )} */}
+            )}
           </DialogContent>
         </Dialog>
       </div>

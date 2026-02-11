@@ -1,4 +1,5 @@
 import { Course } from "@/types/course";
+import { OjtRecord } from "@/types/records";
 import { TrainingPlanStaff } from "@/types/staff";
 
 export const trainingPlanStaff: TrainingPlanStaff[] = [
@@ -189,7 +190,7 @@ export const courses: Course[] = [
   },
 ];
 
-export const ojtRecords = [
+export const ojtRecords: OjtRecord[] = [
   {
     id: 1,
     staff: trainingPlanStaff[0],
