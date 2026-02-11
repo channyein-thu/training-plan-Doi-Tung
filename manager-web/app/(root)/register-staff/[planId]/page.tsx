@@ -1,9 +1,9 @@
 import PlanDetails from "@/components/register-staff/planDetails";
+import StaffList from "@/components/register-staff/staffList";
 import { Button } from "@/components/ui/button";
-import { courses } from "@/data/data";
+import { courses, trainingPlanStaff } from "@/data/data";
 import { ArrowLeftIcon } from "lucide-react";
 import Link from "next/link";
-import React from "react";
 
 type PlanDetailsProps = {
   params: {
@@ -50,6 +50,12 @@ async function PlanDetailsRegister({ params }: PlanDetailsProps) {
             subtitle={plan.speakerInstitute}
           />
         </div>
+      </div>
+
+      {/* Staff List */}
+      <div className="border rounded-md m-2 p-4">
+        <p className="font-medium mb-2">Staff List</p>
+        <StaffList staff={trainingPlanStaff} />
       </div>
     </div>
   );
