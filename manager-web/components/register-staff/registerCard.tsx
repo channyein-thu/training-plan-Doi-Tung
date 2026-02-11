@@ -34,8 +34,7 @@ function RegisterCard({ plan }: RegisterCardProps) {
               name={"Register Staff"}
               className="bg-[#006022] border border-[#006022]  text-white px-4 py-2 rounded-md"
             >
-              {/* <ViewPlanForm plan={plan} /> */}
-              <RegisterStaffForm />
+              <RegisterStaffForm plan={plan} />
             </ButtonDialog>
           </CardAction>
         </CardHeader>

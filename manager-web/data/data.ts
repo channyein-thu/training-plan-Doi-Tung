@@ -108,6 +108,17 @@ export const trainingPlanStaff: TrainingPlanStaff[] = [
     position: "Content Strategist",
     status: "INACTIVE",
   },
+  {
+    id: 10,
+    employeeId: "EMP000010",
+    fullName: "Min Thant",
+    email: "emp000009@company.com",
+    phone: "0990123456",
+    departmentId: 4,
+    departmentName: "Marketing",
+    position: "Content Strategist",
+    status: "INACTIVE",
+  },
 ];
 
 export const courses: Course[] = [
