@@ -1,4 +1,3 @@
-import React from "react";
 import {
   Card,
   CardAction,
@@ -6,12 +5,12 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import ButtonDialog from "./buttonDialog";
-import { EyeIcon, EyeOffIcon, Plus } from "lucide-react";
+import { Plus, Router } from "lucide-react";
 // import ViewPlanForm from "./viewPlanDetails";
 import InfoDetail from "./infoDetail";
 import { Course } from "@/types/course";
-import RegisterStaffForm from "./registerStaffForm";
+
+import RouterButton from "./routerButton";
 
 type RegisterCardProps = {
   plan: Course;
@@ -29,13 +28,17 @@ function RegisterCard({ plan }: RegisterCardProps) {
           </CardTitle>
 
           <CardAction className="text-[#006022] font-medium">
-            <ButtonDialog
+            {/* <ButtonDialog
               icon={<Plus className="mr-2 h-4 w-4" />}
               name={"Register Staff"}
               className="bg-[#006022] border border-[#006022]  text-white px-4 py-2 rounded-md"
             >
               <RegisterStaffForm plan={plan} />
-            </ButtonDialog>
+            </ButtonDialog> */}
+            <RouterButton
+              routerPath={`/register-staff/${plan.id}`}
+              buttonText="Register Staff"
+            />
           </CardAction>
         </CardHeader>
 
