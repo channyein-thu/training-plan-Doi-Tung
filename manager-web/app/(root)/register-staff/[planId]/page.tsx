@@ -24,7 +24,7 @@ async function PlanDetailsRegister({ params }: PlanDetailsProps) {
       <Button
         asChild
         variant="ghost"
-        className="text-black hover:bg-transparent mr-4"
+        className="text-black hover:bg-transparent mr-4 border rounded-md px-2 py-1 border-[#006022]"
       >
         <Link href="/register-staff">
           <ArrowLeftIcon className="mr-2 h-8 w-8" />

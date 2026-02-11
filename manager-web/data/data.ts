@@ -188,3 +188,24 @@ export const courses: Course[] = [
     budgetCode: "LEGAL-DATA-2025",
   },
 ];
+
+export const ojtRecords = [
+  {
+    id: 1,
+    staff: trainingPlanStaff[0],
+    course: courses[0],
+    status: "COMPLETED",
+  },
+  {
+    id: 2,
+    staff: trainingPlanStaff[1],
+    course: courses[0],
+    status: "IN_PROGRESS",
+  },
+  {
+    id: 3,
+    staff: trainingPlanStaff[2],
+    course: courses[0],
+    status: "NOT_STARTED",
+  },
+];
