@@ -8,6 +8,8 @@ import { trainingPlanStaff } from "@/data/data";
 import { TrainingPlanStaff } from "@/types/staff";
 import { Search } from "lucide-react";
 import React, { useState } from "react";
+import EditStaffDialog from "@/components/department-staff/editStaffDialog";
+import DeleteStaffDialog from "@/components/department-staff/deleteStaffDialog";
 
 function DepartmentStaffPage() {
   const [selectedStaff, setSelectedStaff] = useState<TrainingPlanStaff | null>(
@@ -68,6 +70,33 @@ function DepartmentStaffPage() {
           />
         ))}
       </div>
+
+      {/* EDIT */}
+      {activeDialog === "edit" && selectedStaff && (
+        <EditStaffDialog
+          staff={selectedStaff}
+          onClose={() => {
+            setActiveDialog(null);
+            setSelectedStaff(null);
+          }}
+        />
+      )}
+
+      {/* DELETE */}
+      {activeDialog === "delete" && selectedStaff && (
+        <DeleteStaffDialog
+          staff={selectedStaff}
+          onCancel={() => {
+            setActiveDialog(null);
+            setSelectedStaff(null);
+          }}
+          onConfirm={() => {
+            // deleteDepartment(selectedDepartment.id);
+            setActiveDialog(null);
+            setSelectedStaff(null);
+          }}
+        />
+      )}
     </div>
   );
 }

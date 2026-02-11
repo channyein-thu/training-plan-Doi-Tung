@@ -12,6 +12,7 @@ import { Button } from "../ui/button";
 import { Separator } from "@/components/ui/separator";
 
 import { TrainingPlanStaff } from "../../types/staff";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 type DepartmentCardProps = {
   staff: TrainingPlanStaff;
@@ -23,8 +24,16 @@ function DepartmentCard({ staff, onEdit, onDelete }: DepartmentCardProps) {
   return (
     <Card className="w-full sm:max-w-[360px]">
       <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle className="bg-[#E8F7EC] w-16 h-16 flex items-center justify-center text-white rounded-md">
-          <UsersIcon className="w-6 h-6 text-[#006022]" />
+        <CardTitle className="flex items-center gap-3">
+          <Avatar className="bg-green h-12 w-12 border-2 border-[#E8F7EC]">
+            <AvatarFallback className="bg-[#4E7F57] text-white text-md">
+              {staff.fullName.charAt(0)}
+            </AvatarFallback>
+          </Avatar>
+          <div>
+            <h3 className="text-md font-medium">{staff.fullName}</h3>
+            <p className="text-sm text-gray-600">{staff.position}</p>
+          </div>
         </CardTitle>
 
         <CardAction className="text-[#006022] font-medium">
