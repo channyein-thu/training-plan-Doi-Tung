@@ -2,7 +2,7 @@ import PlanDetails from "@/components/register-staff/planDetails";
 import StaffList from "@/components/register-staff/staffList";
 import { Button } from "@/components/ui/button";
 import { courses, trainingPlanStaff } from "@/data/data";
-import { ArrowLeftIcon } from "lucide-react";
+import { ArrowLeftIcon, UserPlus } from "lucide-react";
 import Link from "next/link";
 
 type PlanDetailsProps = {
@@ -56,6 +56,17 @@ async function PlanDetailsRegister({ params }: PlanDetailsProps) {
       <div className="border rounded-md m-2 p-4">
         <p className="font-medium mb-2">Staff List</p>
         <StaffList staff={trainingPlanStaff} />
+      </div>
+
+      {/* Action Buttons */}
+      <div className="px-6 py-4  border-gray-200 flex gap-4">
+        <Button variant="outline" className="flex-1">
+          Cancel
+        </Button>
+        <Button className="flex-1 bg-[#006022] hover:bg-[#004d1b] text-white">
+          <UserPlus className="w-4 h-4 mr-2" />
+          Register Staff
+        </Button>
       </div>
     </div>
   );
