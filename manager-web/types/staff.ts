@@ -1,6 +1,4 @@
-export type StaffStatus = "ACTIVE" | "INACTIVE";
-
-export type Staff = {
+export type TrainingPlanStaff = {
   id: number;
   employeeId: string;
   fullName: string;
@@ -8,7 +6,6 @@ export type Staff = {
   phone: string;
   departmentId: number;
   departmentName: string;
-  jobRole: string;
-  status: StaffStatus;
-  isManager: boolean;
+  position: string;
+  status: "ACTIVE" | "INACTIVE";
 };
