@@ -1,6 +1,7 @@
+import EditOJTdetails from "@/components/ojt-records/editOjtForm";
 import PlanDetails from "@/components/register-staff/planDetails";
-import StaffList from "@/components/register-staff/staffList";
 import { Button } from "@/components/ui/button";
+
 import { courses, ojtRecords, trainingPlanStaff } from "@/data/data";
 import { ArrowLeftIcon, UserPlus } from "lucide-react";
 import Link from "next/link";
@@ -63,11 +64,7 @@ async function OjtDetails({ params }: PlanDetailsProps) {
         </div>
       </div>
 
-      {/* Staff List */}
-      <div className="border rounded-md m-2 p-4">
-        <p className="font-medium mb-2">Staff List</p>
-        <StaffList staff={trainingPlanStaff} />
-      </div>
+      <EditOJTdetails />
 
       {/* Action Buttons */}
       <div className="px-6 py-4  border-gray-200 flex gap-4">
