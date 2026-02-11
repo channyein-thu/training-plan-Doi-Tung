@@ -13,20 +13,6 @@ function RegisterStaffForm({ plan }: { plan: Course }) {
         <DialogDescription>{plan.name}</DialogDescription>
       </DialogHeader>
 
-      {/* Training Details */}
-      <div className="border rounded-md m-2 bg-[#E8F7EC] p-2">
-        <p className="font-medium mb-2">Training Details</p>
-        <div className="grid grid-cols-2 gap-4 p-2">
-          <PlanDetails title="Date" subtitle={plan.date} />
-          <PlanDetails title="Type" subtitle={plan.type} />
-          <PlanDetails title="Category" subtitle={plan.category} />
-          <PlanDetails
-            title="Speaker/Institute"
-            subtitle={plan.speakerInstitute}
-          />
-        </div>
-      </div>
-
       {/* Register Staff Form */}
       <div>
         {trainingPlanStaff.map((staff) => {
