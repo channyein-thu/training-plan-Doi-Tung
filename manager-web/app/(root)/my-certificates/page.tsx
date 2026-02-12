@@ -1,4 +1,7 @@
 import PageHeader from "@/components/dashboard/pageHeader";
+import CertificateCard from "@/components/my-certificates/certificateCard";
+import { certificates } from "@/data/data";
+import { Certificate } from "crypto";
 import React from "react";
 
 function MyCertificates() {
@@ -11,6 +14,9 @@ function MyCertificates() {
         />
 
         {/* Certificates List*/}
+        {certificates.map((certificate) => (
+          <CertificateCard key={certificate.id} certificate={certificate} />
+        ))}
       </div>
     </>
   );
