@@ -1,5 +1,4 @@
 import EditOJTdetails from "@/components/ojt-records/editOjtForm";
-import TestFormExample from "@/components/ojt-records/pre/postProgress";
 import PlanDetails from "@/components/register-staff/planDetails";
 import { Button } from "@/components/ui/button";
 

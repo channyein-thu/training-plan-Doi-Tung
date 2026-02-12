@@ -1,3 +1,4 @@
+import { Certificate } from "@/types/certificate";
 import { Course } from "@/types/course";
 import { OjtRecord } from "@/types/records";
 import { TrainingPlanStaff } from "@/types/staff";
@@ -208,5 +209,43 @@ export const ojtRecords: OjtRecord[] = [
     staff: trainingPlanStaff[2],
     course: courses[0],
     status: "NOT_STARTED",
+  },
+];
+
+export const certificates: Certificate[] = [
+  {
+    id: 1,
+    userId: 1,
+    trainingName: "Cybersecurity Best Practices",
+    category: "ความปลอดภัยและอาชีวอนามัย",
+    type: "Online/Virtual",
+    image: "/certificates/cybersecurity.jpg",
+    description:
+      "Completed cybersecurity awareness and data protection training.",
+    createdAt: new Date("2025-11-20"),
+    updatedAt: new Date("2025-11-20"),
+  },
+  {
+    id: 2,
+    userId: 2,
+    trainingName: "Effective Communication Skills",
+    category: "การสื่อสาร",
+    type: "In-house",
+    image: "/certificates/communication.jpg",
+    description: "Workshop focused on communication and teamwork improvement.",
+    createdAt: new Date("2025-10-15"),
+    updatedAt: new Date("2025-10-15"),
+  },
+  {
+    id: 3,
+    userId: 1,
+    trainingName: "Leadership Development Program",
+    category: "พัฒนาขีดความสามารถระดับบริหาร",
+    type: "Public",
+    image: "/certificates/leadership.jpg",
+    description:
+      "Seminar covering leadership strategies and decision-making skills.",
+    createdAt: new Date("2025-09-10"),
+    updatedAt: new Date("2025-09-10"),
   },
 ];
