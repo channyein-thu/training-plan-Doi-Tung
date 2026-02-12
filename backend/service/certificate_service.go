@@ -22,7 +22,6 @@ type CertificateServiceImpl struct {
 	validate *validator.Validate
 	storage  helper.Storage
 }
-
 func NewCertificateServiceImpl(
 	repo repository.CertificateRepository,
 	validate *validator.Validate,
@@ -34,6 +33,22 @@ func NewCertificateServiceImpl(
 		storage:  storage,
 	}
 }
+
+// GetTrainingIDByRecordID implements CertificateService.
+func (c *CertificateServiceImpl) GetTrainingIDByRecordID(recordID int, userID uint) (int, error) {
+	record, err := c.repo.FindRecordByIDAndUserID(recordID, userID)
+	if err != nil {
+		return 0, err
+	}
+
+	if record == nil {
+		return 0, helper.BadRequest("Record not found for the user")
+	}
+
+	return int(record.CourseID), nil
+}
+
+
 
 // ================= ADMIN =================
 

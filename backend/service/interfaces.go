@@ -41,6 +41,7 @@ type CertificateService interface {
 	FindAllPending(	page int,limit int,) (response.PaginatedResponse[response.CertificateResponse], error)
 	Approve(certificateID int) error
 	Reject(certificateID int) error
+	GetTrainingIDByRecordID(recordID int, userID uint) (int, error)
 }
 
 type RecordService interface {
@@ -48,4 +49,5 @@ type RecordService interface {
 	FindById(id int) (response.RecordResponse, error)
 	Update(id int, req request.UpdateRecordRequest) error
 	Delete(id int) error
+ 	FindByManager(managerID uint,page int,limit int,) (response.PaginatedResponse[response.RecordResponse], error)	
 }

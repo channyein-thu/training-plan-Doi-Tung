@@ -11,10 +11,27 @@ import (
 type CertificateRepositoryImpl struct {
 	Db *gorm.DB
 }
-
 func NewCertificateRepositoryImpl(db *gorm.DB) CertificateRepository {
 	return &CertificateRepositoryImpl{Db: db}
 }
+
+// FindRecordByIDAndUserID implements CertificateRepository.
+func (r *CertificateRepositoryImpl) FindRecordByIDAndUserID(recordID int, userID uint) (*model.Record, error) {
+	var record model.Record
+
+	err := r.Db.
+		Where("id = ? AND user_id = ?", recordID, userID).
+		First(&record).
+		Error
+
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, nil
+	}
+
+	return &record, err
+}
+
+
 
 func (r *CertificateRepositoryImpl) Save(certificate *model.Certificate) error {
 	return r.Db.Create(certificate).Error

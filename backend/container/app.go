@@ -30,9 +30,19 @@ func NewAppDependencies(
 	location *time.Location,
 	storage helper.Storage,
 ) *AppDependencies {
+
+		// ---------- Department ----------
+	departmentRepo := repository.NewDepartmentRepositoryImpl(db)
+	departmentService := service.NewDepartmentServiceImpl(departmentRepo, validate, redis)
+	departmentController := controller.NewDepartmentController(departmentService)
+		// ---------- User ----------
+	userRepo := repository.NewUserRepositoryImpl(db)
+	userService := service.NewUserServiceImpl(userRepo, departmentRepo, validate)
+	userController := controller.NewUserController(userService, db)
+
 	// ---------- Record ----------
 	recordRepo := repository.NewRecordRepositoryImpl(db)
-	recordService := service.NewRecordServiceImpl(recordRepo, validate)
+	recordService := service.NewRecordServiceImpl(recordRepo, userRepo, validate)
 	recordController := controller.NewRecordController(recordService)
 
 	// ---------- Certificate ----------
@@ -40,10 +50,7 @@ func NewAppDependencies(
 	certificateService := service.NewCertificateServiceImpl(certificateRepo, validate, storage)
 	certificateController := controller.NewCertificateController(certificateService)
 
-	// ---------- Department ----------
-	departmentRepo := repository.NewDepartmentRepositoryImpl(db)
-	departmentService := service.NewDepartmentServiceImpl(departmentRepo, validate, redis)
-	departmentController := controller.NewDepartmentController(departmentService)
+
 
 	// ---------- Course ----------
 	courseRepo := repository.NewCourseRepositoryImpl(db)
@@ -59,10 +66,6 @@ func NewAppDependencies(
 	// ---------- Auth ----------
 	authController := controller.NewAuthController(db)
 
-	// ---------- User ----------
-	userRepo := repository.NewUserRepositoryImpl(db)
-	userService := service.NewUserServiceImpl(userRepo, departmentRepo, validate)
-	userController := controller.NewUserController(userService, db)
 
 	return &AppDependencies{
 		DepartmentController: departmentController,

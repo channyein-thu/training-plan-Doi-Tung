@@ -37,6 +37,7 @@ type CertificateRepository interface {
 	Delete(id int) error
 	FindAllPending(offset, limit int) ([]model.Certificate, int64, error)
 	UpdateStatus(id int, status model.CertificateStatus) error
+	FindRecordByIDAndUserID(recordID int, userID uint) (*model.Record, error)
 }
 
 type UserRepository interface {
@@ -60,4 +61,5 @@ type RecordRepository interface {
 	Update(record *model.Record) error
 	Delete(id int) error
 	Exists(userId uint, courseId uint) bool
+	FindByManagerDepartment(departmetnID int, offset, limit int) ([]model.Record, int64, error)
 }

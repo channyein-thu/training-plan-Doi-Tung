@@ -29,6 +29,7 @@ func ManagerRoutes(r fiber.Router, deps *container.AppDependencies) {
 	)
 
 	// // Records
+	r.Get("/records",deps.RecordController.FindRecordByCurrentDepartment)
 	r.Get("/records/:id", deps.RecordController.FindById)
 	r.Put("/records/:id", deps.RecordController.Update)
 	r.Delete("/records/:id", deps.RecordController.Delete)
