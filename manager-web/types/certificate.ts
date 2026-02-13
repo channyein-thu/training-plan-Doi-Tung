@@ -15,22 +15,22 @@ export type CertificateCategory =
   | "พัฒนาขีดความสามารถระดับบริหาร"
   | "การเงินและการบัญชี";
 
-export type CertificateType =
-  | "In-house"
-  | "Public"
-  | "OJT"
-  | "Self-learning"
-  | "Online/Virtual";
+export type CertificateStatus = "Pending" | "Approved" | "Rejected";
 
 // main type
 export type Certificate = {
   id: number;
   userId: number;
-  trainingName: string;
+  userName: string;
+  employeeId: string;
+  department: string;
+  division: string;
   category: CertificateCategory;
-  type: CertificateType;
+  trainingId: number;
+  trainingName: string;
   image: string;
   description: string;
-  createdAt: Date;
-  updatedAt: Date;
+  status: CertificateStatus;
+  createdAt: string; // ISO string from backend
+  updatedAt: string; // ISO string from backend
 };

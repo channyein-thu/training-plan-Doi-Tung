@@ -1,4 +1,5 @@
 import PageHeader from "@/components/dashboard/pageHeader";
+import TrainingRecordTable from "@/components/my-training-records/trainingRecordTable";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -8,7 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Search } from "lucide-react";
+import { Search, Train } from "lucide-react";
 import React from "react";
 
 function MyTrainingRecords() {
@@ -48,6 +49,7 @@ function MyTrainingRecords() {
             Search
           </Button>
         </div>
+        <TrainingRecordTable />
       </div>
     </>
   );

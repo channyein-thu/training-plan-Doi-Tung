@@ -12,7 +12,7 @@ import { Certificate } from "@/types/certificate";
 
 function CertificateCard({ certificate }: { certificate: Certificate }) {
   return (
-    <Card className="w-[350px]">
+    <Card className="w-[350px] mt-4">
       {/* Header Icon */}
       <CardHeader className="">
         <div className="border rounded-md bg-[#E8F7EC] w-12 h-12 flex items-center justify-center">
@@ -24,13 +24,20 @@ function CertificateCard({ certificate }: { certificate: Certificate }) {
       <CardContent className="space-y-2">
         <h3 className="text-md font-medium">{certificate.trainingName}</h3>
 
+        <p className="text-sm text-gray-600">{certificate.userName}</p>
         <p className="text-sm text-gray-600">
-          Category: {certificate.category}
+          Department - {certificate.department}
         </p>
 
         <div className="border rounded-md px-2 py-1 w-fit bg-[#E8F7EC] mt-1">
-          <p className="text-sm text-[#006022]">Type: {certificate.type}</p>
+          <p className="text-sm text-[#006022]">
+            Division: {certificate.division}
+          </p>
         </div>
+
+        <p className="text-sm text-gray-600">
+          Category - {certificate.category}
+        </p>
 
         <Separator className="" />
       </CardContent>

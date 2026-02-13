@@ -14,9 +14,11 @@ function MyCertificates() {
         />
 
         {/* Certificates List*/}
-        {certificates.map((certificate) => (
-          <CertificateCard key={certificate.id} certificate={certificate} />
-        ))}
+        <div className="grid lg:grid-cols-3 md:grid-cols-2 mt-2">
+          {certificates.map((certificate) => (
+            <CertificateCard key={certificate.id} certificate={certificate} />
+          ))}
+        </div>
       </div>
     </>
   );
