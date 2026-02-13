@@ -60,11 +60,7 @@ const myTraining = [
     url: "/my-certificates",
     icon: AwardIcon,
   },
-  {
-    title: "Upload Certificate",
-    url: "/upload-certificate",
-    icon: DownloadIcon,
-  },
+
   {
     title: "My Training Records",
     url: "/my-training-records",

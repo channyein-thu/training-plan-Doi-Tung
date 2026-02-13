@@ -8,7 +8,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { MoreVertical } from "lucide-react";
+import { DownloadIcon, MoreVertical } from "lucide-react";
 import React, { useState } from "react";
 import { Button } from "../ui/button";
 import {
@@ -25,7 +25,7 @@ import { ojtRecords, trainingPlanStaff } from "@/data/data";
 import { OjtRecord } from "@/types/records";
 // import { DeleteOjtDialog } from "./deleteOJTdialog";
 
-function OjtTable() {
+function TrainingRecordTable() {
   const router = useRouter();
 
   const [open, setOpen] = useState(false);
@@ -35,18 +35,16 @@ function OjtTable() {
     <>
       <div className="">
         <Table className="table-fixed w-full rounded-t-md ">
-          <TableCaption>A list of OJT records</TableCaption>
+          <TableCaption>A list of training records</TableCaption>
           <TableHeader className={`bg-[#E8F7EC] rounded-t-md`}>
             <TableRow>
-              <TableHead className="w-[250px] font-bold">Course Name</TableHead>
-              <TableHead className="w-[200px] font-bold">Category</TableHead>
-              <TableHead className="w-[150px] font-bold">Name</TableHead>
-              <TableHead className=" w-[150px] font-bold">
-                Employee ID
+              <TableHead className="w-[250px] font-bold">
+                Training Title
               </TableHead>
+              <TableHead className="w-[150px] font-bold">Category</TableHead>
               <TableHead className=" w-[150px] font-bold">Date</TableHead>
               <TableHead className=" w-[100px] font-bold">Hours</TableHead>
-              <TableHead className="w-[100px] font-bold">Location</TableHead>
+              <TableHead className=" w-[100px] font-bold">Type</TableHead>
               <TableHead className="w-[100px] font-bold">Status</TableHead>
               <TableHead className="w-[100px] font-bold">Actions</TableHead>
             </TableRow>
@@ -58,22 +56,24 @@ function OjtTable() {
                   {record.course.name}
                 </TableCell>
                 <TableCell>{record.course.category}</TableCell>
-                <TableCell>{record.staff.fullName}</TableCell>
-                <TableCell>{record.staff.employeeId}</TableCell>
                 <TableCell>{record.course.date}</TableCell>
                 <TableCell>{record.course.numberOfHours}</TableCell>
-                <TableCell>{record.course.location}</TableCell>
-                <TableCell>{record.status.replace("_", " ")}</TableCell>
+                <TableCell className="w-[200px]">
+                  {record.course.type}
+                </TableCell>
+                <TableCell className="w-[200px]">
+                  {record.status.replace("_", " ")}
+                </TableCell>
 
                 <TableCell className="">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" size="icon">
-                        <MoreVertical />
+                        <DownloadIcon />
                       </Button>
                     </DropdownMenuTrigger>
 
-                    <DropdownMenuContent align="end">
+                    {/* <DropdownMenuContent align="end">
                       <DropdownMenuItem
                         onClick={() =>
                           router.push(`/ojt-records/${record.staff.id}`)
@@ -98,22 +98,22 @@ function OjtTable() {
                       >
                         Delete
                       </DropdownMenuItem>
-                    </DropdownMenuContent>
+                    </DropdownMenuContent> */}
                   </DropdownMenu>
                 </TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
-        <Dialog open={open} onOpenChange={setOpen}>
-          <DialogContent>
-            {/* {mode === "edit" && (
+        {/* <Dialog open={open} onOpenChange={setOpen}> */}
+        {/* <DialogContent> */}
+        {/* {mode === "edit" && (
               <EditUserForm
                 user={selectedRecord?.staff ?? undefined}
                 onClose={() => setOpen(false)}
               />
             )} */}
-            {/* {mode === "delete" && (
+        {/* {mode === "delete" && (
               <DeleteOjtDialog
                 record={selectedRecord!}
                 onConfirm={() => {
@@ -123,11 +123,11 @@ function OjtTable() {
                 onCancel={() => setOpen(false)}
               />
             )} */}
-          </DialogContent>
-        </Dialog>
+        {/* </DialogContent> */}
+        {/* </Dialog> */}
       </div>
     </>
   );
 }
 
-export default OjtTable;
+export default TrainingRecordTable;
