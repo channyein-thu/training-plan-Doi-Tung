@@ -103,18 +103,34 @@ func (r *CertificateRepositoryImpl) FindAllPending(
 	var certificates []model.Certificate
 	var total int64
 
-	r.Db.Model(&model.Certificate{}).
-		Where("status = ?", model.CertPending).
-		Count(&total)
+	// Base query for count
+	baseQuery := r.Db.
+		Model(&model.Certificate{}).
+		Where("status = ?", model.CertPending)
 
+	// Count total first
+	if err := baseQuery.Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+
+	// Fetch paginated data with proper preloads
 	err := r.Db.
 		Preload("User").
+		Preload("User.Department").
+		Preload("Training").
 		Where("status = ?", model.CertPending).
-		Order("created_at DESC").
+		Order("certificates.created_at DESC").
 		Offset(offset).
 		Limit(limit).
 		Find(&certificates).
 		Error
 
-	return certificates, total, err
+	if err != nil {
+		return nil, 0, err
+	}
+
+	return certificates, total, nil
 }
+
+
+

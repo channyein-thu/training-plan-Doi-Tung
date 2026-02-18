@@ -121,6 +121,16 @@ func (c *CertificateServiceImpl) FindAllPending(
 		if cert.User != nil {
 			resp.UserName = cert.User.Name
 		}
+		if cert.User.Department != nil {
+			resp.Department = cert.User.Department.Name
+			resp.Division = string(cert.User.Department.Division)
+		}
+		if cert.Training != nil {
+			resp.TrainingID = cert.TrainingID
+			resp.TrainingName = cert.Training.Name
+			resp.Category = string(cert.Training.Category)
+		}
+
 
 		items = append(items, resp)
 	}

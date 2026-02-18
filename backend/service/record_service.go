@@ -13,7 +13,7 @@ import (
 
 type RecordServiceImpl struct {
 	repo     repository.RecordRepository
-	userRepo  repository.UserRepository
+	userRepo repository.UserRepository
 	validate *validator.Validate
 }
 
@@ -28,6 +28,59 @@ func NewRecordServiceImpl(
 		validate: validate,
 	}
 }
+
+// FindByUser implements RecordService.
+func (s *RecordServiceImpl) FindByUser(userID uint, page int, limit int) (response.PaginatedResponse[response.RecordResponse], error) {
+	if page <= 0 {
+		page = 1
+	}
+	if limit <= 0 || limit > 100 {
+		limit = 10
+	}
+
+	offset := (page - 1) * limit
+
+	records, total, err := s.repo.FindByUserId(userID, offset, limit)
+	if err != nil {
+		return response.PaginatedResponse[response.RecordResponse]{}, err
+	}
+
+	items := make([]response.RecordResponse, 0, len(records))
+
+	for _, r := range records {
+
+		resp := response.RecordResponse{
+			ID:        r.ID,
+			UserID:    r.UserID,
+			CourseID:  r.CourseID,
+			Status:    string(r.Status),
+			CreatedAt: r.CreatedAt,
+			UpdatedAt: r.UpdatedAt,
+		}
+
+		if r.User != nil {
+			resp.UserName = r.User.Name
+		}
+
+		if r.Course != nil {
+			resp.CourseName = r.Course.Name
+		}
+
+		items = append(items, resp)
+	}
+
+	return response.PaginatedResponse[response.RecordResponse]{
+		Items: items,
+		Meta: response.PaginationMeta{
+			Page:       page,
+			Limit:      limit,
+			TotalItems: total,
+			TotalPages: int(math.Ceil(float64(total) / float64(limit))),
+		},
+	}, nil
+}
+
+
 
 func (s *RecordServiceImpl) RegisterStaff(
 	courseId uint,
@@ -168,4 +221,3 @@ func (s *RecordServiceImpl) FindByManager(
 		},
 	}, nil
 }
-

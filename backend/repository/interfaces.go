@@ -62,4 +62,5 @@ type RecordRepository interface {
 	Delete(id int) error
 	Exists(userId uint, courseId uint) bool
 	FindByManagerDepartment(departmetnID int, offset, limit int) ([]model.Record, int64, error)
+	FindByUserId(userID uint, offset, limit int) ([]model.Record, int64, error)
 }

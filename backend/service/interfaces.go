@@ -50,4 +50,5 @@ type RecordService interface {
 	Update(id int, req request.UpdateRecordRequest) error
 	Delete(id int) error
  	FindByManager(managerID uint,page int,limit int,) (response.PaginatedResponse[response.RecordResponse], error)	
+	FindByUser(userID uint, page int, limit int) (response.PaginatedResponse[response.RecordResponse], error)
 }

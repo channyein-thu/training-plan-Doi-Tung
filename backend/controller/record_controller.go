@@ -110,3 +110,21 @@ func (c *RecordController) FindRecordByCurrentDepartment(ctx *fiber.Ctx) error {
 	})
 
 }
+
+func (c *RecordController) FindByCurrentUser(ctx *fiber.Ctx) error {
+	userID := ctx.Locals("user_id").(uint)
+
+	page, _ := strconv.Atoi(ctx.Query("page", "1"))
+	limit, _ := strconv.Atoi(ctx.Query("limit", "10"))
+
+	result, err := c.service.FindByUser(userID, page, limit)
+	if err != nil {
+		return err
+	}
+
+	return ctx.JSON(response.Response{
+		Status:  "SUCCESS",
+		Message: "Records retrieved successfully",
+		Data:    result,
+	})
+}

@@ -11,9 +11,31 @@ import (
 type RecordRepositoryImpl struct {
 	Db *gorm.DB
 }
+
 func NewRecordRepositoryImpl(db *gorm.DB) RecordRepository {
 	return &RecordRepositoryImpl{Db: db}
 }
+
+
+// FindByUserId implements RecordRepository.
+func (r *RecordRepositoryImpl) FindByUserId(userID uint, offset int, limit int) ([]model.Record, int64, error) {
+	var records []model.Record
+	var total int64
+
+	query := r.Db.
+		Preload("User").
+		Preload("Course").
+		Where("user_id = ?", userID)
+
+	err := query.Model(&model.Record{}).Count(&total).Error
+	if err != nil {
+		return nil, 0, err
+	}
+
+	err = query.Offset(offset).Limit(limit).Order("created_at DESC").Find(&records).Error
+	return records, total, err
+}
+
 
 // FindByManagerDepartment implements RecordRepository.
 func (r *RecordRepositoryImpl) FindByManagerDepartment(departmetnID int, offset int, limit int) ([]model.Record, int64, error) {
@@ -34,8 +56,6 @@ func (r *RecordRepositoryImpl) FindByManagerDepartment(departmetnID int, offset 
 	err = query.Offset(offset).Limit(limit).Order("records.created_at DESC").Find(&records).Error
 	return records, total, err
 }
-
-
 
 // Delete implements RecordRepository.
 func (r *RecordRepositoryImpl) Delete(id int) error {

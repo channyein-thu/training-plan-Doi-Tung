@@ -7,6 +7,10 @@ type CertificateResponse struct {
 
 	UserID   uint   `json:"userId"`
 	UserName string `json:"userName"`
+	EmployeeID string `json:"employeeId"`
+	Department string `json:"department"`
+	Division string   `json:"division"`
+	Category   string  `json:"category"`
 
 	TrainingID   uint   `json:"trainingId"`
 	TrainingName string  `json:"trainingName"`
