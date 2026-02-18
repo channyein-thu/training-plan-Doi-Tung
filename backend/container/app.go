@@ -15,7 +15,7 @@ import (
 
 type AppDependencies struct {
 	DepartmentController *controller.DepartmentController
-	CourseController     *controller.CourseController
+	TrainingPlanController     *controller.TrainingPlanController
 	AuthController       *controller.AuthController
 	UserController       *controller.UserController
 	CertificateController *controller.CertificateController
@@ -52,16 +52,16 @@ func NewAppDependencies(
 
 
 
-	// ---------- Course ----------
-	courseRepo := repository.NewCourseRepositoryImpl(db)
-	courseService := service.NewCourseServiceImpl(
-		courseRepo,
+	// ---------- TrainingPlan ----------
+	trainingPlanRepo := repository.NewTrainingPlanRepositoryImpl(db)
+	trainingPlanService := service.NewTrainingPlanServiceImpl(
+		trainingPlanRepo,
 		redis,
 		validate,
 		calendarService,
 		location,
 	)
-	courseController := controller.NewCourseController(courseService)
+	trainingPlanController := controller.NewTrainingPlanController(trainingPlanService)
 
 	// ---------- Auth ----------
 	authController := controller.NewAuthController(db)
@@ -69,7 +69,7 @@ func NewAppDependencies(
 
 	return &AppDependencies{
 		DepartmentController: departmentController,
-		CourseController:     courseController,
+		TrainingPlanController:     trainingPlanController,
 		AuthController:       authController,
 		UserController:       userController,
 		CertificateController: certificateController,

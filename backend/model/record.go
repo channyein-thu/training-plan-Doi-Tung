@@ -11,12 +11,12 @@ const (
 )
 
 type Record struct {
-	ID        uint         `gorm:"primaryKey;autoIncrement" json:"id"`
-	UserID    uint         `gorm:"not null" json:"userId"`
-	User      *User        `gorm:"foreignKey:UserID" json:"user,omitempty"`
-	CourseID  uint         `gorm:"not null" json:"courseId"`
-	Course    *Course      `gorm:"foreignKey:CourseID" json:"course,omitempty"`
-	Status    RecordStatus `gorm:"type:enum('Register','Attended','Absent');not null;default:'Register'" json:"status"`
-	CreatedAt time.Time    `gorm:"autoCreateTime" json:"createdAt"`
-	UpdatedAt time.Time    `gorm:"autoUpdateTime" json:"updatedAt"`
+	ID             uint         `gorm:"primaryKey;autoIncrement" json:"id"`
+	UserID         uint         `gorm:"not null" json:"userId"`
+	User           *User        `gorm:"foreignKey:UserID" json:"user,omitempty"`
+	TrainingPlanID uint         `gorm:"not null" json:"trainingPlanId"`
+	TrainingPlan   *TrainingPlan `gorm:"foreignKey:TrainingPlanID" json:"trainingPlan,omitempty"`
+	Status         RecordStatus `gorm:"type:enum('Register','Attended','Absent');not null;default:'Register'" json:"status"`
+	CreatedAt      time.Time    `gorm:"autoCreateTime" json:"createdAt"`
+	UpdatedAt      time.Time    `gorm:"autoUpdateTime" json:"updatedAt"`
 }

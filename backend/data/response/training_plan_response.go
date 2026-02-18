@@ -2,7 +2,7 @@ package response
 
 import "time"
 
-type CourseResponse struct {
+type TrainingPlanResponse struct {
 	ID   int    `json:"id"`
 	Name string `json:"name"`
 

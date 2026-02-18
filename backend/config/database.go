@@ -16,7 +16,7 @@ func ConnectionDB(config *Config) *gorm.DB {
 		log.Fatal("Failed to connect database:", err)
 	}
 
-	err = db.AutoMigrate(&model.Department{}, &model.Course{}, &model.User{}, &model.RefreshToken{}, &model.Certificate{}, &model.Record{})
+	err = db.AutoMigrate(&model.Department{}, &model.TrainingPlan{}, &model.User{}, &model.RefreshToken{}, &model.Certificate{}, &model.Record{})
 	if err != nil {
 		log.Fatal("Migration failed:", err)
 	}

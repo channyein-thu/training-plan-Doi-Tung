@@ -59,7 +59,7 @@ func LoadLocation() *time.Location {
 }
 
 // CREATE CALENDAR EVENT
-func CreateCourseCalendarEvent(
+func CreateTrainingPlanCalendarEvent(
 	ctx context.Context,
 	srv *calendar.Service,
 	title string,
@@ -101,7 +101,7 @@ func CreateCourseCalendarEvent(
 }
 
 // UPDATE CALENDAR EVENT
-func UpdateCourseCalendarEvent(
+func UpdateTrainingPlanCalendarEvent(
 	ctx context.Context,
 	srv *calendar.Service,
 	eventID string,
@@ -140,7 +140,7 @@ func UpdateCourseCalendarEvent(
 }
 
 // DELETE CALENDAR EVENT
-func DeleteCourseCalendarEvent(
+func DeleteTrainingPlanCalendarEvent(
 	ctx context.Context,
 	srv *calendar.Service,
 	eventID string,

@@ -39,7 +39,7 @@ type Certificate struct {
 
 	// TrainingName string `gorm:"type:varchar(255);not null"`
 	TrainingID    uint `gorm:"not null;index"`
-	Training     *Course `gorm:"foreignKey:TrainingID"`
+	Training     *TrainingPlan `gorm:"foreignKey:TrainingID"`
 
 	Image        string `gorm:"type:text;not null"`
 	Description  *string `gorm:"type:text"`

@@ -2,7 +2,7 @@ package request
 
 import "time"
 
-type CreateCourseRequest struct {
+type CreateTrainingPlanRequest struct {
 	Name             string  `json:"name" validate:"required,min=3"`
 	SpeakerInstitute *string `json:"speakerInstitute"`
 	Type             string  `json:"type" validate:"required"`
@@ -23,7 +23,7 @@ type CreateCourseRequest struct {
 
 
 
-type UpdateCourseRequest struct {
+type UpdateTrainingPlanRequest struct {
 	Name             *string    `json:"name" validate:"omitempty,min=3"`
 	SpeakerInstitute *string    `json:"speakerInstitute" validate:"omitempty"`
 

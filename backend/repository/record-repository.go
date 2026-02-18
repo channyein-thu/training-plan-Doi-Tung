@@ -24,7 +24,7 @@ func (r *RecordRepositoryImpl) FindByUserId(userID uint, offset int, limit int) 
 
 	query := r.Db.
 		Preload("User").
-		Preload("Course").
+		Preload("TrainingPlan").
 		Where("user_id = ?", userID)
 
 	err := query.Model(&model.Record{}).Count(&total).Error
@@ -44,7 +44,7 @@ func (r *RecordRepositoryImpl) FindByManagerDepartment(departmetnID int, offset 
 
 	query := r.Db.
 		Preload("User").
-		Preload("Course").
+		Preload("TrainingPlan").
 		Joins("JOIN users ON users.id = records.user_id").
 		Where("users.department_id = ?", departmetnID)
 
@@ -70,10 +70,10 @@ func (r *RecordRepositoryImpl) Delete(id int) error {
 }
 
 // Exists implements RecordRepository.
-func (r *RecordRepositoryImpl) Exists(userId uint, courseId uint) bool {
+func (r *RecordRepositoryImpl) Exists(userId uint, trainingPlanId uint) bool {
 	var count int64
 	r.Db.Model(&model.Record{}).
-		Where("user_id = ? AND course_id = ?", userId, courseId).
+		Where("user_id = ? AND training_plan_id = ?", userId, trainingPlanId).
 		Count(&count)
 
 	return count > 0
@@ -85,7 +85,7 @@ func (r *RecordRepositoryImpl) FindById(id int) (*model.Record, error) {
 
 	err := r.Db.
 		Preload("User").
-		Preload("Course").
+		Preload("TrainingPlan").
 		First(&record, id).
 		Error
 

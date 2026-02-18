@@ -50,20 +50,20 @@ func (s *RecordServiceImpl) FindByUser(userID uint, page int, limit int) (respon
 	for _, r := range records {
 
 		resp := response.RecordResponse{
-			ID:        r.ID,
-			UserID:    r.UserID,
-			CourseID:  r.CourseID,
-			Status:    string(r.Status),
-			CreatedAt: r.CreatedAt,
-			UpdatedAt: r.UpdatedAt,
+			ID:             r.ID,
+			UserID:         r.UserID,
+			TrainingPlanID: r.TrainingPlanID,
+			Status:         string(r.Status),
+			CreatedAt:      r.CreatedAt,
+			UpdatedAt:      r.UpdatedAt,
 		}
 
 		if r.User != nil {
 			resp.UserName = r.User.Name
 		}
 
-		if r.Course != nil {
-			resp.CourseName = r.Course.Name
+		if r.TrainingPlan != nil {
+			resp.TrainingPlanName = r.TrainingPlan.Name
 		}
 
 		items = append(items, resp)
@@ -83,7 +83,7 @@ func (s *RecordServiceImpl) FindByUser(userID uint, page int, limit int) (respon
 
 
 func (s *RecordServiceImpl) RegisterStaff(
-	courseId uint,
+	trainingPlanId uint,
 	req request.RegisterStaffRequest,
 ) error {
 
@@ -92,14 +92,14 @@ func (s *RecordServiceImpl) RegisterStaff(
 	}
 
 	for _, userId := range req.UserIDs {
-		if s.repo.Exists(userId, courseId) {
+		if s.repo.Exists(userId, trainingPlanId) {
 			continue // prevent duplicate registration
 		}
 
 		record := &model.Record{
-			UserID:   userId,
-			CourseID: courseId,
-			Status:   model.RecordStatusRegister,
+			UserID:         userId,
+			TrainingPlanID: trainingPlanId,
+			Status:         model.RecordStatusRegister,
 		}
 
 		if err := s.repo.Save(record); err != nil {
@@ -120,14 +120,14 @@ func (s *RecordServiceImpl) FindById(
 	}
 
 	return response.RecordResponse{
-		ID:         record.ID,
-		UserID:     record.UserID,
-		UserName:   record.User.Name,
-		CourseID:   record.CourseID,
-		CourseName: record.Course.Name,
-		Status:     string(record.Status),
-		CreatedAt:  record.CreatedAt,
-		UpdatedAt:  record.UpdatedAt,
+		ID:               record.ID,
+		UserID:           record.UserID,
+		UserName:         record.User.Name,
+		TrainingPlanID:   record.TrainingPlanID,
+		TrainingPlanName: record.TrainingPlan.Name,
+		Status:           string(record.Status),
+		CreatedAt:        record.CreatedAt,
+		UpdatedAt:        record.UpdatedAt,
 	}, nil
 }
 
@@ -192,20 +192,20 @@ func (s *RecordServiceImpl) FindByManager(
 	for _, r := range records {
 
 		resp := response.RecordResponse{
-			ID:        r.ID,
-			UserID:    r.UserID,
-			CourseID:  r.CourseID,
-			Status:    string(r.Status),
-			CreatedAt: r.CreatedAt,
-			UpdatedAt: r.UpdatedAt,
+			ID:             r.ID,
+			UserID:         r.UserID,
+			TrainingPlanID: r.TrainingPlanID,
+			Status:         string(r.Status),
+			CreatedAt:      r.CreatedAt,
+			UpdatedAt:      r.UpdatedAt,
 		}
 
 		if r.User != nil {
 			resp.UserName = r.User.Name
 		}
 
-		if r.Course != nil {
-			resp.CourseName = r.Course.Name
+		if r.TrainingPlan != nil {
+			resp.TrainingPlanName = r.TrainingPlan.Name
 		}
 
 		items = append(items, resp)

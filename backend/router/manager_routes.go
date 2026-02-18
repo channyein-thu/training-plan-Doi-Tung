@@ -22,9 +22,9 @@ func ManagerRoutes(r fiber.Router, deps *container.AppDependencies) {
 	// // Department (with staff list)
 	// r.Get("/departments/:id", deps.DepartmentController.FindByIdWithStaff)
 
-	// // Register staff to course (YOUR FORM)
+	// Register staff to training plan
 	r.Post(
-		"/courses/:courseId/registrations",
+		"/training-plans/:trainingPlanId/registrations",
 		deps.RecordController.RegisterStaff,
 	)
 

@@ -19,9 +19,9 @@ func NewRecordController(service service.RecordService) *RecordController {
 }
 
 func (c *RecordController) RegisterStaff(ctx *fiber.Ctx) error {
-	courseId, err := strconv.Atoi(ctx.Params("courseId"))
+	trainingPlanId, err := strconv.Atoi(ctx.Params("trainingPlanId"))
 	if err != nil {
-		return helper.BadRequest("Invalid course ID")
+		return helper.BadRequest("Invalid training plan ID")
 	}
 
 	var req request.RegisterStaffRequest
@@ -29,13 +29,13 @@ func (c *RecordController) RegisterStaff(ctx *fiber.Ctx) error {
 		return helper.BadRequest("Invalid request body")
 	}
 
-	if err := c.service.RegisterStaff(uint(courseId), req); err != nil {
+	if err := c.service.RegisterStaff(uint(trainingPlanId), req); err != nil {
 		return err
 	}
 
 	return ctx.Status(fiber.StatusCreated).JSON(response.Response{
 		Status:  "SUCCESS",
-		Message: "Staff registered to course successfully",
+		Message: "Staff registered to training plan successfully",
 	})
 }
 func (c *RecordController) FindById(ctx *fiber.Ctx) error {

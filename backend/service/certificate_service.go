@@ -45,7 +45,7 @@ func (c *CertificateServiceImpl) GetTrainingIDByRecordID(recordID int, userID ui
 		return 0, helper.BadRequest("Record not found for the user")
 	}
 
-	return int(record.CourseID), nil
+	return int(record.TrainingPlanID), nil
 }
 
 

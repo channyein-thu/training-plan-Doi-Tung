@@ -35,12 +35,12 @@ func AdminRoutes(r fiber.Router, deps *container.AppDependencies) {
 	r.Get("/users", deps.UserController.AdminFindAll)
 	r.Get("/users/:id", deps.UserController.AdminFindById)
 
-	// Course management
-	r.Post("/courses", deps.CourseController.Create)
-	r.Put("/courses/:id", deps.CourseController.Update)
-	r.Delete("/courses/:id", deps.CourseController.Delete)
-	r.Get("/courses", deps.CourseController.FindPaginated)
-	r.Get("/courses/:id", deps.CourseController.FindById)
+	// Training Plan management
+	r.Post("/training-plans", deps.TrainingPlanController.Create)
+	r.Put("/training-plans/:trainingPlanId", deps.TrainingPlanController.Update)
+	r.Delete("/training-plans/:trainingPlanId", deps.TrainingPlanController.Delete)
+	r.Get("/training-plans", deps.TrainingPlanController.FindPaginated)
+	r.Get("/training-plans/:trainingPlanId", deps.TrainingPlanController.FindById)
 
 	// // Records
 	// r.Get("/records", deps.RecordController.FindAllPaginated)

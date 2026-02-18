@@ -12,11 +12,11 @@ type DepartmentStaffCount struct {
 	TotalStaff int64
 }
 
-type CourseRepository interface {
-	Save(course *model.Course) error
-	FindById(id int) (*model.Course, error)
-	FindPaginated(offset, limit int) ([]model.Course, int64, error)
-	Update(course *model.Course) error
+type TrainingPlanRepository interface {
+	Save(trainingPlan *model.TrainingPlan) error
+	FindById(id int) (*model.TrainingPlan, error)
+	FindPaginated(offset, limit int) ([]model.TrainingPlan, int64, error)
+	Update(trainingPlan *model.TrainingPlan) error
 	Delete(id int) error
 }
 
@@ -60,7 +60,7 @@ type RecordRepository interface {
 	FindById(id int) (*model.Record, error)
 	Update(record *model.Record) error
 	Delete(id int) error
-	Exists(userId uint, courseId uint) bool
+	Exists(userId uint, trainingPlanId uint) bool
 	FindByManagerDepartment(departmetnID int, offset, limit int) ([]model.Record, int64, error)
 	FindByUserId(userID uint, offset, limit int) ([]model.Record, int64, error)
 }

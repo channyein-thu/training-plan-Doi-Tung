@@ -20,22 +20,22 @@ import (
 	"google.golang.org/api/calendar/v3"
 )
 
-type CourseServiceImpl struct {
-	repo      repository.CourseRepository
+type TrainingPlanServiceImpl struct {
+	repo      repository.TrainingPlanRepository
 	cache     *redis.Client
 	validate  *validator.Validate
 	calendar  *calendar.Service
 	location  *time.Location
 }
 
-func NewCourseServiceImpl(
-	repo repository.CourseRepository,
+func NewTrainingPlanServiceImpl(
+	repo repository.TrainingPlanRepository,
 	cache *redis.Client,
 	validate *validator.Validate,
 	calendar *calendar.Service,
 	location *time.Location,
-) CourseService {
-	return &CourseServiceImpl{
+) TrainingPlanService {
+	return &TrainingPlanServiceImpl{
 		repo:     repo,
 		cache:    cache,
 		validate: validate,
@@ -45,49 +45,49 @@ func NewCourseServiceImpl(
 }
 
 
-// CREATE COURSE
-func (s *CourseServiceImpl) Create(req request.CreateCourseRequest) error {
+// CREATE TRAINING PLAN
+func (s *TrainingPlanServiceImpl) Create(req request.CreateTrainingPlanRequest) error {
 	if err := s.validate.Struct(req); err != nil {
 		return helper.ValidationError(
 		helper.FormatValidationError(err),
 	)
 	}
 
-	course := mapper.ToCourseModel(req)
+	trainingPlan := mapper.ToTrainingPlanModel(req)
 
-	if err := s.repo.Save(&course); err != nil {
+	if err := s.repo.Save(&trainingPlan); err != nil {
 		return err
 	}
 
 	// ===== SAFETY CHECKS =====
 	if s.calendar == nil || s.location == nil {
 		log.Println("Calendar not initialized, skipping calendar")
-		s.invalidateCourseCache()
+		s.invalidateTrainingPlanCache()
 		return nil
 	}
 
-	if course.Date.IsZero() {
-		log.Println("Course date is zero, skipping calendar")
-		s.invalidateCourseCache()
+	if trainingPlan.Date.IsZero() {
+		log.Println("Training plan date is zero, skipping calendar")
+		s.invalidateTrainingPlanCache()
 		return nil
 	}
 	
 	hours := 8
-	if course.NumberOfHours != nil {
-		hours = *course.NumberOfHours
+	if trainingPlan.NumberOfHours != nil {
+		hours = *trainingPlan.NumberOfHours
 	}
 
 	// description := "Training Plan"
-	// if course.Content != nil && *course.Content != "" {
-	// 	description = *course.Content
+	// if trainingPlan.Content != nil && *trainingPlan.Content != "" {
+	// 	description = *trainingPlan.Content
 	// }
 
-	eventID, err := helper.CreateCourseCalendarEvent(
+	eventID, err := helper.CreateTrainingPlanCalendarEvent(
 		context.Background(),
 		s.calendar,
-		course.Name,
-		course.Content,
-		course.Date.In(s.location),
+		trainingPlan.Name,
+		trainingPlan.Content,
+		trainingPlan.Date.In(s.location),
 		hours,
 	)
 	if err != nil {
@@ -95,52 +95,52 @@ func (s *CourseServiceImpl) Create(req request.CreateCourseRequest) error {
 	}
 
 	if err == nil {
-		course.CalendarEventID = &eventID
-		if err := s.repo.Update(&course); err != nil {
+		trainingPlan.CalendarEventID = &eventID
+		if err := s.repo.Update(&trainingPlan); err != nil {
 			log.Println("Failed to save calendar_event_id:", err)
 		}
 	} else {
 		log.Println("Calendar create failed:", err)
 	}
 
-	s.invalidateCourseCache()
+	s.invalidateTrainingPlanCache()
 	return nil
 }
 
-// DELETE COURSE
-func (s *CourseServiceImpl) Delete(courseId int) error {
-	course, err := s.repo.FindById(courseId)
+// DELETE TRAINING PLAN
+func (s *TrainingPlanServiceImpl) Delete(trainingPlanId int) error {
+	trainingPlan, err := s.repo.FindById(trainingPlanId)
 	if err != nil {
 		return err
 	}
 
 	// Delete calendar event if exists
-	if course.CalendarEventID != nil {
-		if err := helper.DeleteCourseCalendarEvent(
+	if trainingPlan.CalendarEventID != nil {
+		if err := helper.DeleteTrainingPlanCalendarEvent(
 			context.Background(),
 			s.calendar,
-			*course.CalendarEventID,
+			*trainingPlan.CalendarEventID,
 		); err != nil {
 			log.Println("Calendar delete failed:", err)
 		}
 	}
 
-	if err := s.repo.Delete(courseId); err != nil {
+	if err := s.repo.Delete(trainingPlanId); err != nil {
 		return err
 	}
 
-	s.invalidateCourseCache()
+	s.invalidateTrainingPlanCache()
 	return nil
 }
 
 // FIND BY ID (CACHE)
-func (s *CourseServiceImpl) FindById(courseId int) (response.CourseResponse, error) {
-	cacheKey := fmt.Sprintf("course:id:%d", courseId)
+func (s *TrainingPlanServiceImpl) FindById(trainingPlanId int) (response.TrainingPlanResponse, error) {
+	cacheKey := fmt.Sprintf("training-plan:id:%d", trainingPlanId)
 
 	// CACHE HIT
 	cached, err := s.cache.Get(config.Ctx, cacheKey).Result()
 	if err == nil {
-		var resp response.CourseResponse
+		var resp response.TrainingPlanResponse
 		_ = json.Unmarshal([]byte(cached), &resp)
 		log.Println("CACHE HIT:", cacheKey)
 		return resp, nil
@@ -149,12 +149,12 @@ func (s *CourseServiceImpl) FindById(courseId int) (response.CourseResponse, err
 	}
 
 	// CACHE MISS
-	course, err := s.repo.FindById(courseId)
+	trainingPlan, err := s.repo.FindById(trainingPlanId)
 	if err != nil {
-		return response.CourseResponse{}, err
+		return response.TrainingPlanResponse{}, err
 	}
 
-	resp := mapper.ToCourseResponse(*course)
+	resp := mapper.ToTrainingPlanResponse(*trainingPlan)
 
 	bytes, _ := json.Marshal(resp)
 	_ = s.cache.Set(config.Ctx, cacheKey, bytes, time.Minute*10).Err()
@@ -163,10 +163,10 @@ func (s *CourseServiceImpl) FindById(courseId int) (response.CourseResponse, err
 }
 
 // FIND PAGINATED (CACHE)
-func (s *CourseServiceImpl) FindPaginated(
+func (s *TrainingPlanServiceImpl) FindPaginated(
 	page int,
 	pageSize int,
-) (response.PaginatedResponse[response.CourseResponse], error) {
+) (response.PaginatedResponse[response.TrainingPlanResponse], error) {
 
 	if page <= 0 {
 		page = 1
@@ -175,12 +175,12 @@ func (s *CourseServiceImpl) FindPaginated(
 		pageSize = 10
 	}
 
-	cacheKey := fmt.Sprintf("course:page:%d:size:%d", page, pageSize)
+	cacheKey := fmt.Sprintf("training-plan:page:%d:size:%d", page, pageSize)
 
 	// CACHE HIT
 	cached, err := s.cache.Get(config.Ctx, cacheKey).Result()
 	if err == nil {
-		var resp response.PaginatedResponse[response.CourseResponse]
+		var resp response.PaginatedResponse[response.TrainingPlanResponse]
 		_ = json.Unmarshal([]byte(cached), &resp)
 		log.Println("CACHE HIT:", cacheKey)
 		return resp, nil
@@ -190,14 +190,14 @@ func (s *CourseServiceImpl) FindPaginated(
 
 	// CACHE MISS
 	offset := (page - 1) * pageSize
-	courses, total, err := s.repo.FindPaginated(offset, pageSize)
+	trainingPlans, total, err := s.repo.FindPaginated(offset, pageSize)
 	if err != nil {
-		return response.PaginatedResponse[response.CourseResponse]{}, err
+		return response.PaginatedResponse[response.TrainingPlanResponse]{}, err
 	}
 
-	items := mapper.ToCourseResponseList(courses)
+	items := mapper.ToTrainingPlanResponseList(trainingPlans)
 
-	resp := response.PaginatedResponse[response.CourseResponse]{
+	resp := response.PaginatedResponse[response.TrainingPlanResponse]{
 		Items: items,
 		Meta: response.PaginationMeta{
 			Page:       page,
@@ -213,77 +213,78 @@ func (s *CourseServiceImpl) FindPaginated(
 	return resp, nil
 }
 
-// UPDATE COURSE
-func (s *CourseServiceImpl) Update(courseId int, req request.UpdateCourseRequest) error {
+// UPDATE TRAINING PLAN
+func (s *TrainingPlanServiceImpl) Update(trainingPlanId int, req request.UpdateTrainingPlanRequest) error {
 	if err := s.validate.Struct(req); err != nil {
 			return helper.ValidationError(
 		helper.FormatValidationError(err),
 	)
 	}
 
-	course, err := s.repo.FindById(courseId)
+	trainingPlan, err := s.repo.FindById(trainingPlanId)
 	if err != nil {
 		return err
 	}
 
-	mapper.UpdateCourseFromRequest(course, req)
+	mapper.UpdateTrainingPlanFromRequest(trainingPlan, req)
 
-	if err := s.repo.Update(course); err != nil {
+	if err := s.repo.Update(trainingPlan); err != nil {
 		return err
 	}
 
 	// ===== SAFETY CHECKS =====
 	if s.calendar == nil || s.location == nil {
 		log.Println("Calendar not initialized, skipping calendar update")
-		s.invalidateCourseCache()
+		s.invalidateTrainingPlanCache()
 		return nil
 	}
 
-	if course.CalendarEventID == nil {
+	if trainingPlan.CalendarEventID == nil {
 		log.Println("No calendar_event_id, skipping calendar update")
-		s.invalidateCourseCache()
+		s.invalidateTrainingPlanCache()
 		return nil
 	}
 
-	if course.Date.IsZero() {
-		log.Println("Course date is zero, skipping calendar update")
-		s.invalidateCourseCache()
+	if trainingPlan.Date.IsZero() {
+		log.Println("Training plan date is zero, skipping calendar update")
+		s.invalidateTrainingPlanCache()
 		return nil
 	}
 	// ========================
 
 	hours := 8
-	if course.NumberOfHours != nil {
-		hours = *course.NumberOfHours
+	if trainingPlan.NumberOfHours != nil {
+		hours = *trainingPlan.NumberOfHours
 	}
 
 	// description := "Training  Plan"
-	// if course.Content != nil && *course.Content != "" {
-	// 	description = *course.Content
+	// if trainingPlan.Content != nil && *trainingPlan.Content != "" {
+	// 	description = *trainingPlan.Content
 	// }
 
-	if err := helper.UpdateCourseCalendarEvent(
+	if err := helper.UpdateTrainingPlanCalendarEvent(
 		context.Background(),
 		s.calendar,
-		*course.CalendarEventID,
-		course.Name,
-		course.Content,
-		course.Date.In(s.location),
+		*trainingPlan.CalendarEventID,
+		trainingPlan.Name,
+		trainingPlan.Content,
+		trainingPlan.Date.In(s.location),
 		hours,
 	); err != nil {
 		log.Println("Calendar update failed:", err)
 		return err
 	}
 
-	s.invalidateCourseCache()
+	s.invalidateTrainingPlanCache()
 	return nil
 }
 
 // CACHE INVALIDATION
-func (s *CourseServiceImpl) invalidateCourseCache() {
-	iter := s.cache.Scan(config.Ctx, 0, "course:*", 0).Iterator()
+func (s *TrainingPlanServiceImpl) invalidateTrainingPlanCache() {
+	iter := s.cache.Scan(config.Ctx, 0, "training-plan:*", 0).Iterator()
 	for iter.Next(config.Ctx) {
 		s.cache.Del(config.Ctx, iter.Val())
 	}
-	log.Println("Course cache invalidated")
+	log.Println("Training plan cache invalidated")
 }
+

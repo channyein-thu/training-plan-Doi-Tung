@@ -6,12 +6,12 @@ import (
 	"training-plan-api/data/response"
 )
 
-type CourseService interface {
-	Create(course request.CreateCourseRequest) error
-	Update(courseId int, course request.UpdateCourseRequest) error
-	Delete(courseId int) error
-	FindById(courseId int) (response.CourseResponse, error)
-	FindPaginated(page, pageSize int) (response.PaginatedResponse[response.CourseResponse], error)
+type TrainingPlanService interface {
+	Create(trainingPlan request.CreateTrainingPlanRequest) error
+	Update(trainingPlanId int, trainingPlan request.UpdateTrainingPlanRequest) error
+	Delete(trainingPlanId int) error
+	FindById(trainingPlanId int) (response.TrainingPlanResponse, error)
+	FindPaginated(page, pageSize int) (response.PaginatedResponse[response.TrainingPlanResponse], error)
 }
 
 type DepartmentService interface {
@@ -45,7 +45,7 @@ type CertificateService interface {
 }
 
 type RecordService interface {
-	RegisterStaff(courseId uint, req request.RegisterStaffRequest) error
+	RegisterStaff(trainingPlanId uint, req request.RegisterStaffRequest) error
 	FindById(id int) (response.RecordResponse, error)
 	Update(id int, req request.UpdateRecordRequest) error
 	Delete(id int) error
