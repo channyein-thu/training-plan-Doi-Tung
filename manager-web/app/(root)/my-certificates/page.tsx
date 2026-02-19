@@ -7,7 +7,7 @@ import React from "react";
 function MyCertificates() {
   return (
     <>
-      <div className="m-6 space-y-4">
+      <div className="h-screen overflow-y-auto p-4 m-2 space-y-4">
         <PageHeader
           title="My Certificates"
           subtitle="View and download all your training certificates"

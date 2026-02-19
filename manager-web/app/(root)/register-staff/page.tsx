@@ -15,7 +15,7 @@ import RegisterCard from "@/components/register-staff/registerCard";
 function RegisterStaffPage() {
   return (
     <div>
-      <div className="m-6 space-y-4">
+      <div className="h-screen overflow-y-auto p-4 m-2 space-y-4">
         <PageHeader
           title="Register Staff to Training Plans"
           subtitle="Register department staff to organization training programs"
