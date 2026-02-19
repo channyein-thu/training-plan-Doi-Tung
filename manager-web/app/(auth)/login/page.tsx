@@ -15,13 +15,11 @@ import Logo from "@/components/login/logo";
 import { Card, CardContent } from "@/components/ui/card";
 import { PersonStanding, Shield, Users } from "lucide-react";
 import Link from "next/link";
-import { LoginAction } from "@/lib/actions/login";
+import { LoginAction, State } from "@/lib/actions/login";
 
 export default function LoginForm() {
-  const initialState = {
-    email: "",
-    password: "",
-  };
+  const initialState: State = { errors: {}, message: null };
+
   const [state, formAction, pending] = useActionState(
     LoginAction as any,
     initialState,

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useActionState, useState } from "react";
 import Logo from "@/components/login/logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -22,30 +22,16 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
 import { Users } from "lucide-react";
+import { init } from "next/dist/compiled/webpack/webpack";
+import { LoginAction } from "@/lib/actions/login";
+import { RegisterAction } from "@/lib/actions/register";
 
 export default function RegisterPage() {
-  const [form, setForm] = useState({
-    fullName: "",
-    employeeId: "",
-    email: "",
-    phone: "",
-    department: "",
-    position: "",
-    agency: "",
-    cotton: "",
-    line: "",
-    password: "",
-    confirmPassword: "",
-  });
-
-  function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  }
-
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    console.log(form);
-  }
+  const initialState = { errors: {}, message: null };
+  const [state, formAction, pending] = useActionState(
+    RegisterAction as any,
+    initialState,
+  );
 
   return (
     <div className="min-h-screen bg-[#dbe7dd] flex flex-col items-center py-10 px-4 w-[100%]">
@@ -69,7 +55,7 @@ export default function RegisterPage() {
             </div>
           </div>
 
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={formAction}>
             <FieldGroup>
               {/* ================= PERSONAL INFO ================= */}
               <FieldSet>
