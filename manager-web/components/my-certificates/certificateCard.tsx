@@ -38,11 +38,9 @@ function CertificateCard({ certificate }: { certificate: Certificate }) {
         <p className="text-sm text-gray-600">
           Category - {certificate.category}
         </p>
-
-        <Separator className="" />
       </CardContent>
 
-      {/* Footer Buttons */}
+      {/* Footer Buttons
       <CardFooter className="flex gap-2">
         <Button
           variant="outline"
@@ -51,7 +49,7 @@ function CertificateCard({ certificate }: { certificate: Certificate }) {
           <DownloadIcon className="mr-2 h-4 w-4" />
           Download
         </Button>
-      </CardFooter>
+      </CardFooter> */}
     </Card>
   );
 }
