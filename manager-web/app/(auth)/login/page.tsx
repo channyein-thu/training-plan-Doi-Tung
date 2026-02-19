@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useActionState, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -15,21 +15,17 @@ import Logo from "@/components/login/logo";
 import { Card, CardContent } from "@/components/ui/card";
 import { PersonStanding, Shield, Users } from "lucide-react";
 import Link from "next/link";
+import { LoginAction } from "@/lib/actions/login";
 
 export default function LoginForm() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-
-  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-
-    const values = {
-      email,
-      password,
-    };
-
-    console.log(values);
-  }
+  const initialState = {
+    email: "",
+    password: "",
+  };
+  const [state, formAction, pending] = useActionState(
+    LoginAction as any,
+    initialState,
+  );
 
   return (
     <div className="flex flex-col items-center gap-6 w-full max-w-sm">
@@ -55,7 +51,7 @@ export default function LoginForm() {
           </div>
 
           {/* Form */}
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={formAction} className="w-full">
             <FieldGroup>
               <FieldSet>
                 {/* <FieldLegend>Login Information</FieldLegend>
@@ -71,8 +67,7 @@ export default function LoginForm() {
                       id="email"
                       type="email"
                       placeholder="Enter Email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
+                      name="email"
                       required
                     />
                   </Field>
@@ -84,8 +79,7 @@ export default function LoginForm() {
                       id="password"
                       type="password"
                       placeholder="Enter Password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
+                      name="password"
                       required
                     />
                   </Field>
