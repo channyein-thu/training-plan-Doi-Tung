@@ -44,6 +44,9 @@ func AdminRoutes(r fiber.Router, deps *container.AppDependencies) {
 
 	// // Records
 	// r.Get("/records", deps.RecordController.FindAllPaginated)
+	r.Post("/records/search", deps.RecordController.Search)
+	r.Post("/records/export", deps.RecordController.Export)
+
 
 	// // Certificates (approval flow)
 	r.Get("/certificates", deps.CertificateController.FindAllPending)

@@ -2,6 +2,7 @@ package repository
 
 import (
 	"errors"
+	"training-plan-api/data/request"
 	"training-plan-api/helper"
 	"training-plan-api/model"
 
@@ -14,6 +15,60 @@ type RecordRepositoryImpl struct {
 
 func NewRecordRepositoryImpl(db *gorm.DB) RecordRepository {
 	return &RecordRepositoryImpl{Db: db}
+}
+
+// Search implements RecordRepository.
+func (r *RecordRepositoryImpl) Search(
+	req request.RecordFilterRequest,
+) ([]model.Record, int64, error) {
+
+	var records []model.Record
+	var total int64
+
+	query := r.Db.
+		Model(&model.Record{}).
+		Preload("User").
+		Preload("User.Department").
+		Preload("TrainingPlan").
+		Joins("JOIN users ON users.id = records.user_id").
+		Joins("JOIN training_plans ON training_plans.id = records.training_plan_id")
+
+	// Department filter
+	if len(req.DepartmentIDs) > 0 {
+		query = query.Where("users.department_id IN ?", req.DepartmentIDs)
+	}
+
+	// Category filter
+	if len(req.Categories) > 0 {
+		query = query.Where("training_plans.category IN ?", req.Categories)
+	}
+
+	// Status filter
+	if req.Status != nil && *req.Status != "" {
+		query = query.Where("records.status = ?", *req.Status)
+	}
+
+	// Date range filter
+	if req.StartDate != nil && req.EndDate != nil {
+		query = query.Where("training_plans.date BETWEEN ? AND ?", req.StartDate, req.EndDate)
+	}
+
+	// Count first
+	if err := query.Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+
+	// Pagination
+	offset := (req.Page - 1) * req.Limit
+
+	err := query.
+		Order("records.created_at DESC").
+		Offset(offset).
+		Limit(req.Limit).
+		Find(&records).
+		Error
+
+	return records, total, err
 }
 
 
@@ -44,6 +99,7 @@ func (r *RecordRepositoryImpl) FindByManagerDepartment(departmetnID int, offset 
 
 	query := r.Db.
 		Preload("User").
+		Preload("User.Department").
 		Preload("TrainingPlan").
 		Joins("JOIN users ON users.id = records.user_id").
 		Where("users.department_id = ?", departmetnID)

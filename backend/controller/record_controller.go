@@ -1,7 +1,9 @@
 package controller
 
 import (
+	"fmt"
 	"strconv"
+	"time"
 	"training-plan-api/data/request"
 	"training-plan-api/data/response"
 	"training-plan-api/helper"
@@ -127,4 +129,45 @@ func (c *RecordController) FindByCurrentUser(ctx *fiber.Ctx) error {
 		Message: "Records retrieved successfully",
 		Data:    result,
 	})
+}
+
+func (c *RecordController) Search(ctx *fiber.Ctx) error {
+
+	var req request.RecordFilterRequest
+
+	if err := ctx.BodyParser(&req); err != nil {
+		return helper.BadRequest("Invalid request body")
+	}
+
+	result, err := c.service.Search(req)
+	if err != nil {
+		return err
+	}
+
+	return ctx.Status(fiber.StatusOK).JSON(response.Response{
+		Status:  "SUCCESS",
+		Message: "Records fetched successfully",
+		Data:    result,
+	})
+}
+
+func (c *RecordController) Export(ctx *fiber.Ctx) error {
+
+	var req request.RecordFilterRequest
+
+	if err := ctx.BodyParser(&req); err != nil {
+		return helper.BadRequest("Invalid request body")
+	}
+
+	file, err := c.service.Export(req)
+	if err != nil {
+		return err
+	}
+
+	fileName := fmt.Sprintf("records_%d.xlsx", time.Now().Unix())
+
+	ctx.Set("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+	ctx.Set("Content-Disposition", "attachment; filename="+fileName)
+
+	return file.Write(ctx.Response().BodyWriter())
 }

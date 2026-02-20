@@ -4,6 +4,8 @@ import (
 	"mime/multipart"
 	"training-plan-api/data/request"
 	"training-plan-api/data/response"
+
+	"github.com/xuri/excelize/v2"
 )
 
 type TrainingPlanService interface {
@@ -49,6 +51,9 @@ type RecordService interface {
 	FindById(id int) (response.RecordResponse, error)
 	Update(id int, req request.UpdateRecordRequest) error
 	Delete(id int) error
- 	FindByManager(managerID uint,page int,limit int,) (response.PaginatedResponse[response.RecordResponse], error)	
-	FindByUser(userID uint, page int, limit int) (response.PaginatedResponse[response.RecordResponse], error)
+ 	FindByManager(managerID uint,page int,limit int,) (response.PaginatedResponse[response.AdminRecordResponse], error)	
+	FindByUser(userID uint, page int, limit int) (response.PaginatedResponse[response.StaffRecordResponse], error)
+	Search(req request.RecordFilterRequest) (response.PaginatedResponse[response.AdminRecordResponse], error)
+	Export(req request.RecordFilterRequest) (*excelize.File, error)
+
 }

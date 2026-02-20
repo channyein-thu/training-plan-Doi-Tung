@@ -63,4 +63,5 @@ type RecordRepository interface {
 	Exists(userId uint, trainingPlanId uint) bool
 	FindByManagerDepartment(departmetnID int, offset, limit int) ([]model.Record, int64, error)
 	FindByUserId(userID uint, offset, limit int) ([]model.Record, int64, error)
+	Search(req request.RecordFilterRequest) ([]model.Record, int64, error)
 }

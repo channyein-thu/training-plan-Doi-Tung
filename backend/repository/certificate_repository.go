@@ -56,7 +56,7 @@ func (r *CertificateRepositoryImpl) FindByUserId(userId int) ([]model.Certificat
 
 	err := r.Db.
 		Preload("User").
-		Preload("Training").
+		Preload("TrainingPlan").
 		Where("user_id = ?", userId).
 		Order("created_at DESC").
 		Find(&certificates).
@@ -117,7 +117,7 @@ func (r *CertificateRepositoryImpl) FindAllPending(
 	err := r.Db.
 		Preload("User").
 		Preload("User.Department").
-		Preload("Training").
+		Preload("TrainingPlan").
 		Where("status = ?", model.CertPending).
 		Order("certificates.created_at DESC").
 		Offset(offset).
