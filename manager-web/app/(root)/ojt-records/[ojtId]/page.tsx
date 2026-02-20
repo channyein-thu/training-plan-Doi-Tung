@@ -64,7 +64,7 @@ async function OjtDetails({ params }: PlanDetailsProps) {
         </div>
       </div>
 
-      <EditOJTdetails />
+      {/* <EditOJTdetails /> */}
     </div>
   );
 }

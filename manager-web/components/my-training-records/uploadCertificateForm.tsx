@@ -1,5 +1,6 @@
 import { UploadIcon } from "lucide-react";
 import React from "react";
+import { Button } from "../ui/button";
 
 function UploadCertificateForm() {
   return (
@@ -35,6 +36,15 @@ function UploadCertificateForm() {
                 //   onChange={handleFileChange}
               />
             </label>
+            {/* Action Buttons */}
+            <div className="px-6 py-4  border-gray-200 flex gap-4">
+              <Button variant="outline" className="flex-1">
+                Cancel
+              </Button>
+              <Button className="flex-1 bg-[#006022] hover:bg-[#004d1b] text-white">
+                Save Changes
+              </Button>
+            </div>
           </div>
         </div>
       </form>
