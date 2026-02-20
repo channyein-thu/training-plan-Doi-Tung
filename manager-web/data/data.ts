@@ -201,7 +201,7 @@ export const ojtRecords: OjtRecord[] = [
   {
     id: 2,
     staff: trainingPlanStaff[1],
-    course: courses[0],
+    course: courses[1],
     status: "IN_PROGRESS",
   },
   {

@@ -5,9 +5,6 @@ import {
   CardHeader,
 } from "@/components/ui/card";
 import { Award, DownloadIcon, EyeIcon } from "lucide-react";
-import { Separator } from "@/components/ui/separator";
-import { Button } from "../ui/button";
-import { Course } from "@/types/course";
 import { Certificate } from "@/types/certificate";
 
 function CertificateCard({ certificate }: { certificate: Certificate }) {

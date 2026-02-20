@@ -8,7 +8,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { DownloadIcon, MoreVertical } from "lucide-react";
+import { DownloadIcon, MoreVertical, UploadIcon } from "lucide-react";
 import React, { useState } from "react";
 import { Button } from "../ui/button";
 import {
@@ -28,9 +28,6 @@ import { OjtRecord } from "@/types/records";
 function TrainingRecordTable() {
   const router = useRouter();
 
-  const [open, setOpen] = useState(false);
-  const [mode, setMode] = useState<"edit" | "delete">("edit");
-  const [selectedRecord, setSelectedRecord] = useState<OjtRecord | null>(null);
   return (
     <>
       <div className="">
@@ -68,8 +65,14 @@ function TrainingRecordTable() {
                 <TableCell className="">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon">
-                        <DownloadIcon />
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() =>
+                          router.push(`/my-training-records/${record.id}`)
+                        }
+                      >
+                        <UploadIcon className="h-4 w-4" />
                       </Button>
                     </DropdownMenuTrigger>
 
