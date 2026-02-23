@@ -1,11 +1,16 @@
+import { Department } from "./department";
+
 export type TrainingPlanStaff = {
-  id: number;
-  employeeId: string;
-  fullName: string;
+  id: string;
+  name: string;
   email: string;
   phone: string;
-  departmentId: number;
-  departmentName: string;
+  department: Department;
+  departmentId: string;
+  role: string;
   position: string;
-  status: "ACTIVE" | "INACTIVE";
+  agency: string;
+  cotton: string;
+  line: string;
+  status: "active" | "inactive" | "suspended";
 };

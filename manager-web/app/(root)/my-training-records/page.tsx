@@ -9,13 +9,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Search, Train } from "lucide-react";
-import React from "react";
+import { Search } from "lucide-react";
 
 function MyTrainingRecords() {
   return (
     <>
-      <div className="h-screen overflow-y-auto p-4 m-2 space-y-4">
+      <div className="min-h-screen space-y-4 m-2">
         <PageHeader
           title="My Training Records"
           subtitle="View and manage your training records"
@@ -24,7 +23,8 @@ function MyTrainingRecords() {
         {/* Filter and Search */}
         <div className="flex items-center gap-4 my-6 justify-between">
           {/* Search */}
-          <div className="relative w-[70%]">
+          {/* <div className="relative w-[70%]"> */}
+          <div className="relative w-full">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
             <Input
               placeholder="Search by name, email, or employee ID..."
@@ -33,7 +33,7 @@ function MyTrainingRecords() {
           </div>
 
           {/* Filter */}
-          <Select>
+          {/* <Select>
             <SelectTrigger className="w-[180px] border-[#006022]">
               <SelectValue placeholder="Suspended" />
             </SelectTrigger>
@@ -42,12 +42,12 @@ function MyTrainingRecords() {
               <SelectItem value="inactive">Inactive</SelectItem>
               <SelectItem value="suspended">Suspended</SelectItem>
             </SelectContent>
-          </Select>
+          </Select> */}
 
           {/* Button */}
-          <Button className="bg-[#006022] hover:bg-[#005018] px-8">
+          {/* <Button className="bg-[#006022] hover:bg-[#005018] px-8">
             Search
-          </Button>
+          </Button> */}
         </div>
         <TrainingRecordTable />
       </div>

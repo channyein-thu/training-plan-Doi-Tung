@@ -35,32 +35,103 @@ function TrainingRecordTable() {
           <TableCaption>A list of training records</TableCaption>
           <TableHeader className={`bg-[#E8F7EC] rounded-t-md`}>
             <TableRow>
-              <TableHead className="w-[250px] font-bold">
-                Training Title
+              <TableHead className="w-[250px] font-semibold">
+                Training Plan
               </TableHead>
-              <TableHead className="w-[150px] font-bold">Category</TableHead>
-              <TableHead className=" w-[150px] font-bold">Date</TableHead>
-              <TableHead className=" w-[100px] font-bold">Hours</TableHead>
-              <TableHead className=" w-[100px] font-bold">Type</TableHead>
-              <TableHead className="w-[100px] font-bold">Status</TableHead>
+              <TableHead className="w-[150px] font-semibold">
+                Location
+              </TableHead>
+              <TableHead className="w-[140px] font-semibold">
+                Cost Per Person
+              </TableHead>
+              <TableHead className="w-[140px] font-semibold">
+                Budget Code
+              </TableHead>
+              <TableHead className="w-[120px] font-semibold">
+                Employee ID
+              </TableHead>
+              <TableHead className="w-[160px] font-semibold">
+                Name-Surname
+              </TableHead>
+              <TableHead className="w-[140px] font-semibold">
+                Position
+              </TableHead>
+              <TableHead className="w-[140px] font-semibold">
+                Department
+              </TableHead>
+              <TableHead className="w-[180px] font-semibold">
+                Division
+              </TableHead>
+              <TableHead className="w-[120px] font-semibold">Status</TableHead>
+              <TableHead className="w-[160px] font-semibold">
+                Pre Test Score
+              </TableHead>
+              <TableHead className="w-[160px] font-semibold">
+                Post Test Score
+              </TableHead>
+              <TableHead className="w-[120px] font-semibold">
+                Evaluation
+              </TableHead>
               <TableHead className="w-[100px] font-bold">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {ojtRecords.map((record) => (
               <TableRow key={record.id}>
-                <TableCell className="font-medium">
-                  {record.course.name}
+                <TableCell>
+                  <div className="max-w-[180px] line-clamp-2 break-words">
+                    {record.course.name}
+                  </div>
                 </TableCell>
-                <TableCell>{record.course.category}</TableCell>
-                <TableCell>{record.course.date}</TableCell>
-                <TableCell>{record.course.numberOfHours}</TableCell>
-                <TableCell className="w-[200px]">
-                  {record.course.type}
+
+                <TableCell>
+                  <div className="max-w-[140px] line-clamp-2 break-words">
+                    {record.course.location}
+                  </div>
                 </TableCell>
-                <TableCell className="w-[200px]">
-                  {record.status.replace("_", " ")}
+
+                <TableCell className="text-center">
+                  {record.course.costPerPerson}
                 </TableCell>
+
+                <TableCell>
+                  <div className="max-w-[140px] line-clamp-2 break-words">
+                    {record.course.budgetCode}
+                  </div>
+                </TableCell>
+
+                <TableCell>{record.staff.id}</TableCell>
+
+                <TableCell>
+                  <div className="max-w-[160px] line-clamp-2 break-words">
+                    {record.staff.name}
+                  </div>
+                </TableCell>
+
+                <TableCell>
+                  <div className="max-w-[140px] line-clamp-2 break-words">
+                    {record.staff.position}
+                  </div>
+                </TableCell>
+
+                <TableCell className="text-center">
+                  <div className="max-w-[140px] line-clamp-2 break-words">
+                    {record.staff.department.name}
+                  </div>
+                </TableCell>
+
+                <TableCell>
+                  <div className="max-w-[180px] line-clamp-2 break-words">
+                    {record.staff.department.division}
+                  </div>
+                </TableCell>
+
+                <TableCell>{record.status}</TableCell>
+
+                <TableCell className="text-center">85</TableCell>
+                <TableCell className="text-center">85</TableCell>
+
+                <TableCell>Excellent</TableCell>
 
                 <TableCell className="">
                   <DropdownMenu>

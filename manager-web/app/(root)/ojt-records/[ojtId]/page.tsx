@@ -20,7 +20,7 @@ async function OjtDetails({ params }: PlanDetailsProps) {
     return <div>Training Plan not found</div>;
   }
   return (
-    <div className="m-6 space-y-4">
+    <div className="h-screen overflow-y-auto p-4 m-2 space-y-4">
       {/* Back Button */}
       <Button
         asChild
@@ -42,7 +42,7 @@ async function OjtDetails({ params }: PlanDetailsProps) {
         <div className="grid grid-cols-2 p-2 justify-between gap-4">
           <PlanDetails title="Training Name" subtitle={record.course.name} />
           <PlanDetails title="Category" subtitle={record.course.category} />
-          <PlanDetails title="Employee" subtitle={record.staff.fullName} />
+          <PlanDetails title="Employee" subtitle={record.staff.name} />
           <PlanDetails
             title="Employee ID"
             subtitle={record.staff.id.toString()}
@@ -64,7 +64,7 @@ async function OjtDetails({ params }: PlanDetailsProps) {
         </div>
       </div>
 
-      {/* <EditOJTdetails /> */}
+      <EditOJTdetails />
     </div>
   );
 }

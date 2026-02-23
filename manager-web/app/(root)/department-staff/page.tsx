@@ -24,13 +24,13 @@ function DepartmentStaffPage() {
 
   // ✅ Filter staff by name, employeeId, or department
   const filteredStaff = trainingPlanStaff.filter((staff) =>
-    `${staff.fullName} ${staff.employeeId} ${staff.departmentName}`
+    `${staff.name} ${staff.id} ${staff.department.name}`
       .toLowerCase()
       .includes(searchTerm.toLowerCase()),
   );
 
   return (
-    <div className="h-screen overflow-y-auto p-4 m-2 space-y-4">
+    <div className="min-h-screen space-y-4 m-2">
       <PageHeader
         title="Department Staff"
         subtitle="View your department staff members"

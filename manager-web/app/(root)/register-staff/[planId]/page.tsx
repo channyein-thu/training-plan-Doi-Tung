@@ -19,7 +19,7 @@ async function PlanDetailsRegister({ params }: PlanDetailsProps) {
     return <div>Training Plan not found</div>;
   }
   return (
-    <div className="m-6 space-y-4">
+    <div className="h-screen overflow-y-auto p-4 m-2 space-y-4">
       {/* Back Button */}
       <Button
         asChild

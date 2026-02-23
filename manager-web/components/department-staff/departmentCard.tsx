@@ -27,11 +27,11 @@ function DepartmentCard({ staff, onEdit, onDelete }: DepartmentCardProps) {
         <CardTitle className="flex items-center gap-3">
           <Avatar className="bg-green h-12 w-12 border-2 border-[#E8F7EC]">
             <AvatarFallback className="bg-[#4E7F57] text-white text-md">
-              {staff.fullName.charAt(0)}
+              {staff.name.charAt(0)}
             </AvatarFallback>
           </Avatar>
           <div>
-            <h3 className="text-md font-medium">{staff.fullName}</h3>
+            <h3 className="text-md font-medium">{staff.name}</h3>
             <p className="text-sm text-gray-600">{staff.position}</p>
           </div>
         </CardTitle>
@@ -51,11 +51,11 @@ function DepartmentCard({ staff, onEdit, onDelete }: DepartmentCardProps) {
       </CardHeader>
 
       <CardContent>
-        <p className="text-black text-md">{staff.departmentName}</p>
+        <p className="text-black text-md">{staff.department.name}</p>
         <p className="text-gray-600 text-sm ">
-          {""}Division: {staff.departmentName}
+          {""}Division: {staff.department.division}
         </p>
-        <p className="text-gray-600 text-sm "> Manager: {staff.fullName}</p>
+        <p className="text-gray-600 text-sm "> Manager: {staff.phone}</p>
         {/* <Separator className="w-24 self-center mt-4" /> */}
       </CardContent>
 

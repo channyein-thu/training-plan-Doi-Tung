@@ -5,7 +5,7 @@ import React from "react";
 
 function NotificationPage() {
   return (
-    <div className="h-screen overflow-y-auto p-4 m-2 space-y-4">
+    <div className="min-h-screen space-y-4 m-2">
       <PageHeader title="Notifications" subtitle="View your notifications" />
 
       <NotificationCard

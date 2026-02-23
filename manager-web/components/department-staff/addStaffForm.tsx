@@ -35,6 +35,8 @@ const formSchema = z.object({
   empId: z.string().min(2).max(50),
   email: z.string().email(),
   phone: z.string().min(10).max(15),
+  position: z.string().min(2).max(50),
+  password: z.string().min(8).max(100),
   status: z.enum(["active", "inactive", "suspended"]),
 });
 
@@ -46,6 +48,8 @@ function DialogForm() {
       empId: "",
       email: "",
       phone: "",
+      position: "",
+      password: "",
       status: "active",
     },
   });
@@ -113,6 +117,35 @@ function DialogForm() {
                 <FormLabel>Phone</FormLabel>
                 <FormControl>
                   <Input placeholder="Enter Phone" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        <div className="grid grid-cols-2 gap-4 mt-4">
+          <FormField
+            control={form.control}
+            name="position"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Position</FormLabel>
+                <FormControl>
+                  <Input placeholder="Enter Position" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="password"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Password</FormLabel>
+                <FormControl>
+                  <Input placeholder="Enter Password" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
