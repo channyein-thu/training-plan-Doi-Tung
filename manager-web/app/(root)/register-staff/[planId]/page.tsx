@@ -41,14 +41,11 @@ async function PlanDetailsRegister({ params }: PlanDetailsProps) {
       <div className="border rounded-md m-2 bg-[#E8F7EC] p-4 space-y-4">
         <p className="font-medium mb-2">Training Details</p>
         <h1>{plan.name}</h1>
-        <div className="flex  p-2 justify-between">
+        <div className="flex  p-2 justify-between gap-3">
           <PlanDetails title="Date" subtitle={plan.date} />
           <PlanDetails title="Type" subtitle={plan.type} />
           <PlanDetails title="Category" subtitle={plan.category} />
-          <PlanDetails
-            title="Speaker/Institute"
-            subtitle={plan.speakerInstitute}
-          />
+          <PlanDetails title="Speaker" subtitle={plan.speakerInstitute} />
         </div>
       </div>
 
