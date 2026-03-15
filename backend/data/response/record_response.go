@@ -6,14 +6,17 @@ type AdminRecordResponse struct {
 	ID               uint      `json:"id"`
 	TrainingPlanName string    `json:"trainingPlanName"`
 	Location 	   *string    `json:"location"`
-	CostPerPerson    *int    `json:"costPerPerson,omitempty"`
+	CostPerPerson    *int    	`json:"costPerPerson,omitempty"`
 	BudgetCode       *string   `json:"budgetCode,omitempty"`
-	EmployeeID       string              `json:"employeeId"`
+	EmployeeID       string     `json:"employeeId"`
 	EmployeeName     string    `json:"employeeName"`
 	Position         string    `json:"position"`
 	Department       string    `json:"department"`
 	Division         string    `json:"division"`
 	Status           string    `json:"status"`
+	Evaluation       *string   `json:"evaluation,omitempty"`
+	PreTestScore     *int      `json:"preTestScore,omitempty"`
+	PostTestScore    *int      `json:"postTestScore,omitempty"`
 	CreatedAt        time.Time `json:"createdAt"`
 	UpdatedAt        time.Time `json:"updatedAt"`
 }
@@ -31,6 +34,9 @@ type RecordResponse struct {
 	CostPerPerson    *int    `json:"costPerPerson,omitempty"`
 	BudgetCode       *string   `json:"budgetCode,omitempty"`
 	Status           string    `json:"status"`
+	Evaluation       *string   `json:"evaluation,omitempty"`
+	PreTestScore     *int      `json:"preTestScore,omitempty"`
+	PostTestScore    *int      `json:"postTestScore,omitempty"`
 	CreatedAt        time.Time `json:"createdAt"`
 	UpdatedAt        time.Time `json:"updatedAt"`
 }
@@ -45,6 +51,9 @@ type StaffRecordResponse struct {
 	NumberOfHours    int       `json:"numberOfHours"`
 	SpeakerInstitute *string   `json:"speakerInstitute,omitempty"`
 	TrainingType     string    `json:"trainingType"`
+	Evaluation       *string   `json:"evaluation,omitempty"`
+	PreTestScore     *int      `json:"preTestScore,omitempty"`
+	PostTestScore    *int      `json:"postTestScore,omitempty"`
 	CreatedAt        time.Time `json:"createdAt"`
 	UpdatedAt        time.Time `json:"updatedAt"`
 }

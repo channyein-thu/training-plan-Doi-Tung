@@ -45,7 +45,7 @@ func (c *DepartmentController) Update(ctx *fiber.Ctx) error {
 		return helper.BadRequest("Invalid department data")
 	}
 
-	id, err := strconv.Atoi(ctx.Params("departmentId"))
+	id, err := strconv.Atoi(ctx.Params("id"))
 	if err != nil {
 		return helper.BadRequest("Invalid department ID")
 	}
@@ -61,7 +61,7 @@ func (c *DepartmentController) Update(ctx *fiber.Ctx) error {
 }
 
 func (c *DepartmentController) Delete(ctx *fiber.Ctx) error {
-	id, err := strconv.Atoi(ctx.Params("departmentId"))
+	id, err := strconv.Atoi(ctx.Params("id"))
 	if err != nil {
 		return helper.BadRequest("Invalid department ID")
 	}
@@ -77,7 +77,7 @@ func (c *DepartmentController) Delete(ctx *fiber.Ctx) error {
 }
 
 func (c *DepartmentController) FindById(ctx *fiber.Ctx) error {
-	id, err := strconv.Atoi(ctx.Params("departmentId"))
+	id, err := strconv.Atoi(ctx.Params("id"))
 	if err != nil {
 		return helper.BadRequest("Invalid department ID")
 	}

@@ -15,22 +15,6 @@ func NewCertificateRepositoryImpl(db *gorm.DB) CertificateRepository {
 	return &CertificateRepositoryImpl{Db: db}
 }
 
-// FindRecordByIDAndUserID implements CertificateRepository.
-func (r *CertificateRepositoryImpl) FindRecordByIDAndUserID(recordID int, userID uint) (*model.Record, error) {
-	var record model.Record
-
-	err := r.Db.
-		Where("id = ? AND user_id = ?", recordID, userID).
-		First(&record).
-		Error
-
-	if errors.Is(err, gorm.ErrRecordNotFound) {
-		return nil, nil
-	}
-
-	return &record, err
-}
-
 
 
 func (r *CertificateRepositoryImpl) Save(certificate *model.Certificate) error {
@@ -40,7 +24,11 @@ func (r *CertificateRepositoryImpl) Save(certificate *model.Certificate) error {
 func (r *CertificateRepositoryImpl) FindById(id int) (*model.Certificate, error) {
 	var certificate model.Certificate
 
-	err := r.Db.First(&certificate, id).Error
+	err := r.Db.
+		Preload("User").
+		Preload("User.Department").
+		Preload("Training").
+		First(&certificate, id).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, helper.NotFound("certificate not found")
@@ -56,7 +44,8 @@ func (r *CertificateRepositoryImpl) FindByUserId(userId int) ([]model.Certificat
 
 	err := r.Db.
 		Preload("User").
-		Preload("TrainingPlan").
+		Preload("User.Department").
+		Preload("Training").
 		Where("user_id = ?", userId).
 		Order("created_at DESC").
 		Find(&certificates).
@@ -117,7 +106,7 @@ func (r *CertificateRepositoryImpl) FindAllPending(
 	err := r.Db.
 		Preload("User").
 		Preload("User.Department").
-		Preload("TrainingPlan").
+		Preload("Training").
 		Where("status = ?", model.CertPending).
 		Order("certificates.created_at DESC").
 		Offset(offset).

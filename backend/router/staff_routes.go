@@ -19,7 +19,7 @@ func StaffRoutes(r fiber.Router, deps *container.AppDependencies) {
 	r.Get("/records", deps.RecordController.FindByCurrentUser)
 
 	// // Certificates
-	r.Get("/certificates", deps.CertificateController.FindByCurrentUser)
+	r.Get("/certificates", deps.CertificateController.FindByCurrentUser) // only approved certificates
 	r.Post("/certificates", deps.CertificateController.Upload)
 	r.Delete("/certificates/:id", deps.CertificateController.Delete)
 }

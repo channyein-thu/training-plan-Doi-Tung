@@ -33,9 +33,9 @@ func AdminRoutes(r fiber.Router, deps *container.AppDependencies) {
 	r.Put("/users/:id", deps.UserController.AdminUpdate)
 	r.Delete("/users/:id", deps.UserController.AdminDelete)
 	r.Get("/users", deps.UserController.AdminFindAll)
-	r.Get("/users/:id", deps.UserController.AdminFindById)
+	r.Get("/users/:id", deps.UserController.AdminFindById)// need to show his all certificates
 
-	// Training Plan management
+	// Training Plan management ///// total registered staff logic for each plan
 	r.Post("/training-plans", deps.TrainingPlanController.Create)
 	r.Put("/training-plans/:trainingPlanId", deps.TrainingPlanController.Update)
 	r.Delete("/training-plans/:trainingPlanId", deps.TrainingPlanController.Delete)

@@ -90,6 +90,9 @@ func (s *RecordServiceImpl) Search(
 			Department:       department,
 			Division:         division,
 			Status:           string(r.Status),
+			Evaluation:       r.Evaluation,
+			PreTestScore:     r.PreTestScore,
+			PostTestScore:    r.PostTestScore,
 			UpdatedAt:        r.UpdatedAt,
 		})
 	}
@@ -130,6 +133,9 @@ func (s *RecordServiceImpl) FindByUser(userID uint, page int, limit int) (respon
 			ID:             r.ID,
 			TrainingPlanID: r.TrainingPlanID,
 			Status:         string(r.Status),
+			Evaluation:     r.Evaluation,
+			PreTestScore:   r.PreTestScore,
+			PostTestScore:  r.PostTestScore,
 			CreatedAt:      r.CreatedAt,
 			UpdatedAt:      r.UpdatedAt,
 		}
@@ -160,7 +166,6 @@ func (s *RecordServiceImpl) FindByUser(userID uint, page int, limit int) (respon
 		},
 	}, nil
 }
-
 
 
 func (s *RecordServiceImpl) RegisterStaff(
@@ -227,6 +232,15 @@ func (s *RecordServiceImpl) Update(
 	}
 
 	record.Status = req.Status
+	if(req.Evaluation != nil) {
+		record.Evaluation = req.Evaluation
+	}
+	if(req.PreTestScore != nil) {
+		record.PreTestScore = req.PreTestScore
+	}
+	if(req.PostTestScore != nil) {
+		record.PostTestScore = req.PostTestScore
+	}
 	return s.repo.Update(record)
 }
 
@@ -275,6 +289,9 @@ func (s *RecordServiceImpl) FindByManager(
 		resp := response.AdminRecordResponse{
 			ID:             r.ID,
 			Status:         string(r.Status),
+			Evaluation:     r.Evaluation,
+			PreTestScore:   r.PreTestScore,
+			PostTestScore:  r.PostTestScore,
 			CreatedAt:      r.CreatedAt,
 			UpdatedAt:      r.UpdatedAt,
 		}
@@ -338,6 +355,9 @@ func (s *RecordServiceImpl) Export(
 		"Department",
 		"Division",
 		"Status",
+		"Evaluation",
+		"Pre-Test Score",
+		"Post-Test Score",
 		"Updated At",
 	}
 
@@ -362,7 +382,7 @@ func (s *RecordServiceImpl) Export(
 		},
 	})
 
-	f.SetCellStyle(sheet, "A1", "K1", headerStyle)
+	f.SetCellStyle(sheet, "A1", "M1", headerStyle)
 
 	// ===== Data =====
 	for i, r := range records {
@@ -412,6 +432,9 @@ func (s *RecordServiceImpl) Export(
 			department,
 			division,
 			string(r.Status),
+			r.Evaluation,
+			r.PreTestScore,
+			r.PostTestScore,
 			r.UpdatedAt.Format("2006-01-02 15:04"),
 		}
 

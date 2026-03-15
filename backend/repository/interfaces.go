@@ -10,6 +10,7 @@ type DepartmentStaffCount struct {
 	Name       string
 	Division   model.Division
 	TotalStaff int64
+	Staffs    []model.User `gorm:"-"`
 }
 
 type TrainingPlanRepository interface {
@@ -37,7 +38,6 @@ type CertificateRepository interface {
 	Delete(id int) error
 	FindAllPending(offset, limit int) ([]model.Certificate, int64, error)
 	UpdateStatus(id int, status model.CertificateStatus) error
-	FindRecordByIDAndUserID(recordID int, userID uint) (*model.Record, error)
 }
 
 type UserRepository interface {

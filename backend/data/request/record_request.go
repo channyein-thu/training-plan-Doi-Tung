@@ -11,6 +11,9 @@ type RegisterStaffRequest struct {
 
 type UpdateRecordRequest struct {
 	Status model.RecordStatus `json:"status" validate:"required,oneof=Register Attended Absent"`
+	Evaluation     *string `json:"evaluation" validate:"omitempty"`
+	PreTestScore  *int `json:"preTestScore" validate:"omitempty,gte=0"`
+	PostTestScore *int `json:"postTestScore" validate:"omitempty,gte=0"`
 }
 
 type RecordFilterRequest struct {

@@ -125,33 +125,56 @@ func (d *DepartmentServiceImpl) FindPaginated(page, pageSize int) (response.Pagi
 
 // FindById implements DepartmentService.
 func (d *DepartmentServiceImpl) FindById(departmentId int) (response.DepartmentResponse, error) {
-	cacheKey:= fmt.Sprintf("department:id:%d", departmentId)
 
-	// CACHE HIT
+	cacheKey := fmt.Sprintf("department:id:%d", departmentId)
+
+	// ---------- CACHE HIT ----------
 	cached, err := d.cache.Get(config.Ctx, cacheKey).Result()
+
 	if err == nil {
 		var resp response.DepartmentResponse
-		_ = json.Unmarshal([]byte(cached), &resp)
-		log.Println("CACHE HIT:", cacheKey)
-		return resp, nil
+
+		if err := json.Unmarshal([]byte(cached), &resp); err == nil {
+			log.Println("CACHE HIT:", cacheKey)
+			return resp, nil
+		}
+
+		log.Println("cache unmarshal error:", err)
 	} else if err != redis.Nil {
-		log.Println("Redis error:", err)
+		log.Println("redis error:", err)
 	}
 
-	// CACHE MISS
+	// ---------- CACHE MISS ----------
 	department, err := d.repo.FindByIdWithStaffCount(departmentId)
 	if err != nil {
 		return response.DepartmentResponse{}, err
 	}
+
+	// map staffs
+	staffs := make([]response.UserListResponse, 0, len(department.Staffs))
+
+	for _, u := range department.Staffs {
+		staffs = append(staffs, response.UserListResponse{
+			ID:         u.ID,
+			Name:       u.Name,
+			EmployeeID: u.EmployeeID,
+			Position:   u.Position,
+		})
+	}
+
 	resp := response.DepartmentResponse{
 		ID:         department.ID,
 		Name:       department.Name,
 		Division:   department.Division,
 		TotalStaff: department.TotalStaff,
+		Staffs:     staffs,
 	}
 
-	bytes, _ := json.Marshal(resp)
-	_ = d.cache.Set(config.Ctx, cacheKey, bytes, time.Minute*10).Err()
+	// ---------- SAVE CACHE ----------
+	bytes, err := json.Marshal(resp)
+	if err == nil {
+		_ = d.cache.Set(config.Ctx, cacheKey, bytes, 10*time.Minute).Err()
+	}
 
 	return resp, nil
 }

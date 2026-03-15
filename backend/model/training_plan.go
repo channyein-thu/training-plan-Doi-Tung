@@ -69,7 +69,3 @@ type TrainingPlan struct {
 	UpdatedAt time.Time `gorm:"autoUpdateTime"`
 }
 
-func (TrainingPlan) TableName() string {
-	return "training_plans"
-}
-

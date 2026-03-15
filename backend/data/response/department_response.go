@@ -7,6 +7,7 @@ type DepartmentResponse struct {
 	Name       string         `json:"name"`
 	Division   model.Division `json:"division"`
 	TotalStaff int64          `json:"totalStaff"`
+	Staffs      []UserListResponse `json:"staff,omitempty"`
 }
 
 type DepartmentListItem struct {

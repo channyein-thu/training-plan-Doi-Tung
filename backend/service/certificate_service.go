@@ -34,20 +34,6 @@ func NewCertificateServiceImpl(
 	}
 }
 
-// GetTrainingIDByRecordID implements CertificateService.
-func (c *CertificateServiceImpl) GetTrainingIDByRecordID(recordID int, userID uint) (int, error) {
-	record, err := c.repo.FindRecordByIDAndUserID(recordID, userID)
-	if err != nil {
-		return 0, err
-	}
-
-	if record == nil {
-		return 0, helper.BadRequest("Record not found for the user")
-	}
-
-	return int(record.TrainingPlanID), nil
-}
-
 
 
 // ================= ADMIN =================
@@ -120,6 +106,7 @@ func (c *CertificateServiceImpl) FindAllPending(
 
 		if cert.User != nil {
 			resp.UserName = cert.User.Name
+			resp.EmployeeID = cert.User.EmployeeID
 		}
 		if cert.User.Department != nil {
 			resp.Department = cert.User.Department.Name
@@ -156,6 +143,24 @@ func (c *CertificateServiceImpl) FindByCurrentUser(
 	if err != nil {
 		return nil, err
 	}
+	// 	ID uint `json:"id"`
+
+	// UserID   uint   `json:"userId"`
+	// UserName string `json:"userName"`
+	// EmployeeID string `json:"employeeId"`
+	// Department string `json:"department"`
+	// Division string   `json:"division"`
+	// Category   string  `json:"category"`
+
+	// TrainingID   uint   `json:"trainingId"`
+	// TrainingName string  `json:"trainingName"`
+	// Image        string  `json:"image"`
+	// Description  *string `json:"description,omitempty"`
+
+	// Status string `json:"status"`
+
+	// CreatedAt time.Time `json:"createdAt"`
+	// UpdatedAt time.Time `json:"updatedAt"`
 
 	responses := make([]response.CertificateResponse, 0, len(certificates))
 	for _, cert := range certificates {
@@ -171,10 +176,16 @@ func (c *CertificateServiceImpl) FindByCurrentUser(
 
 		if cert.User != nil {
 			resp.UserName = cert.User.Name
+			resp.EmployeeID = cert.User.EmployeeID
+		}
+		if cert.User.Department != nil {
+			resp.Department = cert.User.Department.Name
+			resp.Division = string(cert.User.Department.Division)
 		}
 		if cert.Training != nil {
 			resp.TrainingID = cert.TrainingID
 			resp.TrainingName = cert.Training.Name
+			resp.Category = string(cert.Training.Category)
 		}
 
 		responses = append(responses, resp)

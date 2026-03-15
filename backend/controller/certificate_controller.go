@@ -37,9 +37,9 @@ func (c *CertificateController) FindByCurrentUser(ctx *fiber.Ctx) error {
 func (c *CertificateController) Upload(ctx *fiber.Ctx) error {
 	userID := ctx.Locals("user_id").(uint)
 
-	recordID, err := strconv.Atoi(ctx.FormValue("recordId"))
+	trainingId, err := strconv.Atoi(ctx.FormValue("trainingId"))
 	if err != nil {
-		return helper.BadRequest("Invalid record ID")
+		return helper.BadRequest("Invalid training ID")
 	}
 
 	file, err := ctx.FormFile("image")
@@ -52,13 +52,9 @@ func (c *CertificateController) Upload(ctx *fiber.Ctx) error {
 	if description != "" {
 		desc = &description
 	}
-	trainingID, err := c.service.GetTrainingIDByRecordID(recordID, userID)
-	if err != nil {
-		return err
-	}
-
+	
 	req := request.CreateCertificateRequest{
-		TrainingID:   uint(trainingID),
+		TrainingID:   uint(trainingId),
 		Description: desc,
 	}
 

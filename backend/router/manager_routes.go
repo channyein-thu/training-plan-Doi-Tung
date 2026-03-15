@@ -21,6 +21,8 @@ func ManagerRoutes(r fiber.Router, deps *container.AppDependencies) {
 
 	// // Department (with staff list)
 	// r.Get("/departments/:id", deps.DepartmentController.FindByIdWithStaff)
+	//training Plan
+	r.Get("/training-plans", deps.TrainingPlanController.FindPaginated)
 
 	// Register staff to training plan
 	r.Post(

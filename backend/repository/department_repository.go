@@ -49,6 +49,7 @@ func (r *DepartmentRepositoryImpl) FindById(departmentId int) (*model.Department
 func (r *DepartmentRepositoryImpl) FindByIdWithStaffCount(departmentId int) (DepartmentStaffCount, error) {
 	var result DepartmentStaffCount
 
+	// Step 1: get department info + staff count
 	err := r.Db.
 		Table("departments").
 		Select(`
@@ -63,12 +64,25 @@ func (r *DepartmentRepositoryImpl) FindByIdWithStaffCount(departmentId int) (Dep
 		Scan(&result).Error
 
 	if err != nil {
-		return result, err
+		return DepartmentStaffCount{}, err
 	}
 
 	if result.ID == 0 {
-		return result, errors.New("department not found")
+		return DepartmentStaffCount{}, helper.NotFound("department not found")
 	}
+
+	// Step 2: load staffs
+	var department model.Department
+	err = r.Db.
+		Preload("Users").
+		First(&department, departmentId).Error
+
+	if err != nil {
+		return DepartmentStaffCount{}, err
+	}
+
+	result.Staffs = department.Users
+	println("dept staffs:", result.Staffs)
 
 	return result, nil
 }
