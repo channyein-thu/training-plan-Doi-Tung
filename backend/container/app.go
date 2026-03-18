@@ -8,7 +8,6 @@ import (
 	"training-plan-api/service"
 
 	"github.com/go-playground/validator/v10"
-	"github.com/redis/go-redis/v9"
 	"google.golang.org/api/calendar/v3"
 	"gorm.io/gorm"
 )
@@ -24,7 +23,6 @@ type AppDependencies struct {
 
 func NewAppDependencies(
 	db *gorm.DB,
-	redis *redis.Client,
 	validate *validator.Validate,
 	calendarService *calendar.Service,
 	location *time.Location,
@@ -33,7 +31,7 @@ func NewAppDependencies(
 
 		// ---------- Department ----------
 	departmentRepo := repository.NewDepartmentRepositoryImpl(db)
-	departmentService := service.NewDepartmentServiceImpl(departmentRepo, validate, redis)
+	departmentService := service.NewDepartmentServiceImpl(departmentRepo, validate)
 	departmentController := controller.NewDepartmentController(departmentService)
 		// ---------- User ----------
 	userRepo := repository.NewUserRepositoryImpl(db)
@@ -56,7 +54,6 @@ func NewAppDependencies(
 	trainingPlanRepo := repository.NewTrainingPlanRepositoryImpl(db)
 	trainingPlanService := service.NewTrainingPlanServiceImpl(
 		trainingPlanRepo,
-		redis,
 		validate,
 		calendarService,
 		location,

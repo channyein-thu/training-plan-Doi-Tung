@@ -1,0 +1,11 @@
+.git
+.gitignore
+node_modules
+*.log
+tmp
+dist
+
+uploads/*
+!uploads/.keep
+
+dump.rdb

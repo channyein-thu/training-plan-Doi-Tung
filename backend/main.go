@@ -34,8 +34,6 @@ func main() {
 	db := config.ConnectionDB(&appConfig)
 	seed.SeedAdmin(db)/// for development purpose only////////////
 
-	// Init Redis
-	redisClient := config.NewRedisClient()
 
 	app.Use(cors.New())
 
@@ -61,7 +59,6 @@ func main() {
 
 	deps := container.NewAppDependencies(
 		db,
-		redisClient,
 		validate,
 		calendarService,
 		location,

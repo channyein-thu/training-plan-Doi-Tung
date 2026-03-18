@@ -5,7 +5,7 @@ import "github.com/spf13/viper"
 type Config struct {
 	DBHost string `mapstructure:"MYSQL_HOST"`
 	DBPort string `mapstructure:"MYSQL_PORT"`
-	DBName string `mapstructure:"MYSQL_DATABASE"`
+	DBName string `mapstructure:"MYSQL_DB"`
 	DBUser string `mapstructure:"MYSQL_USER"`
 	DBPass string `mapstructure:"MYSQL_PASSWORD"`
 	UploadPath string `mapstructure:"UPLOAD_PATH"`
