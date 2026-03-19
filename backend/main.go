@@ -35,7 +35,10 @@ func main() {
 	seed.SeedAdmin(db)/// for development purpose only////////////
 
 
-	app.Use(cors.New())
+	app.Use(cors.New(cors.Config{
+    AllowOrigins:     "http://localhost:3000",
+    AllowCredentials: true,
+}))
 
 	app.Use(helmet.New())
 

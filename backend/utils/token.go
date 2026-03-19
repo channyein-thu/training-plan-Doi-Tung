@@ -83,12 +83,17 @@ type CookieConfig struct {
 }
 
 func GetCookieConfig() CookieConfig {
-	isProduction := os.Getenv("GO_ENV") == "production"
+	// isProduction := os.Getenv("GO_ENV") == "production"
 
-	return CookieConfig{
-		Secure:   isProduction,
-		Domain:   os.Getenv("COOKIE_DOMAIN"),
-		SameSite: "Lax",
+	// return CookieConfig{
+	// 	Secure:   isProduction,
+	// 	Domain:   os.Getenv("COOKIE_DOMAIN"),
+	// 	SameSite: "Lax",
+	// }
+		return CookieConfig{
+		Secure:   false,          // 🔥 must be true for SameSite=None
+		Domain:   "",
+		SameSite: "None",        // 🔥 allow cross-site cookies
 	}
 }
 

@@ -25,7 +25,7 @@ type UserListResponse struct {
 	Email        string           `json:"email"`
 	Phone        string           `json:"phone"`
 	DepartmentID int              `json:"departmentId"`
-	Department   string           `json:"department"`
+	Department   string           `json:"department,omitempty"`
 	Role         model.Role       `json:"role"`
 	Status       model.UserStatus `json:"status"`
 	Position     string           `json:"position"`

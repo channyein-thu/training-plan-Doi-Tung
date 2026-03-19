@@ -109,6 +109,10 @@ func (d *DepartmentServiceImpl) FindById(departmentId int) (response.DepartmentR
 		staffs = append(staffs, response.UserListResponse{
 			ID:         u.ID,
 			Name:       u.Name,
+			Email:      u.Email,
+			Phone:      u.Phone,
+			Role:	   	u.Role,
+			Status: 	u.Status,
 			EmployeeID: u.EmployeeID,
 			Position:   u.Position,
 		})
