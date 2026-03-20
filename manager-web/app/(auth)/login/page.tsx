@@ -13,15 +13,17 @@ import {
 } from "@/components/ui/field";
 import Logo from "@/components/login/logo";
 import { Card, CardContent } from "@/components/ui/card";
-import { PersonStanding, Shield, Users } from "lucide-react";
+import { Users } from "lucide-react";
 import Link from "next/link";
 import { LoginAction, State } from "@/lib/actions/login";
 
 export default function LoginForm() {
-  const initialState: State = { errors: {}, message: null };
+  const initialState: State = {
+    message: "",
+  };
 
   const [state, formAction, pending] = useActionState(
-    LoginAction as any,
+    LoginAction,
     initialState,
   );
 
@@ -49,7 +51,7 @@ export default function LoginForm() {
           </div>
 
           {/* Form */}
-          <form onSubmit={formAction} className="w-full">
+          <form action={formAction} className="w-full">
             <FieldGroup>
               <FieldSet>
                 {/* <FieldLegend>Login Information</FieldLegend>
@@ -68,6 +70,11 @@ export default function LoginForm() {
                       name="email"
                       required
                     />
+                    {state.errors?.email && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {state.errors.email.join(", ")}
+                      </p>
+                    )}
                   </Field>
 
                   {/* Password */}
@@ -80,10 +87,19 @@ export default function LoginForm() {
                       name="password"
                       required
                     />
+                    {state.errors?.password && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {state.errors.password.join(", ")}
+                      </p>
+                    )}
                   </Field>
                 </FieldGroup>
               </FieldSet>
-
+              {state.message && (
+                <p className="text-red-500 text-sm text-center">
+                  {state.message}
+                </p>
+              )}
               {/* Button */}
               <Field orientation="horizontal" className="">
                 <Button

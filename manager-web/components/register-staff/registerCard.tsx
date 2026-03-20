@@ -16,6 +16,7 @@ type RegisterCardProps = {
   plan: Course;
 };
 function RegisterCard({ plan }: RegisterCardProps) {
+  console.log("Rendering RegisterCard for plan:", plan); // Log the plan being rendered
   return (
     <div>
       <Card className="w-full min-w-[360px]">

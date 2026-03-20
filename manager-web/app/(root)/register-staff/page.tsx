@@ -1,18 +1,13 @@
 import PageHeader from "@/components/dashboard/pageHeader";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
-import { courses } from "@/data/data";
 import RegisterCard from "@/components/register-staff/registerCard";
+import { getPlans } from "@/lib/actions/register-staff/getPlanAction";
+import { Course } from "@/types/course";
 
-function RegisterStaffPage() {
+async function RegisterStaffPage() {
+  const plans = await getPlans(); // Fetch training plans on page load
+  console.log("Fetched Plans:", plans.data.items); // Log fetched plans for debugging
   return (
     <div>
       <div className="min-h-screen space-y-4 m-2">
@@ -51,7 +46,8 @@ function RegisterStaffPage() {
         </div>
 
         <div className="space-y-6">
-          {courses.map((plan) => (
+          {plans.data.items.map((plan: Course) => (
+            // Log each plan being rendered for debugging
             <RegisterCard key={plan.id} plan={plan} />
           ))}
         </div>

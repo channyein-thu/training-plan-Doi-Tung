@@ -6,13 +6,8 @@ export type Course = {
 
   speakerInstitute: string;
 
-  type: "Online" | "Onsite" | "Hybrid";
-  category:
-    | "Technical Skills"
-    | "Soft Skills"
-    | "Leadership"
-    | "Safety"
-    | "Compliance";
+  type: string;
+  category: string;
 
   date: string; // ISO timestamp
 

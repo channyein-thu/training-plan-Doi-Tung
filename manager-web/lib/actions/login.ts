@@ -1,53 +1,78 @@
 "use server";
 
+import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
 import { z } from "zod";
-
-export type State = {
-  errors?: {
-    email?: string[];
-    password?: string[];
-  };
-  message?: string | null;
-};
 
 const FormSchema = z.object({
   email: z.string().trim().email("Invalid email address!"),
   password: z.string().trim().min(6, "Password must be at least 6 characters!"),
 });
 
-export async function LoginAction(formData: FormData, prevState: State) {
+export type State = {
+  errors?: {
+    email?: string[];
+    password?: string[];
+  };
+  message: string;
+};
+
+export async function LoginAction(
+  prevState: State,
+  formData: FormData,
+): Promise<State> {
   const validatedFields = FormSchema.safeParse({
     email: formData.get("email"),
     password: formData.get("password"),
   });
 
   if (!validatedFields.success) {
-    const flattened = z.flattenError(validatedFields.error);
     return {
-      errors: flattened.fieldErrors,
-      message: "Failed to login. Please check your input.",
+      errors: validatedFields.error.flatten().fieldErrors,
+      message: "Invalid input",
     };
   }
 
   const { email, password } = validatedFields.data;
 
-  try {
-    console.log("Email:", email);
-    console.log("Password:", password);
+  const response = await fetch(
+    "http://localhost:8080/api/v1/auth/manager/login",
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+      cache: "no-store",
+    },
+  );
 
-    return {
-      message: "Login successful! (This is a mock response.)",
-    };
-  } catch (error) {
-    return {
-      message: "Failed to login. Please try again later.",
-    };
+  if (!response.ok) {
+    const errorData = await response.json();
+    return { message: errorData.message, errors: {} };
   }
+
+  // 🔥 GET cookie from Fiber
+  const setCookie = response.headers.get("set-cookie");
+
+  if (setCookie) {
+    const accessMatch = setCookie.match(/access_token=([^;]+)/);
+    const refreshMatch = setCookie.match(/refresh_token=([^;]+)/);
+
+    const cookieStore = await cookies();
+
+    if (accessMatch) {
+      cookieStore.set("access_token", accessMatch[1], {
+        httpOnly: true,
+        path: "/",
+      });
+    }
+
+    if (refreshMatch) {
+      cookieStore.set("refresh_token", refreshMatch[1], {
+        httpOnly: true,
+        path: "/",
+      });
+    }
+  }
+
+  redirect("/dashboard");
 }
-
-// revalidatePath - revalidating specific pages or layout
-
-// revalidateTag - revalidating data in server action and route handler
-// updateTag - revalidating data in server action only
-
-// cacheTag
