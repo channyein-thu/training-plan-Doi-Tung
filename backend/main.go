@@ -32,7 +32,7 @@ func main() {
 
 	//  DB and migration
 	db := config.ConnectionDB(&appConfig)
-	seed.SeedAdmin(db)/// for development purpose only////////////
+	seed.SeedAdmin(db)/// for development purpose only
 
 
 	app.Use(cors.New(cors.Config{

@@ -79,6 +79,7 @@ func (r *RecordRepositoryImpl) FindByUserId(userID uint, offset int, limit int) 
 
 	query := r.Db.
 		Preload("User").
+		Preload("User.Department").
 		Preload("TrainingPlan").
 		Where("user_id = ?", userID)
 

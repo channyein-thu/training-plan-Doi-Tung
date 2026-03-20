@@ -146,11 +146,24 @@ func (s *RecordServiceImpl) FindByUser(userID uint, page int, limit int) (respon
 			if(r.TrainingPlan.Location != nil) {
 				resp.Location = r.TrainingPlan.Location
 			}
+			if(r.TrainingPlan.BudgetCode != nil) {
+				resp.BudgetCode = r.TrainingPlan.BudgetCode
+			}
+			if(r.TrainingPlan.CostPerPerson != nil) {
+				resp.CostPerPerson = r.TrainingPlan.CostPerPerson
+			}
 			if(r.TrainingPlan.NumberOfHours != nil) {
 				resp.NumberOfHours = *r.TrainingPlan.NumberOfHours
 			}
 			resp.SpeakerInstitute = r.TrainingPlan.SpeakerInstitute
 			resp.TrainingType = string(r.TrainingPlan.Type)
+		}
+		if r.User != nil {
+			resp.Position = r.User.Position
+			if r.User.Department != nil {
+				resp.Department = r.User.Department.Name
+				resp.Division = string(r.User.Department.Division)
+			}
 		}
 
 		items = append(items, resp)

@@ -48,7 +48,14 @@ func (d *DepartmentServiceImpl) Create(req request.CreateDepartmentRequest) erro
 
 // Delete implements DepartmentService.
 func (d *DepartmentServiceImpl) Delete(departmentId int) error {
-	err := d.repo.Delete(departmentId)
+	staffCount, err := d.repo.FindByIdWithStaffCount(departmentId)
+	if err != nil {
+		return err
+	}
+	if staffCount.TotalStaff > 0 {
+		return helper.InternalServerError("cannot delete department with existing staff, please reassign or remove staff first")
+	}
+	err = d.repo.Delete(departmentId)
 	if err != nil {
 		return err
 	}

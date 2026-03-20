@@ -43,6 +43,11 @@ type RecordResponse struct {
 
 type StaffRecordResponse struct {
 	ID               uint      `json:"id"`
+	Division		 string    `json:"division"`
+	Department 	 string    `json:"department"`
+	BudgetCode       *string   `json:"budgetCode,omitempty"`
+	CostPerPerson    *int    `json:"costPerPerson,omitempty"`
+	Position		 string    `json:"position"`
 	TrainingPlanID   uint      `json:"trainingPlanId"`
 	TrainingPlanName string    `json:"trainingPlanName"`
 	Status           string    `json:"status"`
