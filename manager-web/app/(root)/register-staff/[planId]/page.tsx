@@ -3,7 +3,8 @@ import StaffList from "@/components/register-staff/staffList";
 import { Button } from "@/components/ui/button";
 import { courses, trainingPlanStaff } from "@/data/data";
 import { getPlanById } from "@/lib/actions/register-staff/getPlanAction";
-import { ArrowLeftIcon } from "lucide-react";
+import { getStaff } from "@/lib/actions/register-staff/getStaffAction";
+import { ArrowLeftIcon, Plus, UserPlus } from "lucide-react";
 import Link from "next/link";
 
 async function PlanDetailsRegister({
@@ -16,6 +17,8 @@ async function PlanDetailsRegister({
 
   console.log("Received ID:", id);
   const planDetails = await getPlanById(id);
+  const staff = await getStaff();
+  console.log("staff:", staff);
 
   if (!planDetails) {
     return <div>Training Plan not found</div>;
@@ -50,6 +53,11 @@ async function PlanDetailsRegister({
             subtitle={planDetails.data.speakerInstitute}
           />
         </div>
+      </div>
+      {/* Staff List */}
+      <div className="border rounded-md m-2 p-4 mt-4">
+        <p className="font-medium mb-2">Staff List</p>
+        <StaffList staff={staff.data.items} planId={planDetails.data.id} />
       </div>
     </div>
   );
