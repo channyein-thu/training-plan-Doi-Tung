@@ -15,10 +15,8 @@ async function PlanDetailsRegister({
   const resolvedParams = await params;
   const id = Number(resolvedParams.planId);
 
-  console.log("Received ID:", id);
   const planDetails = await getPlanById(id);
   const staff = await getStaff();
-  console.log("staff:", staff);
 
   if (!planDetails) {
     return <div>Training Plan not found</div>;

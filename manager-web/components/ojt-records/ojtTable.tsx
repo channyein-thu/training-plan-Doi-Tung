@@ -9,7 +9,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { MoreVertical } from "lucide-react";
-import React, { useState } from "react";
+import { useState } from "react";
 import { Button } from "../ui/button";
 import {
   DropdownMenu,
@@ -21,11 +21,10 @@ import { Dialog, DialogContent } from "../ui/dialog";
 
 import { useRouter } from "next/navigation";
 
-import { ojtRecords, trainingPlanStaff } from "@/data/data";
 import { OjtRecord } from "@/types/records";
 import { DeleteOjtDialog } from "./deleteOJTdialog";
 
-function OjtTable() {
+function OjtTable({ ojtRecords }: { ojtRecords: OjtRecord[] }) {
   const router = useRouter();
 
   const [open, setOpen] = useState(false);
@@ -33,109 +32,92 @@ function OjtTable() {
   const [selectedRecord, setSelectedRecord] = useState<OjtRecord | null>(null);
   return (
     <>
-      <div className="overflow-x-auto">
-        <Table className="w-full table-fixed text-sm">
-          <TableCaption>A list of training plans</TableCaption>
-
-          <TableHeader style={{ backgroundColor: "#E8F7EC" }}>
+      <div className="overflow-x-auto border rounded-md">
+        <Table className="table-fixed w-full rounded-t-md ">
+          <TableCaption>A list of OJT records</TableCaption>
+          <TableHeader className={`bg-[#E8F7EC] rounded-t-md`}>
             <TableRow>
-              <TableHead className="w-[250px] font-semibold">
-                Training Plan
+              <TableHead className="w-[250px] font-bold">Plan Name</TableHead>
+              {/* <TableHead className="w-[200px] font-bold">Category</TableHead> */}
+              <TableHead className="w-[150px] font-bold">Employee ID</TableHead>
+              <TableHead className=" w-[150px] font-bold">
+                Employee Name
               </TableHead>
-              <TableHead className="w-[150px] font-semibold">
-                Location
-              </TableHead>
-              <TableHead className="w-[140px] font-semibold">
+              <TableHead className=" w-[150px] font-bold">Position</TableHead>
+              <TableHead className=" w-[150px] font-bold">Department</TableHead>
+              <TableHead className="w-[120px] font-bold">Division</TableHead>
+              <TableHead className="w-[100px] font-bold">Status</TableHead>
+              <TableHead className="w-[150px] font-bold">Location</TableHead>
+
+              <TableHead className="w-[150px] font-bold">
                 Cost Per Person
               </TableHead>
-              <TableHead className="w-[140px] font-semibold">
-                Budget Code
-              </TableHead>
-              <TableHead className="w-[120px] font-semibold">
-                Employee ID
-              </TableHead>
-              <TableHead className="w-[160px] font-semibold">
-                Name-Surname
-              </TableHead>
-              <TableHead className="w-[140px] font-semibold">
-                Position
-              </TableHead>
-              <TableHead className="w-[140px] font-semibold">
-                Department
-              </TableHead>
-              <TableHead className="w-[180px] font-semibold">
-                Division
-              </TableHead>
-              <TableHead className="w-[120px] font-semibold">Status</TableHead>
-              <TableHead className="w-[160px] font-semibold">
-                Pre Test Score
-              </TableHead>
-              <TableHead className="w-[160px] font-semibold">
-                Post Test Score
-              </TableHead>
-              <TableHead className="w-[120px] font-semibold">
-                Evaluation
-              </TableHead>
+
+              <TableHead className="w-[100px] font-bold">Budget Code</TableHead>
+
+              <TableHead className="w-[100px] font-bold">Actions</TableHead>
             </TableRow>
           </TableHeader>
-
           <TableBody>
             {ojtRecords.map((record) => (
               <TableRow key={record.id}>
-                <TableCell>
-                  <div className="max-w-[180px] line-clamp-2 break-words">
-                    {record.course.name}
-                  </div>
+                <TableCell className="font-medium break-words whitespace-normal">
+                  {record.trainingPlanName}
                 </TableCell>
-
-                <TableCell>
-                  <div className="max-w-[140px] line-clamp-2 break-words">
-                    {record.course.location}
-                  </div>
+                <TableCell>{record.employeeId}</TableCell>
+                <TableCell className="break-words whitespace-normal">
+                  {record.employeeName}
                 </TableCell>
-
-                <TableCell className="text-center">
-                  {record.course.costPerPerson}
+                <TableCell className="break-words whitespace-normal">
+                  {record.position}
                 </TableCell>
-
-                <TableCell>
-                  <div className="max-w-[140px] line-clamp-2 break-words">
-                    {record.course.budgetCode}
-                  </div>
+                <TableCell className="break-words whitespace-normal">
+                  {record.department}
                 </TableCell>
-
-                <TableCell>{record.staff.id}</TableCell>
-
-                <TableCell>
-                  <div className="max-w-[160px] line-clamp-2 break-words">
-                    {record.staff.name}
-                  </div>
+                <TableCell className="break-words whitespace-normal">
+                  {record.division}
                 </TableCell>
-
-                <TableCell>
-                  <div className="max-w-[140px] line-clamp-2 break-words">
-                    {record.staff.position}
-                  </div>
+                <TableCell>{record.status.replace("_", " ")}</TableCell>
+                <TableCell className="break-words whitespace-normal">
+                  {record.location}
                 </TableCell>
+                <TableCell>{record.costPerPerson}</TableCell>
+                <TableCell>{record.budgetCode}</TableCell>
 
-                <TableCell className="text-center">
-                  <div className="max-w-[140px] line-clamp-2 break-words">
-                    {record.staff.department.name}
-                  </div>
+                <TableCell className="">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon">
+                        <MoreVertical />
+                      </Button>
+                    </DropdownMenuTrigger>
+
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem
+                        onClick={() => router.push(`/ojt-records/${record.id}`)}
+                      >
+                        Edit
+                      </DropdownMenuItem>
+                      {/* <DropdownMenuItem
+                        onClick={() =>
+                          router.push(`/ojt-records/${record.id}`)
+                        }
+                      >
+                        View Details
+                      </DropdownMenuItem> */}
+                      <DropdownMenuItem
+                        className="text-red-600"
+                        onClick={() => {
+                          setMode("delete");
+                          setSelectedRecord(record);
+                          setOpen(true);
+                        }}
+                      >
+                        Delete
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </TableCell>
-
-                <TableCell>
-                  <div className="max-w-[180px] line-clamp-2 break-words">
-                    {record.staff.department.division}
-                  </div>
-                </TableCell>
-
-                <TableCell>{record.status}</TableCell>
-
-                <TableCell className="text-center">85</TableCell>
-                <TableCell className="text-center">85</TableCell>
-
-                <TableCell>Excellent</TableCell>
               </TableRow>
             ))}
           </TableBody>

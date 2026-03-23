@@ -3,6 +3,8 @@ import PlanDetails from "@/components/register-staff/planDetails";
 import { Button } from "@/components/ui/button";
 
 import { courses, ojtRecords, trainingPlanStaff } from "@/data/data";
+import { getOjtRecords } from "@/lib/actions/ojt-records/getOjtAction";
+import { OjtRecord } from "@/types/records";
 import { ArrowLeftIcon, UserPlus } from "lucide-react";
 import Link from "next/link";
 
@@ -12,9 +14,11 @@ type PlanDetailsProps = {
   };
 };
 async function OjtDetails({ params }: PlanDetailsProps) {
+  const ojtRecords = await getOjtRecords(); // Fetch OJT records on page load
   const { ojtId } = await params;
+  console.log("Received OJT ID:", ojtId); // Log the received ojtId for debugging
   const id = parseInt(ojtId);
-  const record = ojtRecords.find((p) => p.id === id);
+  const record = ojtRecords.data.items.find((p: OjtRecord) => p.id === id);
 
   if (!record) {
     return <div>Training Plan not found</div>;
@@ -40,27 +44,24 @@ async function OjtDetails({ params }: PlanDetailsProps) {
       <div className="border rounded-md m-2  p-4 space-y-4">
         <p className="font-medium mb-2">Basic Information</p>
         <div className="grid grid-cols-2 p-2 justify-between gap-4">
-          <PlanDetails title="Training Name" subtitle={record.course.name} />
-          <PlanDetails title="Category" subtitle={record.course.category} />
-          <PlanDetails title="Employee" subtitle={record.staff.name} />
           <PlanDetails
-            title="Employee ID"
-            subtitle={record.staff.id.toString()}
+            title="Training Name"
+            subtitle={record.trainingPlanName}
           />
-          <PlanDetails title="Date" subtitle={record.course.date} />
-          <PlanDetails
+          {/* <PlanDetails title="Category" subtitle={record.} /> */}
+          <PlanDetails title="Employee" subtitle={record.employeeName} />
+          <PlanDetails title="Employee ID" subtitle={record.employeeId} />
+          <PlanDetails title="Date" subtitle={record.createdAt} />
+          {/* <PlanDetails
             title="Number Of Hours"
-            subtitle={record.course.numberOfHours.toString()}
-          />
-          <PlanDetails title="Location" subtitle={record.course.location} />
+            subtitle={record.numberOfHours?.toString()}
+          /> */}
+          <PlanDetails title="Location" subtitle={record.location} />
           <PlanDetails
             title="Cost Per Person"
-            subtitle={record.course.costPerPerson.toString()}
+            subtitle={record.costPerPerson.toString()}
           />
-          <PlanDetails
-            title="Budget Code"
-            subtitle={record.course.budgetCode}
-          />
+          <PlanDetails title="Budget Code" subtitle={record.budgetCode} />
         </div>
       </div>
 

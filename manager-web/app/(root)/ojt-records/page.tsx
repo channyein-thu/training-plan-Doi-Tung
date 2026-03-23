@@ -1,8 +1,10 @@
 import PageHeader from "@/components/dashboard/pageHeader";
 import OjtTable from "@/components/ojt-records/ojtTable";
-import React from "react";
+import { getOjtRecords } from "@/lib/actions/ojt-records/getOjtAction";
 
-function OjtRecordsPage() {
+async function OjtRecordsPage() {
+  const ojtRecords = await getOjtRecords(); // Fetch OJT records on page load
+  console.log("Fetched OJT Records:", ojtRecords.data.items); // Log fetched records for debugging
   return (
     <div className="min-h-screen space-y-4 m-2">
       <PageHeader
@@ -12,7 +14,7 @@ function OjtRecordsPage() {
 
       {/* OJT Records Table */}
       <div>
-        <OjtTable />
+        <OjtTable ojtRecords={ojtRecords.data.items} />
       </div>
     </div>
   );

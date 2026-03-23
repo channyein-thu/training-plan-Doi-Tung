@@ -1,25 +1,15 @@
 export type Course = {
   id: number;
-
-  name: string;
-  calendarEventId?: string;
-
-  speakerInstitute: string;
-
-  type: string;
-  category: string;
-
-  date: string; // ISO timestamp
-
-  numberOfDays: number;
-  numberOfHours: number;
-
+  trainingPlanName: string;
   location: string;
-
-  totalCost: number;
-  budgetCode: string;
-
-  numberOfPerson: number;
   costPerPerson: number;
-  content?: string;
+  budgetCode: string;
+  employeeId: string;
+  employeeName: string;
+  position: string;
+  department: string;
+  division: string;
+  status: "Register" | "Completed" | "Cancelled";
+  createdAt: string;
+  updatedAt: string;
 };
