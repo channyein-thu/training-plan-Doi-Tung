@@ -142,6 +142,7 @@ func (r *RecordRepositoryImpl) FindById(id int) (*model.Record, error) {
 
 	err := r.Db.
 		Preload("User").
+		Preload("User.Department").
 		Preload("TrainingPlan").
 		First(&record, id).
 		Error

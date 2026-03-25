@@ -40,7 +40,9 @@ func main() {
     AllowCredentials: true,
 }))
 
-	app.Use(helmet.New())
+	app.Use(helmet.New(helmet.Config{
+    CrossOriginResourcePolicy: "cross-origin",
+}))
 
 	app.Use(logger.New(logger.Config{
 		Format: "[${ip}]:${port} ${status} - ${method} ${path}\n",

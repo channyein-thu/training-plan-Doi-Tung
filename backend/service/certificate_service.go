@@ -229,7 +229,7 @@ func (c *CertificateServiceImpl) Upload(
 	certificate := &model.Certificate{
 		UserID:      userID,
 		TrainingID:  req.TrainingID,
-		Image:       objectPath,
+		Image:       "uploads/" + objectPath,
 		Description: req.Description,
 		Status:      model.CertPending,
 	}

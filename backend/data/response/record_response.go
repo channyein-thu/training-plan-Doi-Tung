@@ -62,3 +62,39 @@ type StaffRecordResponse struct {
 	CreatedAt        time.Time `json:"createdAt"`
 	UpdatedAt        time.Time `json:"updatedAt"`
 }
+
+type FinalRecord struct{
+	ID               uint      `json:"id"`
+	UserID		   uint      `json:"userId"`
+	TrainingPlanID  uint      `json:"trainingPlanId"`
+	Status           string    `json:"status"`
+	Evaluation       *string   `json:"evaluation,omitempty"`
+	PreTestScore     *int      `json:"preTestScore,omitempty"`
+	PostTestScore    *int      `json:"postTestScore,omitempty"`
+	EmployeeID   string              `json:"employeeID"`
+	StaffName         string              `json:"staffName"`
+	DepartmentID int                 `json:"departmentId"`
+	Departmentname string              `json:"departmentName"`
+	Division   string              `json:"division"`
+	Position     string              `json:"position"`
+	TrainingPlanName string `json:"trainingPlanName"`
+
+	SpeakerInstitute *string `json:"speakerInstitute,omitempty"`
+	Type             string  `json:"type"`
+	Category         string  `json:"category"`
+
+	Date    time.Time `json:"date"`
+	Content string   `json:"content"`
+
+	NumberOfDays  int     `json:"numberOfDays"`
+	NumberOfHours *int    `json:"numberOfHours,omitempty"`
+
+	Location       *string `json:"location,omitempty"`
+	TotalCost      *int    `json:"totalCost,omitempty"`
+	BudgetCode     *string `json:"budgetCode,omitempty"`
+	NumberOfPerson int     `json:"numberOfPerson"`
+	CostPerPerson  *int    `json:"costPerPerson,omitempty"`
+	CreatedAt        time.Time `json:"createdAt"`
+	UpdatedAt        time.Time `json:"updatedAt"`
+
+} 

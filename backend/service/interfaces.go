@@ -47,7 +47,7 @@ type CertificateService interface {
 
 type RecordService interface {
 	RegisterStaff(trainingPlanId uint, req request.RegisterStaffRequest) error
-	FindById(id int) (response.RecordResponse, error)
+	FindById(id int) (response.FinalRecord, error)
 	Update(id int, req request.UpdateRecordRequest) error
 	Delete(id int) error
  	FindByManager(managerID uint,page int,limit int,) (response.PaginatedResponse[response.AdminRecordResponse], error)	
