@@ -65,7 +65,7 @@ async function OjtDetails({ params }: PlanDetailsProps) {
         </div>
       </div>
 
-      <EditOJTdetails />
+      <EditOJTdetails record={record} />
     </div>
   );
 }
