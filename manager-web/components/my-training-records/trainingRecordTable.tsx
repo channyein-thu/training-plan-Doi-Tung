@@ -8,37 +8,30 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { DownloadIcon, MoreVertical, UploadIcon } from "lucide-react";
-import React, { useState } from "react";
+import { DownloadIcon, UploadIcon } from "lucide-react";
+
 import { Button } from "../ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "../ui/dropdown-menu";
-import { Dialog, DialogContent } from "../ui/dialog";
+import { DropdownMenu, DropdownMenuTrigger } from "../ui/dropdown-menu";
 
 import { useRouter } from "next/navigation";
-
-import { ojtRecords, trainingPlanStaff } from "@/data/data";
 import { OjtRecord } from "@/types/records";
+
 // import { DeleteOjtDialog } from "./deleteOJTdialog";
 
-function TrainingRecordTable() {
+function TrainingRecordTable({ records }: { records: OjtRecord[] }) {
   const router = useRouter();
 
   return (
     <>
       <div className="">
-        <Table className="table-fixed w-full rounded-t-md ">
+        <Table className="w-full table-fixed text-sm">
           <TableCaption>A list of training records</TableCaption>
           <TableHeader className={`bg-[#E8F7EC] rounded-t-md`}>
             <TableRow>
               <TableHead className="w-[250px] font-semibold">
                 Training Plan
               </TableHead>
-              <TableHead className="w-[150px] font-semibold">
+              <TableHead className="w-[200px] font-semibold">
                 Location
               </TableHead>
               <TableHead className="w-[140px] font-semibold">
@@ -46,12 +39,6 @@ function TrainingRecordTable() {
               </TableHead>
               <TableHead className="w-[140px] font-semibold">
                 Budget Code
-              </TableHead>
-              <TableHead className="w-[120px] font-semibold">
-                Employee ID
-              </TableHead>
-              <TableHead className="w-[160px] font-semibold">
-                Name-Surname
               </TableHead>
               <TableHead className="w-[140px] font-semibold">
                 Position
@@ -72,64 +59,62 @@ function TrainingRecordTable() {
               <TableHead className="w-[120px] font-semibold">
                 Evaluation
               </TableHead>
-              <TableHead className="w-[100px] font-bold">Actions</TableHead>
+              <TableHead className="w-[150px] font-bold">
+                Upload Certificate
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {ojtRecords.map((record) => (
+            {records.map((record) => (
               <TableRow key={record.id}>
                 <TableCell>
-                  <div className="max-w-[180px] line-clamp-2 break-words">
-                    {record.course.name}
+                  <div className="max-w-[250px] line-clamp-2 break-words">
+                    {record.trainingPlanName}
                   </div>
                 </TableCell>
 
                 <TableCell>
-                  <div className="max-w-[140px] line-clamp-2 break-words">
-                    {record.course.location}
+                  <div className="max-w-[250px] line-clamp-2 break-words">
+                    {record.location}
                   </div>
                 </TableCell>
 
                 <TableCell className="text-center">
-                  {record.course.costPerPerson}
+                  {record.costPerPerson}
                 </TableCell>
 
                 <TableCell>
-                  <div className="max-w-[140px] line-clamp-2 break-words">
-                    {record.course.budgetCode}
-                  </div>
-                </TableCell>
-
-                <TableCell>{record.staff.id}</TableCell>
-
-                <TableCell>
-                  <div className="max-w-[160px] line-clamp-2 break-words">
-                    {record.staff.name}
+                  <div className="max-w-[250px] line-clamp-2 break-words">
+                    {record.budgetCode}
                   </div>
                 </TableCell>
 
                 <TableCell>
-                  <div className="max-w-[140px] line-clamp-2 break-words">
-                    {record.staff.position}
+                  <div className="max-w-[250px] line-clamp-2 break-words">
+                    {record.position}
                   </div>
                 </TableCell>
 
                 <TableCell className="text-center">
-                  <div className="max-w-[140px] line-clamp-2 break-words">
-                    {record.staff.department.name}
+                  <div className="max-w-[250px] line-clamp-2 break-words">
+                    {record.department}
                   </div>
                 </TableCell>
 
                 <TableCell>
-                  <div className="max-w-[180px] line-clamp-2 break-words">
-                    {record.staff.department.division}
+                  <div className="max-w-[250px] line-clamp-2 break-words">
+                    {record.division}
                   </div>
                 </TableCell>
 
                 <TableCell>{record.status}</TableCell>
 
-                <TableCell className="text-center">85</TableCell>
-                <TableCell className="text-center">85</TableCell>
+                <TableCell className="text-center">
+                  {record.preTestScore ?? "-"}
+                </TableCell>
+                <TableCell className="text-center">
+                  {record.postTestScore ?? "-"}
+                </TableCell>
 
                 <TableCell>Excellent</TableCell>
 
@@ -143,7 +128,7 @@ function TrainingRecordTable() {
                           router.push(`/my-training-records/${record.id}`)
                         }
                       >
-                        <UploadIcon className="h-4 w-4" />
+                        <UploadIcon className="w-4 h-4" />
                       </Button>
                     </DropdownMenuTrigger>
 

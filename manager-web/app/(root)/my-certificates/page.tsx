@@ -1,10 +1,9 @@
 import PageHeader from "@/components/dashboard/pageHeader";
 import CertificateCard from "@/components/my-certificates/certificateCard";
-import { certificates } from "@/data/data";
-import { Certificate } from "crypto";
-import React from "react";
+import { getCertificates } from "@/lib/actions/my-certificates/getMyCertificate";
 
-function MyCertificates() {
+async function MyCertificates() {
+  const certificates = await getCertificates(); // Fetch certificates on page load
   return (
     <>
       <div className="min-h-screen space-y-4 m-2">
