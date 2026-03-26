@@ -1,11 +1,11 @@
 import { Department } from "./department";
 
 export type TrainingPlanStaff = {
-  id: string;
+  employeeID: string;
   name: string;
   email: string;
   phone: string;
-  department: Department;
+  department: string;
   departmentId: string;
   role: string;
   position: string;

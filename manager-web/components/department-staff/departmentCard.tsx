@@ -2,14 +2,11 @@ import {
   Card,
   CardAction,
   CardContent,
-  CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
 import { Edit2Icon, Trash2Icon, UsersIcon } from "lucide-react";
 import { Button } from "../ui/button";
-import { Separator } from "@/components/ui/separator";
 
 import { TrainingPlanStaff } from "../../types/staff";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -31,7 +28,10 @@ function DepartmentCard({ staff, onEdit, onDelete }: DepartmentCardProps) {
             </AvatarFallback>
           </Avatar>
           <div>
-            <h3 className="text-md font-medium">{staff.name}</h3>
+            <h3 className="text-md font-medium text-black">{staff.name}</h3>
+            <p className="text-sm text-gray-600 space-y-1">
+              <span className="font-semibold">ID:</span> {staff.employeeID}
+            </p>
             <p className="text-sm text-gray-600">{staff.position}</p>
           </div>
         </CardTitle>
@@ -50,10 +50,10 @@ function DepartmentCard({ staff, onEdit, onDelete }: DepartmentCardProps) {
         </CardAction>
       </CardHeader>
 
-      <CardContent>
-        <p className="text-black text-md">{staff.department.name}</p>
+      <CardContent className="space-y-1">
+        <p className="text-black text-md">{staff.role}</p>
         <p className="text-gray-600 text-sm ">
-          {""}Division: {staff.department.division}
+          {""}Division: {staff.department}
         </p>
         <p className="text-gray-600 text-sm "> Manager: {staff.phone}</p>
         {/* <Separator className="w-24 self-center mt-4" /> */}
