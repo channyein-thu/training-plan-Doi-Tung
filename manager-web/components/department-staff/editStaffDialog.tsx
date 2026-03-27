@@ -34,14 +34,14 @@ function EditStaffDialog({ staff, onClose }: Props) {
   const form = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
     defaultValues: {
-      fullName: staff?.fullName ?? "",
+      fullName: staff?.name ?? "",
       //   division: staff?.division ?? "",
     },
   });
 
   const onSubmit = (values: z.infer<typeof schema>) => {
     // call UPDATE API here
-    console.log("Update staff:", staff?.id, values);
+    console.log("Update staff:", staff?.employeeID, values);
     onClose();
   };
 

@@ -5,11 +5,12 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Edit2Icon, Trash2Icon, UsersIcon } from "lucide-react";
+import { Edit2Icon, Trash2Icon } from "lucide-react";
 import { Button } from "../ui/button";
 
 import { TrainingPlanStaff } from "../../types/staff";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import Link from "next/link";
 
 type DepartmentCardProps = {
   staff: TrainingPlanStaff;
@@ -36,10 +37,15 @@ function DepartmentCard({ staff, onEdit, onDelete }: DepartmentCardProps) {
           </div>
         </CardTitle>
 
-        <CardAction className="text-[#006022] font-medium">
-          <Button variant="ghost" size="icon-sm" onClick={() => onEdit(staff)}>
-            <Edit2Icon />
-          </Button>
+        <CardAction className="flex flex-row items-center gap-1 text-[#006022] font-medium">
+          <Link
+            href={`/department-staff/${staff.id}`}
+            className="flex items-center"
+          >
+            <Button variant="ghost" size="icon-sm">
+              <Edit2Icon />
+            </Button>
+          </Link>
           <Button
             variant="ghost"
             size="icon-sm"

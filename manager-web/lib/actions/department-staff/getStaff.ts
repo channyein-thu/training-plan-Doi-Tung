@@ -24,5 +24,5 @@ export async function getStaff(): Promise<TrainingPlanStaff[]> {
   }
 
   const payload = await response.json();
-  return (payload.data ?? []) as TrainingPlanStaff[];
+  return (payload.data.items ?? []) as TrainingPlanStaff[];
 }
