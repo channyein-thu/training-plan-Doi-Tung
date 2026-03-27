@@ -14,10 +14,13 @@ import {
 import Logo from "@/components/login/logo";
 import { Card, CardContent } from "@/components/ui/card";
 import { Users } from "lucide-react";
+import { Eye, EyeOff } from "lucide-react";
+
 import Link from "next/link";
 import { LoginAction, State } from "@/lib/actions/login";
 
 export default function LoginForm() {
+  const [showPassword, setShowPassword] = useState(false);
   const initialState: State = {
     message: "",
   };
@@ -70,6 +73,7 @@ export default function LoginForm() {
                       name="email"
                       required
                     />
+
                     {state.errors?.email && (
                       <p className="text-red-500 text-sm mt-1">
                         {state.errors.email.join(", ")}
@@ -80,13 +84,30 @@ export default function LoginForm() {
                   {/* Password */}
                   <Field>
                     <FieldLabel htmlFor="password">Password</FieldLabel>
-                    <Input
-                      id="password"
-                      type="password"
-                      placeholder="Enter Password"
-                      name="password"
-                      required
-                    />
+                    <div className="relative">
+                      <Input
+                        id="password"
+                        type={showPassword ? "text" : "password"}
+                        placeholder="Enter Password"
+                        name="password"
+                        className="pr-10"
+                        required
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
+                        aria-label={
+                          showPassword ? "Hide password" : "Show password"
+                        }
+                      >
+                        {showPassword ? (
+                          <EyeOff size={18} />
+                        ) : (
+                          <Eye size={18} />
+                        )}
+                      </button>
+                    </div>
                     {state.errors?.password && (
                       <p className="text-red-500 text-sm mt-1">
                         {state.errors.password.join(", ")}
