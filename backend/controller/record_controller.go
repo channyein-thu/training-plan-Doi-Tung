@@ -53,6 +53,7 @@ func (c *RecordController) FindById(ctx *fiber.Ctx) error {
 
 	return ctx.JSON(response.Response{
 		Status: "SUCCESS",
+		Message: "Record retrieved successfully",
 		Data:   result,
 	})
 }

@@ -2,10 +2,10 @@ package service
 
 import (
 	"math"
-	"time"
 	"training-plan-api/data/request"
 	"training-plan-api/data/response"
 	"training-plan-api/helper"
+	"training-plan-api/mapper"
 	"training-plan-api/model"
 	"training-plan-api/repository"
 
@@ -210,89 +210,92 @@ func (s *RecordServiceImpl) RegisterStaff(
 	return nil
 }
 
-func (s *RecordServiceImpl) FindById(id int) (response.FinalRecord, error) {
+func (s *RecordServiceImpl) FindById(id int) (response.RecordResponseFinal, error) {
 
 	record, err := s.repo.FindById(id)
 	if err != nil {
-		return response.FinalRecord{}, err
+		return response.RecordResponseFinal{}, err
 	}
 
-	// Safe fallback values
-	var employeeID, staffName, position string
-	var departmentID int
-	var departmentName string
-	var division string
+	resp := mapper.ToRecordResponse(*record)
+	return resp, nil
 
-	if record.User != nil {
-		employeeID = record.User.EmployeeID
-		staffName = record.User.Name
-		position = record.User.Position
+	// // Safe fallback values
+	// var employeeID, staffName, position string
+	// var departmentID int
+	// var departmentName string
+	// var division string
 
-		if record.User.Department != nil {
-			departmentID = record.User.Department.ID
-			departmentName = record.User.Department.Name
-			division = string(record.User.Department.Division)
-		}
-	}
+	// if record.User != nil {
+	// 	employeeID = record.User.EmployeeID
+	// 	staffName = record.User.Name
+	// 	position = record.User.Position
 
-	var trainingPlanName, tType, category, content string
-	var date time.Time
-	var numberOfDays int
-	var numberOfHours *int
-	var location, budgetCode *string
-	var totalCost, costPerPerson *int
-	var numberOfPerson int
-	var speakerInstitute *string
+	// 	if record.User.Department != nil {
+	// 		departmentID = record.User.Department.ID
+	// 		departmentName = record.User.Department.Name
+	// 		division = string(record.User.Department.Division)
+	// 	}
+	// }
 
-	if record.TrainingPlan != nil {
-		trainingPlanName = record.TrainingPlan.Name
-		tType = string(record.TrainingPlan.Type)
-		category = string(record.TrainingPlan.Category)
-		date = record.TrainingPlan.Date
-		content = record.TrainingPlan.Content
-		numberOfDays = record.TrainingPlan.NumberOfDays
-		numberOfHours = record.TrainingPlan.NumberOfHours
-		location = record.TrainingPlan.Location
-		totalCost = record.TrainingPlan.TotalCost
-		budgetCode = record.TrainingPlan.BudgetCode
-		numberOfPerson = record.TrainingPlan.NumberOfPerson
-		costPerPerson = record.TrainingPlan.CostPerPerson
-		speakerInstitute = record.TrainingPlan.SpeakerInstitute
-	}
+	// var trainingPlanName, tType, category, content string
+	// var date time.Time
+	// var numberOfDays int
+	// var numberOfHours *int
+	// var location, budgetCode *string
+	// var totalCost, costPerPerson *int
+	// var numberOfPerson int
+	// var speakerInstitute *string
 
-	return response.FinalRecord{
-		ID:               record.ID,
-		UserID:           record.UserID,
-		TrainingPlanID:   record.TrainingPlanID,
-		Status:           string(record.Status),
-		Evaluation:       record.Evaluation,
-		PreTestScore:     record.PreTestScore,
-		PostTestScore:    record.PostTestScore,
+	// if record.TrainingPlan != nil {
+	// 	trainingPlanName = record.TrainingPlan.Name
+	// 	tType = string(record.TrainingPlan.Type)
+	// 	category = string(record.TrainingPlan.Category)
+	// 	date = record.TrainingPlan.Date
+	// 	content = record.TrainingPlan.Content
+	// 	numberOfDays = record.TrainingPlan.NumberOfDays
+	// 	numberOfHours = record.TrainingPlan.NumberOfHours
+	// 	location = record.TrainingPlan.Location
+	// 	totalCost = record.TrainingPlan.TotalCost
+	// 	budgetCode = record.TrainingPlan.BudgetCode
+	// 	numberOfPerson = record.TrainingPlan.NumberOfPerson
+	// 	costPerPerson = record.TrainingPlan.CostPerPerson
+	// 	speakerInstitute = record.TrainingPlan.SpeakerInstitute
+	// }
 
-		EmployeeID:       employeeID,
-		StaffName:        staffName,
-		DepartmentID:     departmentID,
-		Departmentname:   departmentName,
-		Division:         division,
-		Position:         position,
+	// return response.FinalRecord{
+	// 	ID:               record.ID,
+	// 	UserID:           record.UserID,
+	// 	TrainingPlanID:   record.TrainingPlanID,
+	// 	Status:           string(record.Status),
+	// 	Evaluation:       record.Evaluation,
+	// 	PreTestScore:     record.PreTestScore,
+	// 	PostTestScore:    record.PostTestScore,
 
-		TrainingPlanName: trainingPlanName,
-		SpeakerInstitute: speakerInstitute,
-		Type:             tType,
-		Category:         category,
-		Date:             date,
-		Content:          content,
-		NumberOfDays:     numberOfDays,
-		NumberOfHours:    numberOfHours,
-		Location:         location,
-		TotalCost:        totalCost,
-		BudgetCode:       budgetCode,
-		NumberOfPerson:   numberOfPerson,
-		CostPerPerson:    costPerPerson,
+	// 	EmployeeID:       employeeID,
+	// 	StaffName:        staffName,
+	// 	DepartmentID:     departmentID,
+	// 	Departmentname:   departmentName,
+	// 	Division:         division,
+	// 	Position:         position,
 
-		CreatedAt: record.CreatedAt,
-		UpdatedAt: record.UpdatedAt,
-	}, nil
+	// 	TrainingPlanName: trainingPlanName,
+	// 	SpeakerInstitute: speakerInstitute,
+	// 	Type:             tType,
+	// 	Category:         category,
+	// 	Date:             date,
+	// 	Content:          content,
+	// 	NumberOfDays:     numberOfDays,
+	// 	NumberOfHours:    numberOfHours,
+	// 	Location:         location,
+	// 	TotalCost:        totalCost,
+	// 	BudgetCode:       budgetCode,
+	// 	NumberOfPerson:   numberOfPerson,
+	// 	CostPerPerson:    costPerPerson,
+
+	// 	CreatedAt: record.CreatedAt,
+	// 	UpdatedAt: record.UpdatedAt,
+	// }, nil
 }
 
 func (s *RecordServiceImpl) Update(

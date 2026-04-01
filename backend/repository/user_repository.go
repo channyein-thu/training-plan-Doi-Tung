@@ -63,6 +63,42 @@ func (r *UserRepositoryImpl) Update(user *model.User) error {
 	return nil
 }
 
+func (r *UserRepositoryImpl) UpdateProfile(userID uint, updates map[string]interface{}) error {
+	result := r.Db.Model(&model.User{}).Where("id = ?", userID).Updates(updates)
+	if result.Error != nil {
+		if strings.Contains(result.Error.Error(), "Duplicate entry") {
+			if strings.Contains(result.Error.Error(), "employee_id") {
+				return helper.BadRequest("Employee ID already in use")
+			}
+		}
+		return helper.InternalServerError("Failed to update profile")
+	}
+	if result.RowsAffected == 0 {
+		return helper.NotFound("User not found")
+	}
+	return nil
+}
+
+func (r *UserRepositoryImpl) UpdateOAuthFields(userID uint, googleID, avatar, provider, name string) error {
+	updates := map[string]interface{}{
+		"google_id": googleID,
+		"avatar":    avatar,
+		"provider":  provider,
+	}
+	if name != "" {
+		updates["name"] = name
+	}
+
+	result := r.Db.Model(&model.User{}).Where("id = ?", userID).Updates(updates)
+	if result.Error != nil {
+		return helper.InternalServerError("Failed to update OAuth fields")
+	}
+	if result.RowsAffected == 0 {
+		return helper.NotFound("User not found")
+	}
+	return nil
+}
+
 func (r *UserRepositoryImpl) Delete(userId uint) error {
 	result := r.Db.Delete(&model.User{}, userId)
 	if result.Error != nil {
@@ -88,7 +124,7 @@ func (r *UserRepositoryImpl) FindById(userId uint) (*model.User, error) {
 
 func (r *UserRepositoryImpl) FindByIdWithDepartment(userId uint) (*model.User, error) {
 	var user model.User
-	err := r.Db.Preload("Department").First(&user, userId).Error
+	err := r.Db.Preload("Department").Preload("Certificates").Preload("Certificates.Training").First(&user, userId).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, helper.NotFound("User not found")

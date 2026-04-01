@@ -43,6 +43,8 @@ type CertificateRepository interface {
 type UserRepository interface {
 	Save(user *model.User) error
 	Update(user *model.User) error
+	UpdateProfile(userID uint, updates map[string]interface{}) error
+	UpdateOAuthFields(userID uint, googleID, avatar, provider, name string) error
 	Delete(userId uint) error
 	FindById(userId uint) (*model.User, error)
 	FindByIdWithDepartment(userId uint) (*model.User, error)

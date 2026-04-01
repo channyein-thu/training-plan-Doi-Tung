@@ -9,6 +9,9 @@ type Config struct {
 	DBUser string `mapstructure:"MYSQL_USER"`
 	DBPass string `mapstructure:"MYSQL_PASSWORD"`
 	UploadPath string `mapstructure:"UPLOAD_PATH"`
+	GoogleClientID     string `mapstructure:"GOOGLE_CLIENT_ID"`
+	GoogleClientSecret string `mapstructure:"GOOGLE_CLIENT_SECRET"`
+	GoogleRedirectURL  string `mapstructure:"GOOGLE_REDIRECT_URL"`
 }
 
 func LoadConfig(path string) (Config, error) {

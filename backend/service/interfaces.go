@@ -4,6 +4,7 @@ import (
 	"mime/multipart"
 	"training-plan-api/data/request"
 	"training-plan-api/data/response"
+	"training-plan-api/model"
 
 	"github.com/xuri/excelize/v2"
 )
@@ -34,6 +35,12 @@ type UserService interface {
 	AdminFindAllForTable(params request.UserTableQueryParams) (response.PaginatedResponse[response.UserTableResponse], error)
 	ManagerCreate(req request.ManagerCreateUserRequest, managerID uint, managerDepartmentID int) error
 	ManagerFindByDepartment(departmentID, page, pageSize int) (response.PaginatedResponse[response.UserListResponse], error)
+	CompleteProfile(userID uint, req request.CompleteProfileRequest) error
+}
+
+type AuthOAuthService interface {
+	GetGoogleLoginURL(state string) string
+	HandleGoogleCallback(code string) (string, *model.User, error)
 }
 
 type CertificateService interface {
@@ -47,7 +54,7 @@ type CertificateService interface {
 
 type RecordService interface {
 	RegisterStaff(trainingPlanId uint, req request.RegisterStaffRequest) error
-	FindById(id int) (response.FinalRecord, error)
+	FindById(id int) (response.RecordResponseFinal, error)
 	Update(id int, req request.UpdateRecordRequest) error
 	Delete(id int) error
  	FindByManager(managerID uint,page int,limit int,) (response.PaginatedResponse[response.AdminRecordResponse], error)	

@@ -10,7 +10,7 @@ type CreateUserRequest struct {
 	DepartmentID int              `json:"departmentId" validate:"required,gt=0"`
 	Role         model.Role       `json:"role" validate:"required"`
 	Position     string           `json:"position" validate:"required,min=1,max=100"`
-	Status       model.UserStatus `json:"status" validate:"required,oneof=Active Inactive"`
+	Status       model.UserStatus `json:"status" validate:"required,oneof=Active Inactive Suspended"`
 	Password     string           `json:"password" validate:"required,min=6"`
 }
 
@@ -22,7 +22,7 @@ type UpdateUserRequest struct {
 	DepartmentID int              `json:"departmentId" validate:"required,gt=0"`
 	Role         model.Role       `json:"role" validate:"required"`
 	Position     string           `json:"position" validate:"required,min=1,max=100"`
-	Status       model.UserStatus `json:"status" validate:"required,oneof=Active Inactive"`
+	Status       model.UserStatus `json:"status" validate:"required,oneof=Active Inactive Suspended"`
 }
 
 type ManagerCreateUserRequest struct {
@@ -31,7 +31,7 @@ type ManagerCreateUserRequest struct {
 	Email      string           `json:"email" validate:"required,email,max=52"`
 	Phone      string           `json:"phone" validate:"max=20"`
 	Position   string           `json:"position" validate:"required,min=1,max=100"`
-	Status     model.UserStatus `json:"status" validate:"required,oneof=Active Inactive"`
+	Status     model.UserStatus `json:"status" validate:"required,oneof=Active Inactive Suspended"`
 	Password   string           `json:"password" validate:"required,min=6"`
 }
 
@@ -43,4 +43,11 @@ type UserTableQueryParams struct {
 	Limit        int    `query:"limit"`
 	SortBy       string `query:"sortBy"`
 	SortOrder    string `query:"sortOrder"`
+}
+
+type CompleteProfileRequest struct {
+	EmployeeID   string `json:"employeeId" validate:"required,min=1,max=52"`
+	DepartmentID int    `json:"departmentId" validate:"required,gt=0"`
+	Phone        string `json:"phone" validate:"max=20"`
+	Position     string `json:"position" validate:"max=100"`
 }

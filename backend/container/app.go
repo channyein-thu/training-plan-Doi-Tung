@@ -2,6 +2,7 @@ package container
 
 import (
 	"time"
+	"training-plan-api/config"
 	"training-plan-api/controller"
 	"training-plan-api/helper"
 	"training-plan-api/repository"
@@ -16,9 +17,11 @@ type AppDependencies struct {
 	DepartmentController *controller.DepartmentController
 	TrainingPlanController     *controller.TrainingPlanController
 	AuthController       *controller.AuthController
+	AuthOAuthController  *controller.AuthOAuthController
 	UserController       *controller.UserController
 	CertificateController *controller.CertificateController
 	RecordController     *controller.RecordController
+	UserRepository       repository.UserRepository
 }
 
 func NewAppDependencies(
@@ -27,6 +30,7 @@ func NewAppDependencies(
 	calendarService *calendar.Service,
 	location *time.Location,
 	storage helper.Storage,
+	appConfig config.Config,
 ) *AppDependencies {
 
 		// ---------- Department ----------
@@ -62,14 +66,23 @@ func NewAppDependencies(
 
 	// ---------- Auth ----------
 	authController := controller.NewAuthController(db)
+	authOAuthService := service.NewAuthOAuthServiceImpl(
+		userRepo,
+		appConfig.GoogleClientID,
+		appConfig.GoogleClientSecret,
+		appConfig.GoogleRedirectURL,
+	)
+	authOAuthController := controller.NewAuthOAuthController(authOAuthService)
 
 
 	return &AppDependencies{
 		DepartmentController: departmentController,
 		TrainingPlanController:     trainingPlanController,
 		AuthController:       authController,
+		AuthOAuthController:  authOAuthController,
 		UserController:       userController,
 		CertificateController: certificateController,
 		RecordController:     recordController,
+		UserRepository:       userRepo,
 	}
 }

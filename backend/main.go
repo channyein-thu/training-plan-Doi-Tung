@@ -68,6 +68,7 @@ func main() {
 		calendarService,
 		location,
 		storage,
+		appConfig,
 	)
 
 	//  Routes

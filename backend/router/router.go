@@ -11,8 +11,14 @@ func RegisterRoutes(app *fiber.App, deps *container.AppDependencies) {
 	api := app.Group("/api/v1")
 
 	// Public routes
-	AuthRoutes(api, deps.AuthController)
+	
 
+	app.Get("/auth/google/login", deps.AuthOAuthController.GoogleLogin)
+	app.Post("/auth/google/exchange", deps.AuthOAuthController.GoogleExchange)
+	app.Post("/user/complete-profile", middleware.JWTProtected, deps.UserController.CompleteProfile)
+    api.Get("/departments-list", deps.DepartmentController.GetDepartmentsList)
+	
+	AuthRoutes(api, deps.AuthController, deps.AuthOAuthController)
 	// Role-based routes with JWT and role middleware
 	AdminRoutes(
 		api.Group("/admin", middleware.JWTProtected, middleware.AdminOnly),
@@ -25,7 +31,7 @@ func RegisterRoutes(app *fiber.App, deps *container.AppDependencies) {
 	)
 
 	StaffRoutes(
-		api.Group("/staff", middleware.JWTProtected),
+		api.Group("/staff", middleware.JWTProtected, middleware.RequireProfileComplete(deps.UserRepository) ),
 		deps,
 	)
 }

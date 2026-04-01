@@ -184,3 +184,23 @@ func (uc *UserController) getManagerDepartmentID(managerID uint) (int, error) {
 		Scan(&departmentID).Error
 	return departmentID, err
 }
+
+// ============== STAFF ENDPOINTS ==============
+
+func (uc *UserController) CompleteProfile(c *fiber.Ctx) error {
+	userID := c.Locals("user_id").(uint)
+
+	var req request.CompleteProfileRequest
+	if err := c.BodyParser(&req); err != nil {
+		return helper.BadRequest("Invalid request body")
+	}
+
+	if err := uc.userService.CompleteProfile(userID, req); err != nil {
+		return err
+	}
+
+	return c.JSON(fiber.Map{
+		"success": true,
+		"message": "Profile completed successfully",
+	})
+}

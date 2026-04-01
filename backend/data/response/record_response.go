@@ -98,3 +98,20 @@ type FinalRecord struct{
 	UpdatedAt        time.Time `json:"updatedAt"`
 
 } 
+
+type RecordResponseFinal struct {
+	ID               uint      `json:"id"`
+	UserID		   uint      `json:"userId"`
+	User        *UserResponse	   `json:"user"`
+	TrainingPlanID  uint      `json:"trainingPlanId"`
+	TrainingPlan    TrainingPlanResponse `json:"trainingPlan"`
+	Status           string    `json:"status"`
+	Evaluation       *string   `json:"evaluation,omitempty"`
+	PreTestScore     *int      `json:"preTestScore,omitempty"`
+	PostTestScore    *int      `json:"postTestScore,omitempty"`
+	CreatedAt        time.Time `json:"createdAt"`
+	UpdatedAt        time.Time `json:"updatedAt"`
+}
+
+
+

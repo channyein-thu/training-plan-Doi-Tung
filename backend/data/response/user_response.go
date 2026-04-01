@@ -10,9 +10,12 @@ type UserResponse struct {
 	Phone        string              `json:"phone"`
 	DepartmentID int                 `json:"departmentId"`
 	Department   *DepartmentResponse `json:"department,omitempty"`
+	Certificate  []UserCertificateResponse `json:"certificates,omitempty"`
 	Role         model.Role          `json:"role"`
 	Status       model.UserStatus    `json:"status"`
 	Position     string              `json:"position"`
+	Avatar       string              `json:"avatar,omitempty"`
+	Provider     string              `json:"provider,omitempty"`
 	CreatedBy    model.CreatedByType `json:"createdBy"`
 	CreatedAt    int64               `json:"createdAt"`
 	UpdatedAt    int64               `json:"updatedAt"`
@@ -90,6 +93,8 @@ func ToUserResponse(user model.User) UserResponse {
 		Role:         user.Role,
 		Status:       user.Status,
 		Position:     user.Position,
+		Avatar:       user.Avatar,
+		Provider:     user.Provider,
 		CreatedBy:    user.CreatedBy,
 		CreatedAt:    user.CreatedAt,
 		UpdatedAt:    user.UpdatedAt,
@@ -98,7 +103,21 @@ func ToUserResponse(user model.User) UserResponse {
 		resp.Department = &DepartmentResponse{
 			ID:   user.Department.ID,
 			Name: user.Department.Name,
+			Division: user.Department.Division,
 		}
+	}
+	if user.Certificates != nil {
+		certs := make([]UserCertificateResponse, len(user.Certificates))
+		for i, cert := range user.Certificates {
+			certs[i] = UserCertificateResponse{
+				ID:          cert.ID,
+				TrainingName: cert.Training.Name,
+				Image:       cert.Image,
+				Description: cert.Description,
+				Status:      string(cert.Status),
+			}
+		}
+		resp.Certificate = certs
 	}
 	return resp
 }

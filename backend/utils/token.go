@@ -6,7 +6,6 @@ import (
 	"os"
 	"time"
 
-	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v5"
 )
 
@@ -15,10 +14,6 @@ const (
 	RefreshTokenExpiry = 7 * 24 * time.Hour
 )
 
-const (
-	AccessTokenCookie  = "access_token"
-	RefreshTokenCookie = "refresh_token"
-)
 
 func GenerateAccessToken(userID uint, role string) (string, error) {
 	claims := jwt.MapClaims{
@@ -76,86 +71,8 @@ func ExtractUserRole(claims *jwt.MapClaims) string {
 	return ""
 }
 
-type CookieConfig struct {
-	Secure   bool
-	Domain   string
-	SameSite string
-}
 
-func GetCookieConfig() CookieConfig {
-	// isProduction := os.Getenv("GO_ENV") == "production"
 
-	// return CookieConfig{
-	// 	Secure:   isProduction,
-	// 	Domain:   os.Getenv("COOKIE_DOMAIN"),
-	// 	SameSite: "Lax",
-	// }
-		return CookieConfig{
-		Secure:   false,          // 🔥 must be true for SameSite=None
-		Domain:   "",
-		SameSite: "None",        // 🔥 allow cross-site cookies
-	}
-}
-
-func SetAccessTokenCookie(c *fiber.Ctx, token string) {
-	config := GetCookieConfig()
-
-	c.Cookie(&fiber.Cookie{
-		Name:     AccessTokenCookie,
-		Value:    token,
-		Expires:  time.Now().Add(AccessTokenExpiry),
-		HTTPOnly: true,
-		Secure:   config.Secure,
-		SameSite: config.SameSite,
-		Path:     "/",
-	})
-}
-
-func SetRefreshTokenCookie(c *fiber.Ctx, token string) {
-	config := GetCookieConfig()
-
-	c.Cookie(&fiber.Cookie{
-		Name:     RefreshTokenCookie,
-		Value:    token,
-		Expires:  time.Now().Add(RefreshTokenExpiry),
-		HTTPOnly: true,
-		Secure:   config.Secure,
-		SameSite: config.SameSite,
-		Path:     "/api/v1/auth",
-	})
-}
-
-func ClearAuthCookies(c *fiber.Ctx) {
-	config := GetCookieConfig()
-
-	c.Cookie(&fiber.Cookie{
-		Name:     AccessTokenCookie,
-		Value:    "",
-		Expires:  time.Now().Add(-time.Hour),
-		HTTPOnly: true,
-		Secure:   config.Secure,
-		SameSite: config.SameSite,
-		Path:     "/",
-	})
-
-	c.Cookie(&fiber.Cookie{
-		Name:     RefreshTokenCookie,
-		Value:    "",
-		Expires:  time.Now().Add(-time.Hour),
-		HTTPOnly: true,
-		Secure:   config.Secure,
-		SameSite: config.SameSite,
-		Path:     "/api/v1/auth",
-	})
-}
-
-func GetAccessTokenFromCookie(c *fiber.Ctx) string {
-	return c.Cookies(AccessTokenCookie)
-}
-
-func GetRefreshTokenFromCookie(c *fiber.Ctx) string {
-	return c.Cookies(RefreshTokenCookie)
-}
 
 func GenerateToken(id uint, role string) (string, error) {
 	return GenerateAccessToken(id, role)

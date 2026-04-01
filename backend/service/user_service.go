@@ -1,6 +1,7 @@
 package service
 
 import (
+	"net/http"
 	"training-plan-api/data/request"
 	"training-plan-api/data/response"
 	"training-plan-api/helper"
@@ -61,6 +62,7 @@ func (s *UserServiceImpl) AdminCreate(req request.CreateUserRequest, creatorID u
 		Password:     utils.GeneratePassword(req.Password),
 		CreatedBy:    model.CreatedByAdmin,
 		CreatedByID:  &creatorID,
+		IsProfileComplete: true,
 	}
 
 	return s.userRepo.Save(user)
@@ -184,6 +186,7 @@ func (s *UserServiceImpl) ManagerCreate(req request.ManagerCreateUserRequest, ma
 		Password:     utils.GeneratePassword(req.Password),
 		CreatedBy:    model.CreatedByManager,
 		CreatedByID:  &managerID,
+		IsProfileComplete: true,
 	}
 
 	return s.userRepo.Save(user)
@@ -212,4 +215,42 @@ func (s *UserServiceImpl) ManagerFindByDepartment(departmentID, page, pageSize i
 			TotalPages: int((total + int64(pageSize) - 1) / int64(pageSize)),
 		},
 	}, nil
+}
+
+func (s *UserServiceImpl) CompleteProfile(userID uint, req request.CompleteProfileRequest) error {
+	if err := s.validate.Struct(req); err != nil {
+		return helper.ValidationError(helper.FormatValidationError(err))
+	}
+
+	if _, err := s.deptRepo.FindById(req.DepartmentID); err != nil {
+		return helper.BadRequest("Invalid department selected")
+	}
+
+	if existingUser, err := s.userRepo.FindByEmployeeID(req.EmployeeID); err == nil {
+		if existingUser.ID != userID {
+			return helper.BadRequest("Employee ID already in use")
+		}
+	} else {
+		if appErr, ok := err.(*helper.AppError); ok {
+			if appErr.StatusCode != http.StatusNotFound {
+				return err
+			}
+		} else {
+			return err
+		}
+	}
+
+	updates := map[string]interface{}{
+		"employee_id":         req.EmployeeID,
+		"department_id":       req.DepartmentID,
+		"is_profile_complete": true,
+	}
+	if req.Phone != "" {
+		updates["phone"] = req.Phone
+	}
+	if req.Position != "" {
+		updates["position"] = req.Position
+	}
+
+	return s.userRepo.UpdateProfile(userID, updates)
 }
