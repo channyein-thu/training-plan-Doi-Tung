@@ -7,7 +7,6 @@ import (
 	"training-plan-api/helper"
 	"training-plan-api/model"
 	"training-plan-api/repository"
-	"training-plan-api/utils"
 
 	"github.com/go-playground/validator/v10"
 )
@@ -59,7 +58,7 @@ func (s *UserServiceImpl) AdminCreate(req request.CreateUserRequest, creatorID u
 		Role:         req.Role,
 		Position:     req.Position,
 		Status:       req.Status,
-		Password:     utils.GeneratePassword(req.Password),
+		Password:     helper.GeneratePassword(req.Password),
 		CreatedBy:    model.CreatedByAdmin,
 		CreatedByID:  &creatorID,
 		IsProfileComplete: true,
@@ -183,7 +182,7 @@ func (s *UserServiceImpl) ManagerCreate(req request.ManagerCreateUserRequest, ma
 		Role:         model.RoleStaff,
 		Position:     req.Position,
 		Status:       req.Status,
-		Password:     utils.GeneratePassword(req.Password),
+		Password:     helper.GeneratePassword(req.Password),
 		CreatedBy:    model.CreatedByManager,
 		CreatedByID:  &managerID,
 		IsProfileComplete: true,

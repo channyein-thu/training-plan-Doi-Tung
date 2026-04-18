@@ -8,7 +8,6 @@ import (
 	"training-plan-api/helper"
 	"training-plan-api/model"
 	"training-plan-api/repository"
-	"training-plan-api/utils"
 
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
@@ -116,7 +115,7 @@ newUser := &model.User{
 		}
 	}
 
-	jwtToken, err := utils.GenerateAccessToken(user.ID, string(user.Role))
+	jwtToken, err := helper.GenerateAccessToken(user.ID, string(user.Role))
 	if err != nil {
 		return "", nil, helper.InternalServerError("Failed to generate access token")
 	}

@@ -5,8 +5,7 @@ import (
 	"strings"
 
 	"training-plan-api/model"
-	"training-plan-api/utils"
-
+	"training-plan-api/helper"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -31,7 +30,7 @@ func JWTProtected(c *fiber.Ctx) error {
 
 	tokenString := parts[1]
 
-	claims, err := utils.VerifyAccessToken(tokenString)
+	claims, err := helper.VerifyAccessToken(tokenString)
 	if err != nil {
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
 			"success": false,
@@ -39,8 +38,8 @@ func JWTProtected(c *fiber.Ctx) error {
 		})
 	}
 
-	c.Locals("user_id", utils.ExtractUserID(claims))
-	c.Locals("user_role", utils.ExtractUserRole(claims))
+	c.Locals("user_id", helper.ExtractUserID(claims))
+	c.Locals("user_role", helper.ExtractUserRole(claims))
 
 	return c.Next()
 }

@@ -3,7 +3,6 @@ package controller
 import (
 	"training-plan-api/helper"
 	"training-plan-api/model"
-	"training-plan-api/utils"
 
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/gorm"
@@ -82,11 +81,11 @@ func (ac *AuthController) handleLogin(c *fiber.Ctx, role model.Role) error {
 		return helper.Unauthorized("Account is deactivated")
 	}
 
-	if !utils.ComparePassword(user.Password, req.Password) {
+	if !helper.ComparePassword(user.Password, req.Password) {
 		return helper.Unauthorized("Invalid credentials")
 	}
 
-	accessToken, err := utils.GenerateAccessToken(user.ID, string(user.Role))
+	accessToken, err := helper.GenerateAccessToken(user.ID, string(user.Role))
 	if err != nil {
 		return helper.InternalServerError("Failed to generate access token")
 	}
@@ -234,7 +233,7 @@ func (ac *AuthController) createUserFromRequest(req *RegisterRequest, role model
 		DepartmentID: req.DepartmentID,
 		Position:     req.Position,
 		Role:         role,
-		Password:     utils.GeneratePassword(req.Password),
+		Password:     helper.GeneratePassword(req.Password),
 		Status:       model.UserStatusActive,
 		IsProfileComplete: true,
 	}
