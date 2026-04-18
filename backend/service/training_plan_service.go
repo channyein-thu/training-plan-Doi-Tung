@@ -68,10 +68,6 @@ func (s *TrainingPlanServiceImpl) Create(req request.CreateTrainingPlanRequest) 
 		hours = *trainingPlan.NumberOfHours
 	}
 
-	// description := "Training Plan"
-	// if trainingPlan.Content != nil && *trainingPlan.Content != "" {
-	// 	description = *trainingPlan.Content
-	// }
 
 	eventID, err := helper.CreateTrainingPlanCalendarEvent(
 		context.Background(),
@@ -82,16 +78,13 @@ func (s *TrainingPlanServiceImpl) Create(req request.CreateTrainingPlanRequest) 
 		hours,
 	)
 	if err != nil {
+		log.Println("Calendar create failed 1st place:", err)
 		return err
 	}
 
-	if err == nil {
-		trainingPlan.CalendarEventID = &eventID
-		if err := s.repo.Update(&trainingPlan); err != nil {
-			log.Println("Failed to save calendar_event_id:", err)
-		}
-	} else {
-		log.Println("Calendar create failed:", err)
+	trainingPlan.CalendarEventID = &eventID
+	if err := s.repo.Update(&trainingPlan); err != nil {
+		log.Println("Failed to save calendar_event_id:", err)
 	}
 
 	return nil

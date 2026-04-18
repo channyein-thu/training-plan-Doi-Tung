@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/spf13/viper"
@@ -44,7 +45,7 @@ func NewGoogleCalendarService(ctx context.Context) *calendar.Service {
 
 // TIMEZONE
 func LoadLocation() *time.Location {
-	tz := viper.GetString("TIMEZONE")
+	tz := strings.TrimSpace(viper.GetString("TIMEZONE"))
 	log.Println(tz)
 	if tz == "" {
 		tz = "UTC"
@@ -58,6 +59,21 @@ func LoadLocation() *time.Location {
 	return loc
 }
 
+func getCalendarID() string {
+	calendarID := strings.TrimSpace(viper.GetString("GOOGLE_CALENDAR_ID"))
+
+	if strings.HasSuffix(calendarID, "$") {
+		calendarID = strings.TrimSuffix(calendarID, "$")
+		log.Println("Warning: GOOGLE_CALENDAR_ID had trailing '$', trimmed automatically")
+	}
+
+	if calendarID == "" {
+		return "primary"
+	}
+
+	return calendarID
+}
+
 // CREATE CALENDAR EVENT
 func CreateTrainingPlanCalendarEvent(
 	ctx context.Context,
@@ -68,9 +84,10 @@ func CreateTrainingPlanCalendarEvent(
 	durationHours int,
 ) (string, error) {
 
-	calendarID := viper.GetString("GOOGLE_CALENDAR_ID")
-	if calendarID == "" {
-		calendarID = "primary"
+	calendarID := getCalendarID()
+	timezone := strings.TrimSpace(viper.GetString("TIMEZONE"))
+	if timezone == "" {
+		timezone = "UTC"
 	}
 
 	end := start.Add(time.Duration(durationHours) * time.Hour)
@@ -80,13 +97,15 @@ func CreateTrainingPlanCalendarEvent(
 		Description: description,
 		Start: &calendar.EventDateTime{
 			DateTime: start.Format(time.RFC3339),
-			TimeZone: viper.GetString("TIMEZONE"),
+			TimeZone: timezone,
 		},
 		End: &calendar.EventDateTime{
 			DateTime: end.Format(time.RFC3339),
-			TimeZone: viper.GetString("TIMEZONE"),
+			TimeZone: timezone,
 		},
 	}
+	log.Println("Calendar ID:", calendarID)
+	log.Println("Event:", event)
 
 	createdEvent, err := srv.Events.
 		Insert(calendarID, event).
@@ -94,6 +113,7 @@ func CreateTrainingPlanCalendarEvent(
 		Do()
 
 	if err != nil {
+		log.Println("Failed to create calendar event:", err)
 		return "", err
 	}
 
@@ -111,9 +131,10 @@ func UpdateTrainingPlanCalendarEvent(
 	durationHours int,
 ) error {
 
-	calendarID := viper.GetString("GOOGLE_CALENDAR_ID")
-	if calendarID == "" {
-		calendarID = "primary"
+	calendarID := getCalendarID()
+	timezone := strings.TrimSpace(viper.GetString("TIMEZONE"))
+	if timezone == "" {
+		timezone = "UTC"
 	}
 
 	end := start.Add(time.Duration(durationHours) * time.Hour)
@@ -123,11 +144,11 @@ func UpdateTrainingPlanCalendarEvent(
 		Description: description,
 		Start: &calendar.EventDateTime{
 			DateTime: start.Format(time.RFC3339),
-			TimeZone: viper.GetString("TIMEZONE"),
+			TimeZone: timezone,
 		},
 		End: &calendar.EventDateTime{
 			DateTime: end.Format(time.RFC3339),
-			TimeZone: viper.GetString("TIMEZONE"),
+			TimeZone: timezone,
 		},
 	}
 
@@ -146,10 +167,7 @@ func DeleteTrainingPlanCalendarEvent(
 	eventID string,
 ) error {
 
-	calendarID := viper.GetString("GOOGLE_CALENDAR_ID")
-	if calendarID == "" {
-		calendarID = "primary"
-	}
+	calendarID := getCalendarID()
 
 	return srv.Events.
 		Delete(calendarID, eventID).

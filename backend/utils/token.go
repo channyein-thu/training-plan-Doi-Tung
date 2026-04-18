@@ -1,8 +1,6 @@
 package utils
 
 import (
-	"crypto/rand"
-	"encoding/base64"
 	"os"
 	"time"
 
@@ -10,8 +8,7 @@ import (
 )
 
 const (
-	AccessTokenExpiry  = 15 * time.Minute
-	RefreshTokenExpiry = 7 * 24 * time.Hour
+	JWTTokenExpiry  = 7 * 24 * time.Hour
 )
 
 
@@ -19,7 +16,7 @@ func GenerateAccessToken(userID uint, role string) (string, error) {
 	claims := jwt.MapClaims{
 		"user_id": userID,
 		"role":    role,
-		"exp":     time.Now().Add(AccessTokenExpiry).Unix(),
+		"exp":     time.Now().Add(JWTTokenExpiry).Unix(),
 		"iat":     time.Now().Unix(),
 		"type":    "access",
 	}
@@ -28,13 +25,6 @@ func GenerateAccessToken(userID uint, role string) (string, error) {
 	return token.SignedString([]byte(os.Getenv("JWT_SECRET")))
 }
 
-func GenerateRefreshToken() (string, error) {
-	bytes := make([]byte, 32)
-	if _, err := rand.Read(bytes); err != nil {
-		return "", err
-	}
-	return base64.URLEncoding.EncodeToString(bytes), nil
-}
 
 func VerifyAccessToken(tokenString string) (*jwt.MapClaims, error) {
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
@@ -81,3 +71,7 @@ func GenerateToken(id uint, role string) (string, error) {
 func VerifyToken(tokenString string) (*jwt.MapClaims, error) {
 	return VerifyAccessToken(tokenString)
 }
+
+
+
+

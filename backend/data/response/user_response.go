@@ -42,6 +42,8 @@ type UserTableResponse struct {
 	Phone          string `json:"phone"`
 	DepartmentID   int    `json:"departmentId"`
 	DepartmentName string `json:"departmentName"`
+	Position	   string `json:"position"`
+	Role 		 model.Role `json:"role"`
 	JobRole        string `json:"jobRole"`
 	Status         string `json:"status"`
 	IsManager      bool   `json:"isManager"`
@@ -68,6 +70,8 @@ func ToUserTableResponse(user model.User) UserTableResponse {
 		Phone:          user.Phone,
 		DepartmentID:   user.DepartmentID,
 		DepartmentName: deptName,
+		Position:	   user.Position,
+		Role: 		 user.Role,
 		JobRole:        user.Position,
 		Status:         status,
 		IsManager:      user.Role == model.RoleDepartmentManager,
