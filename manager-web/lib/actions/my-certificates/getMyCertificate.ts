@@ -1,6 +1,7 @@
 "use server";
 
 import { API_BASE_URL } from "@/lib/api/api";
+import { authFetch } from "@/lib/api/authFetch";
 import { Certificate } from "@/types/certificate";
 import { cookies } from "next/headers";
 
@@ -12,7 +13,7 @@ export async function getCertificates(): Promise<Certificate[]> {
     .map((c) => `${c.name}=${c.value}`)
     .join("; ");
 
-  const response = await fetch(`${API_BASE_URL}/staff/certificates`, {
+  const { response } = await authFetch(`${API_BASE_URL}/staff/certificates`, {
     method: "GET",
     credentials: "include",
     headers: { "Content-Type": "application/json", Cookie: cookieHeader },

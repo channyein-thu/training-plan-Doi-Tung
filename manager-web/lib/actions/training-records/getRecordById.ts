@@ -1,6 +1,7 @@
 "use server";
 
 import { API_BASE_URL } from "@/lib/api/api";
+import { authFetch } from "@/lib/api/authFetch";
 import { cookies } from "next/headers";
 
 export async function getRecordById(recordId: string | number) {
@@ -10,12 +11,15 @@ export async function getRecordById(recordId: string | number) {
     .map((c) => `${c.name}=${c.value}`)
     .join("; ");
 
-  const response = await fetch(`${API_BASE_URL}/staff/records/${recordId}`, {
-    method: "GET",
-    credentials: "include",
-    headers: { "Content-Type": "application/json", Cookie: cookieHeader },
-    cache: "no-store",
-  });
+  const { response } = await authFetch(
+    `${API_BASE_URL}/staff/records/${recordId}`,
+    {
+      method: "GET",
+      credentials: "include",
+      headers: { "Content-Type": "application/json", Cookie: cookieHeader },
+      cache: "no-store",
+    },
+  );
 
   if (response.status === 404) {
     return null;

@@ -4,6 +4,7 @@ import { API_BASE_URL } from "@/lib/api/api";
 import { cookies } from "next/headers";
 import { z } from "zod";
 import { redirect } from "next/navigation";
+import { authFetch } from "@/lib/api/authFetch";
 
 export type State = {
   errors?: {
@@ -87,13 +88,21 @@ export async function UpdateOjtRecordAction(
   let isCreated = false;
 
   try {
-    const response = await fetch(`${API_BASE_URL}/manager/records/${id}`, {
-      method: "PUT",
-      credentials: "include",
-      headers: { "Content-Type": "application/json", Cookie: cookieHeader },
-      body: JSON.stringify({ status, evaluation, preTestScore, postTestScore }),
-      cache: "no-store",
-    });
+    const { response } = await authFetch(
+      `${API_BASE_URL}/manager/records/${id}`,
+      {
+        method: "PUT",
+        credentials: "include",
+        headers: { "Content-Type": "application/json", Cookie: cookieHeader },
+        body: JSON.stringify({
+          status,
+          evaluation,
+          preTestScore,
+          postTestScore,
+        }),
+        cache: "no-store",
+      },
+    );
 
     if (!response.ok) {
       const errorData = await response.json();

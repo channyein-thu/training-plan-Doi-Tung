@@ -5,8 +5,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Plus, Router } from "lucide-react";
-// import ViewPlanForm from "./viewPlanDetails";
 import InfoDetail from "./infoDetail";
 import { Course } from "@/types/course";
 
@@ -16,7 +14,6 @@ type RegisterCardProps = {
   plan: Course;
 };
 function RegisterCard({ plan }: RegisterCardProps) {
-  console.log("Rendering RegisterCard for plan:", plan); // Log the plan being rendered
   return (
     <div>
       <Card className="w-full min-w-[360px]">

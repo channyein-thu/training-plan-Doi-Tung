@@ -1,12 +1,10 @@
-"use server";
-
 import { API_BASE_URL } from "@/lib/api/api";
 import { authFetch } from "@/lib/api/authFetch";
-import { TrainingPlanStaff } from "@/types/staff";
 import { cookies } from "next/headers";
 
-export async function getStaff(): Promise<TrainingPlanStaff[]> {
-  const cookieStore = await cookies();
+export async function getStaff() {
+  const cookieStore = await cookies(); //  await
+
   // build cookie string manually
   const cookieHeader = cookieStore
     .getAll()
@@ -15,15 +13,16 @@ export async function getStaff(): Promise<TrainingPlanStaff[]> {
 
   const { response } = await authFetch(`${API_BASE_URL}/manager/users`, {
     method: "GET",
-    credentials: "include",
-    headers: { "Content-Type": "application/json", Cookie: cookieHeader },
-    next: { tags: ["users"] },
+    credentials: "include", //include credentials
+    headers: {
+      Cookie: cookieHeader, // correct now
+    },
   });
+  console.log("Response:", response.status); //log status for debugging
 
   if (!response.ok) {
     throw new Error("Failed to fetch staff members");
   }
 
-  const payload = await response.json();
-  return (payload.data.items ?? []) as TrainingPlanStaff[];
+  return response.json();
 }

@@ -110,23 +110,23 @@ function StaffList({ staff, planId }: StaffSelectProps) {
           </div>
         ))}
         {/* Action Buttons */}
-        <div className="border-gray-200 flex gap-4">
-          <Button
-            variant="outline"
-            className="w-full"
-            onClick={() => setSelectedStaff([])}
-          >
-            Cancel
-          </Button>
-          <Button
-            className="w-full bg-[#006022] hover:bg-[#004d1b] text-white"
-            onClick={handleSubmit}
-            disabled={isSubmitting}
-          >
-            <UserPlus className="w-4 h-4 mr-2" />
-            {isSubmitting ? "Registering..." : "Register Staff"}
-          </Button>
-        </div>
+      </div>
+      <div className="border-gray-200 gap-4 grid grid-cols-2 mt-4">
+        <Button
+          variant="outline"
+          className="w-full"
+          onClick={() => setSelectedStaff([])}
+        >
+          Cancel
+        </Button>
+        <Button
+          className="w-full bg-[#006022] hover:bg-[#004d1b] text-white"
+          onClick={handleSubmit}
+          disabled={isSubmitting}
+        >
+          <UserPlus className="w-4 h-4 mr-2" />
+          {isSubmitting ? "Registering..." : "Register Staff"}
+        </Button>
       </div>
 
       <Dialog

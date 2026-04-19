@@ -1,6 +1,7 @@
 "use server";
 
 import { API_BASE_URL } from "@/lib/api/api";
+import { authFetch } from "@/lib/api/authFetch";
 import { cookies } from "next/headers";
 
 export async function registerStaffAction(planId: string, staffIds: number[]) {
@@ -11,7 +12,7 @@ export async function registerStaffAction(planId: string, staffIds: number[]) {
     .map((c) => `${c.name}=${c.value}`)
     .join("; ");
 
-  const response = await fetch(
+  const { response } = await authFetch(
     `${API_BASE_URL}/manager/training-plans/${planId}/registrations`,
     {
       method: "POST",

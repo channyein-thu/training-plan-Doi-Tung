@@ -1,7 +1,6 @@
 import React from "react";
 import { DialogDescription, DialogHeader, DialogTitle } from "../ui/dialog";
 import { Course } from "@/types/course";
-import PlanDetails from "./planDetails";
 import { trainingPlanStaff } from "@/data/data";
 import { Checkbox } from "../ui/checkbox";
 

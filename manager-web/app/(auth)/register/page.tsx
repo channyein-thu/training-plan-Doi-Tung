@@ -25,6 +25,7 @@ import { Users } from "lucide-react";
 import { init } from "next/dist/compiled/webpack/webpack";
 import { LoginAction } from "@/lib/actions/login";
 import { RegisterAction } from "@/lib/actions/register";
+import Link from "next/link";
 
 export default function RegisterPage() {
   const initialState = { errors: {}, message: null };
@@ -193,9 +194,11 @@ export default function RegisterPage() {
 
               <p className="text-center text-sm">
                 Already have an account?{" "}
-                <span className="text-[#006022] font-medium cursor-pointer">
-                  Login here
-                </span>
+                <Link href="/login">
+                  <span className="text-[#006022] font-medium cursor-pointer">
+                    Login here
+                  </span>
+                </Link>
               </p>
             </FieldGroup>
           </form>

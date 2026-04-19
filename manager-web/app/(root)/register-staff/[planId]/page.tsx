@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { courses, trainingPlanStaff } from "@/data/data";
 import { getPlanById } from "@/lib/actions/register-staff/getPlanAction";
 import { getStaff } from "@/lib/actions/register-staff/getStaffAction";
-import { ArrowLeftIcon, Plus, UserPlus } from "lucide-react";
+import { ArrowLeftIcon } from "lucide-react";
 import Link from "next/link";
 
 async function PlanDetailsRegister({
@@ -13,9 +13,12 @@ async function PlanDetailsRegister({
   params: Promise<{ planId: string }>;
 }) {
   const resolvedParams = await params;
+  console.log("Resolved Params:", resolvedParams); // Log the resolved params for debugging
   const id = Number(resolvedParams.planId);
+  console.log("Fetching details for plan ID:", id); // Log the plan ID being fetched for debugging
 
   const planDetails = await getPlanById(id);
+  console.log("Plan Details:", planDetails); // Log the fetched plan details for debugging
   const staff = await getStaff();
 
   if (!planDetails) {

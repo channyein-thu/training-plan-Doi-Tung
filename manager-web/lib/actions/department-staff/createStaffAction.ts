@@ -1,5 +1,6 @@
 "use server";
 import { API_BASE_URL } from "@/lib/api/api";
+import { authFetch } from "@/lib/api/authFetch";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { z } from "zod";
@@ -7,7 +8,7 @@ import { z } from "zod";
 export type State = {
   errors?: {
     name?: string[];
-    empId?: string[];
+    employeeID?: string[];
     email?: string[];
     phone?: string[];
     position?: string[];
@@ -18,13 +19,13 @@ export type State = {
 };
 
 const formSchema = z.object({
-  name: z.string().min(2).max(50),
-  empId: z.string().min(2).max(50),
-  email: z.string().email(),
-  phone: z.string().min(10).max(15),
-  position: z.string().min(2).max(50),
-  password: z.string().min(8).max(100),
-  status: z.enum(["active", "inactive", "suspended"]),
+  name: z.string().trim().min(2).max(52),
+  employeeID: z.string().trim().min(1).max(52),
+  email: z.string().trim().email().max(52),
+  phone: z.string().trim().max(20),
+  position: z.string().trim().min(1).max(100),
+  password: z.string().min(6).max(100),
+  status: z.enum(["Active", "Inactive", "Suspended"]),
 });
 
 async function CreateStaffAction(
@@ -33,7 +34,7 @@ async function CreateStaffAction(
 ): Promise<State | void> {
   const validatedFields = formSchema.safeParse({
     name: formData.get("name"),
-    empId: formData.get("empId"),
+    employeeID: formData.get("employeeID"),
     email: formData.get("email"),
     phone: formData.get("phone"),
     position: formData.get("position"),
@@ -62,18 +63,18 @@ async function CreateStaffAction(
     };
   }
 
-  const { name, empId, email, phone, position, password, status } =
+  const { name, employeeID, email, phone, position, password, status } =
     validatedFields.data;
   let isCreated = false;
 
   try {
-    const response = await fetch(`${API_BASE_URL}/admin/departments`, {
+    const { response } = await authFetch(`${API_BASE_URL}/manager/users`, {
       method: "POST",
       credentials: "include",
       headers: { "Content-Type": "application/json", Cookie: cookieHeader },
       body: JSON.stringify({
         name,
-        empId,
+        employeeID,
         email,
         phone,
         position,
@@ -101,7 +102,7 @@ async function CreateStaffAction(
   }
 
   if (isCreated) {
-    redirect("/departments");
+    redirect("/department-staff");
   }
 }
 

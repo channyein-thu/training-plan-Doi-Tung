@@ -1,6 +1,7 @@
 "use server";
 
 import { API_BASE_URL } from "@/lib/api/api";
+import { authFetch } from "@/lib/api/authFetch";
 import { cookies } from "next/headers";
 
 export type UploadCertificateState = {
@@ -37,7 +38,7 @@ export async function uploadCertificate(
   }
   body.append("image", image);
 
-  const response = await fetch(`${API_BASE_URL}/staff/certificates`, {
+  const { response } = await authFetch(`${API_BASE_URL}/staff/certificates`, {
     method: "POST",
     credentials: "include",
     headers: { Cookie: cookieHeader },

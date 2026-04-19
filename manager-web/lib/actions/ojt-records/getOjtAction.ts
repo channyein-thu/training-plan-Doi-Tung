@@ -1,4 +1,5 @@
 import { API_BASE_URL } from "@/lib/api/api";
+import { authFetch } from "@/lib/api/authFetch";
 import { cookies } from "next/headers";
 
 export async function getOjtRecords() {
@@ -10,18 +11,18 @@ export async function getOjtRecords() {
     .map((c) => `${c.name}=${c.value}`)
     .join("; ");
 
-  const res = await fetch(`${API_BASE_URL}/manager/records`, {
+  const { response } = await authFetch(`${API_BASE_URL}/manager/records`, {
     method: "GET",
     credentials: "include", //include credentials
     headers: {
       Cookie: cookieHeader, // correct now
     },
   });
-  console.log("Response:", res.status); //log status for debugging
+  console.log("Response:", response.status); //log status for debugging
 
-  if (!res.ok) {
+  if (!response.ok) {
     throw new Error("Failed to fetch OJT records");
   }
 
-  return res.json();
+  return response.json();
 }
