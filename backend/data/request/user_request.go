@@ -8,7 +8,7 @@ type CreateUserRequest struct {
 	Email        string           `json:"email" validate:"required,email,max=52"`
 	Phone        string           `json:"phone" validate:"max=20"`
 	DepartmentID int              `json:"departmentId" validate:"required,gt=0"`
-	Role         model.Role       `json:"role" validate:"required"`
+	Role         model.Role       `json:"role" validate:"required" oneof:"HRAdmin DepartmentManager Staff"`
 	Position     string           `json:"position" validate:"required,min=1,max=100"`
 	Status       model.UserStatus `json:"status" validate:"required,oneof=Active Inactive Suspended"`
 	Password     string           `json:"password" validate:"required,min=6"`
@@ -20,7 +20,7 @@ type UpdateUserRequest struct {
 	Email        string           `json:"email" validate:"required,email,max=52"`
 	Phone        string           `json:"phone" validate:"max=20"`
 	DepartmentID int              `json:"departmentId" validate:"required,gt=0"`
-	Role         model.Role       `json:"role" validate:"required"`
+	Role         model.Role       `json:"role" validate:"required" oneof:"HRAdmin DepartmentManager Staff"`
 	Position     string           `json:"position" validate:"required,min=1,max=100"`
 	Status       model.UserStatus `json:"status" validate:"required,oneof=Active Inactive Suspended"`
 }

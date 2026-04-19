@@ -143,24 +143,6 @@ func (c *CertificateServiceImpl) FindByCurrentUser(
 	if err != nil {
 		return nil, err
 	}
-	// 	ID uint `json:"id"`
-
-	// UserID   uint   `json:"userId"`
-	// UserName string `json:"userName"`
-	// EmployeeID string `json:"employeeId"`
-	// Department string `json:"department"`
-	// Division string   `json:"division"`
-	// Category   string  `json:"category"`
-
-	// TrainingID   uint   `json:"trainingId"`
-	// TrainingName string  `json:"trainingName"`
-	// Image        string  `json:"image"`
-	// Description  *string `json:"description,omitempty"`
-
-	// Status string `json:"status"`
-
-	// CreatedAt time.Time `json:"createdAt"`
-	// UpdatedAt time.Time `json:"updatedAt"`
 
 	responses := make([]response.CertificateResponse, 0, len(certificates))
 	for _, cert := range certificates {

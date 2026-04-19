@@ -119,6 +119,7 @@ func (d *DepartmentServiceImpl) FindById(departmentId int) (response.DepartmentR
 			Email:      u.Email,
 			Phone:      u.Phone,
 			Role:	   	u.Role,
+			DepartmentID: departmentId,
 			Status: 	u.Status,
 			EmployeeID: u.EmployeeID,
 			Position:   u.Position,
