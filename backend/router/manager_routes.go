@@ -36,4 +36,15 @@ func ManagerRoutes(r fiber.Router, deps *container.AppDependencies) {
 	r.Get("/records/:id", deps.RecordController.FindById)
 	r.Put("/records/:id", deps.RecordController.Update)
 	r.Delete("/records/:id", deps.RecordController.Delete)
+
+
+	//as staff 
+		// // Records (own)
+	r.Get("/staffrecords", deps.RecordController.FindByCurrentUser)
+	r.Get("/staffrecords/:id", deps.RecordController.FindById)
+
+	// // Certificates
+	r.Get("/certificates", deps.CertificateController.FindByCurrentUser) // only approved certificates
+	r.Post("/certificates", deps.CertificateController.Upload)
+	r.Delete("/certificates/:id", deps.CertificateController.Delete)
 }
