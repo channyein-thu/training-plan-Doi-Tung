@@ -38,7 +38,7 @@ export async function uploadCertificate(
   }
   body.append("image", image);
 
-  const { response } = await authFetch(`${API_BASE_URL}/staff/certificates`, {
+  const { response } = await authFetch(`${API_BASE_URL}/manager/certificates`, {
     method: "POST",
     credentials: "include",
     headers: { Cookie: cookieHeader },

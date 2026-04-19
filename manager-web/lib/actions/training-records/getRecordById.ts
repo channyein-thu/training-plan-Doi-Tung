@@ -12,7 +12,7 @@ export async function getRecordById(recordId: string | number) {
     .join("; ");
 
   const { response } = await authFetch(
-    `${API_BASE_URL}/staff/records/${recordId}`,
+    `${API_BASE_URL}/manager/staffrecords/${recordId}`,
     {
       method: "GET",
       credentials: "include",

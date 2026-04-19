@@ -14,6 +14,8 @@ import TrainingRecordTable from "@/components/my-training-records/trainingRecord
 
 export async function MyTrainingRecords() {
   const records = await getRecords();
+  const items = records?.data?.items ?? [];
+  console.log("Fetched Training Records:", items); // Log fetched records for debugging
   return (
     <div className="min-h-screen space-y-4 m-2">
       <PageHeader
@@ -47,7 +49,11 @@ export async function MyTrainingRecords() {
         {/* Button */}
         {/* <Button className="bg-[#006022] hover:bg-[#005018] px-8">Search</Button> */}
       </div>
-      <TrainingRecordTable records={records.data.items} />
+      {items.length === 0 ? (
+        <p className="text-center text-gray-500">No training records found.</p>
+      ) : (
+        <TrainingRecordTable records={items} />
+      )}
     </div>
   );
 }

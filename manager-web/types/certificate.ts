@@ -17,7 +17,6 @@ export type CertificateCategory =
 
 export type CertificateStatus = "Pending" | "Approved" | "Rejected";
 
-// main type
 export type Certificate = {
   id: number;
   userId: number;

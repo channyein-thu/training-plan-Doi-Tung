@@ -66,6 +66,13 @@ export async function UpdateOjtRecordAction(
     preTestScore: preScore ? Number(preScore) : undefined,
     postTestScore: postScore ? Number(postScore) : undefined,
   });
+  console.log("Received Form Data:", {
+    status: formData.get("status"),
+    evaluation: formData.get("evaluation"),
+    preTestScore: formData.get("preTestScore"),
+    postTestScore: formData.get("postTestScore"),
+  }); // Log the raw form data for debugging
+  console.log("Validated Fields:", validatedFields); // Log the validation result for debugging
 
   if (!validatedFields.success) {
     const flattened = z.flattenError(validatedFields.error);
