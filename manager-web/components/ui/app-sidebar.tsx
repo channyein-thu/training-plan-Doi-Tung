@@ -73,7 +73,15 @@ const myTraining = [
   },
 ];
 
-export function AppSidebar() {
+type AppSidebarProps = {
+  user: {
+    name: string;
+    position: string;
+    employeeID: string;
+  };
+};
+
+export function AppSidebar({ user }: AppSidebarProps) {
   const pathname = usePathname();
 
   return (
@@ -85,7 +93,11 @@ export function AppSidebar() {
           <SidebarGroupContent>
             <div className="m-4 space-y-4">
               <LogoCard />
-              <UserInfo />
+              <UserInfo
+                name={user.name}
+                position={user.position}
+                employeeID={user.employeeID}
+              />
             </div>
           </SidebarGroupContent>
         </SidebarGroup>
