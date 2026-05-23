@@ -1,60 +1,60 @@
 "use server";
 
 import { z } from "zod";
+import { API_BASE_URL } from "../api/api";
 
 export type State = {
   errors?: {
-    fullName?: string[];
-    employeeId?: string[];
+    name?: string[];
+    employeeID?: string[];
     email?: string[];
     phone?: string[];
-    department?: string[];
+    departmentId?: string[];
     position?: string[];
-    agency?: string[];
-    cotton?: string[];
-    line?: string[];
+    confirmPassword?: string[];
     password?: string[];
   };
   message?: string | null;
 };
 
-const FormSchema = z.object({
-  fullName: z
-    .string()
-    .trim()
-    .min(2, "Full name must be at least 2 characters!"),
-  employeeId: z
-    .string()
-    .trim()
-    .min(2, "Employee ID must be at least 2 characters!"),
-  email: z.string().trim().email("Invalid email address!"),
-  phone: z
-    .string()
-    .trim()
-    .min(10, "Phone number must be at least 10 characters!"),
-  department: z
-    .string()
-    .trim()
-    .min(2, "Department must be at least 2 characters!"),
-  position: z.string().trim().min(2, "Position must be at least 2 characters!"),
-  agency: z.string().trim().min(2, "Agency must be at least 2 characters!"),
-  cotton: z.string().trim().min(2, "Cotton must be at least 2 characters!"),
-  line: z.string().trim().min(2, "Line must be at least 2 characters!"),
-  password: z.string().trim().min(6, "Password must be at least 6 characters!"),
-});
+const FormSchema = z
+  .object({
+    name: z.string().trim().min(2, "Name must be at least 2 characters!"),
+    employeeID: z
+      .string()
+      .trim()
+      .min(2, "Employee ID must be at least 2 characters!"),
+    email: z.string().trim().email("Invalid email address!"),
+    phone: z
+      .string()
+      .trim()
+      .min(10, "Phone number must be at least 10 characters!"),
+    departmentId: z.coerce.number().int().positive("Department is required!"),
+    position: z
+      .string()
+      .trim()
+      .min(2, "Position must be at least 2 characters!"),
+    password: z
+      .string()
+      .trim()
+      .min(6, "Password must be at least 6 characters!"),
+    confirmPassword: z.string().trim().min(6, "Confirm your password!"),
+  })
+  .refine((values) => values.password === values.confirmPassword, {
+    message: "Passwords do not match.",
+    path: ["confirmPassword"],
+  });
 
-export async function RegisterAction(formData: FormData, prevState: State) {
+export async function RegisterAction(prevState: State, formData: FormData) {
   const validatedFields = FormSchema.safeParse({
-    fullName: formData.get("fullName"),
-    employeeId: formData.get("employeeId"),
+    name: formData.get("name"),
+    employeeID: formData.get("employeeID"),
     email: formData.get("email"),
     phone: formData.get("phone"),
-    department: formData.get("department"),
+    departmentId: formData.get("departmentId"),
     position: formData.get("position"),
-    agency: formData.get("agency"),
-    cotton: formData.get("cotton"),
-    line: formData.get("line"),
     password: formData.get("password"),
+    confirmPassword: formData.get("confirmPassword"),
   });
 
   if (!validatedFields.success) {
@@ -65,11 +65,16 @@ export async function RegisterAction(formData: FormData, prevState: State) {
     };
   }
 
-  const { email, password } = validatedFields.data;
+  const requestBody = validatedFields.data;
 
   try {
-    console.log("Email:", email);
-    console.log("Password:", password);
+    const response = await fetch(`${API_BASE_URL}/auth/staff/register`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(requestBody),
+      cache: "no-store",
+    });
+    console.log("Register payload:", requestBody);
 
     return {
       message: "Registration successful!",

@@ -6,7 +6,7 @@ import { cookies } from "next/headers";
 import { authFetch } from "./authFetch";
 
 export async function getCertificates(): Promise<Certificate[]> {
-  const { response, unauthorized } = await authFetch("/manager/certificates", {
+  const { response, unauthorized } = await authFetch("/staff/certificates", {
     method: "GET",
     next: { tags: ["certificates"] },
   });

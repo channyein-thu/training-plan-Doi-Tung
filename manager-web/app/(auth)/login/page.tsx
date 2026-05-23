@@ -54,6 +54,14 @@ export default function LoginForm() {
           </div>
 
           {/* Form */}
+          <div className="mb-6">
+            <a
+              href="http://localhost:8080/auth/google/login"
+              className="w-full inline-flex items-center justify-center rounded-md border border-[#006022] px-4 py-2 text-sm font-medium text-[#006022] transition hover:bg-[#E8F7EC]"
+            >
+              Continue with Google
+            </a>
+          </div>
           <form action={formAction} className="w-full">
             <FieldGroup>
               <FieldSet>

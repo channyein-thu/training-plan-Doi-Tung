@@ -3,11 +3,11 @@
 import { UploadIcon } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { Button } from "../ui/button";
-import { useActionState } from "react";
 import {
   uploadCertificate,
-  UploadCertificateState,
+  type UploadCertificateState,
 } from "@/lib/actions/training-records/uploadCertificate";
+import { useActionState } from "react";
 
 type UploadCertificateFormProps = {
   trainingId: number | string;

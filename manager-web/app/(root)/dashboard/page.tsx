@@ -1,14 +1,26 @@
 import { BookOpenIcon, LineChartIcon, UsersIcon } from "lucide-react";
 import PageHeader from "@/components/dashboard/pageHeader";
 import DashboardCard from "@/components/dashboard/dashboardCard";
+import { getMe } from "@/lib/api/getMe";
 
-export default function DashboardPage() {
+export default async function DashboardPage() {
+  const me = await getMe();
+  const user = me?.user;
+  let title = "Dashboard";
+  let subtitle = "Overview";
+
+  if (user?.role === "DepartmentHead(manager)") {
+    title = "Manager Dashboard";
+    subtitle = "Department overview and personal training management";
+  }
+
+  if (user?.role === "Staff") {
+    title = "Staff Dashboard";
+    subtitle = "Your training progress and assigned tasks";
+  }
   return (
     <div className="min-h-screen space-y-4 m-2">
-      <PageHeader
-        title="Manager Dashboard"
-        subtitle="Department overview and personal training management"
-      />
+      <PageHeader title={title} subtitle={subtitle} />
       <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
         <DashboardCard
           icon={<UsersIcon className="w-6 h-6" />}

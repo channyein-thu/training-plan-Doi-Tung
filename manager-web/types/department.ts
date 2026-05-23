@@ -11,3 +11,8 @@ export type Department = {
   staff: Staff[];
   division: string;
 };
+
+export type DepartmentList = {
+  id: string;
+  name: string;
+};

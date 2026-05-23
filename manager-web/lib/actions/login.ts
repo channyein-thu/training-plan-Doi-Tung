@@ -37,7 +37,7 @@ export async function LoginAction(
 
   const { email, password } = validatedFields.data;
 
-  const response = await fetch(`${API_BASE_URL}/auth/manager/login`, {
+  const response = await fetch(`${API_BASE_URL}/auth/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email, password }),

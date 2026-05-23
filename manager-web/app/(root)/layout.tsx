@@ -14,7 +14,7 @@ export default async function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-    const me = await getMe();
+  const me = await getMe();
   const user = me?.user;
   console.log("DashboardLayout - User Info:", user); // Debug log to check user info
 
@@ -25,12 +25,14 @@ export default async function DashboardLayout({
     <SidebarProvider>
       <div className="flex min-h-screen w-full">
         {/* Sidebar */}
-        <AppSidebar 
-        user={{
+        <AppSidebar
+          user={{
             name: user.name,
             position: user.position,
             employeeID: user.employeeID,
-          }}/>
+            role: user.role,
+          }}
+        />
 
         {/* Main content */}
         <div className="flex flex-1 flex-col min-w-0">

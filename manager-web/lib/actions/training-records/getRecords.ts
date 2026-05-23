@@ -31,7 +31,7 @@
 import { authFetch } from "@/lib/api/authFetch";
 
 export async function getRecords() {
-  const { response, unauthorized } = await authFetch("/manager/staffrecords", {
+  const { response, unauthorized } = await authFetch("/staff/records", {
     method: "GET",
     cache: "no-store",
   });
