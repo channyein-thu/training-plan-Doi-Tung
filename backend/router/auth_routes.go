@@ -27,8 +27,10 @@ func AuthRoutes(r fiber.Router, authController *controller.AuthController, oauth
 
 	// auth.Post("/logout", authController.Logout)
 
+	auth.Post("/login", authController.Login)
+
 	auth.Get("/me", middleware.JWTProtected, authController.GetMe)
 
-	auth.Get("/google/login", oauthController.GoogleLogin)
-	auth.Get("/google/exchange", oauthController.GoogleExchange)
+	// auth.Get("/google/login", oauthController.GoogleLogin)
+	// auth.Get("/google/exchange", oauthController.GoogleExchange)
 }

@@ -26,6 +26,7 @@ type RegisterRequest struct {
 	EmployeeID      string `json:"employeeID"`
 	Email           string `json:"email"`
 	DepartmentID    int    `json:"departmentId"`
+	Phone		   string `json:"phone"`
 	Position        string `json:"position"`
 	Password        string `json:"password"`
 	ConfirmPassword string `json:"confirmPassword"`
@@ -61,6 +62,39 @@ func (ac *AuthController) GetMe(c *fiber.Ctx) error {
 
 	return c.JSON(fiber.Map{
 		"success": true,
+		"user":    ac.buildUserResponse(&user),
+	})
+}
+
+func (ac *AuthController) Login(c *fiber.Ctx) error {	
+	var req LoginRequest
+	if err := c.BodyParser(&req); err != nil {
+		return helper.BadRequest("Invalid request body")
+	}
+
+	var user model.User
+	query := ac.db.Preload("Department").Where("email = ?", req.Email)
+	if err := query.First(&user).Error; err != nil {
+		return helper.Unauthorized("Invalid credentials")
+	}
+
+	if user.Status != model.UserStatusActive {
+		return helper.Unauthorized("Account is deactivated")
+	}
+
+	if !helper.ComparePassword(user.Password, req.Password) {
+		return helper.Unauthorized("Invalid credentials")
+	}
+
+	accessToken, err := helper.GenerateAccessToken(user.ID, string(user.Role))
+	if err != nil {
+		return helper.InternalServerError("Failed to generate access token")
+	}
+
+	return c.JSON(fiber.Map{
+		"success": true,
+		"message": "Login successful",
+		"accessToken": accessToken,
 		"user":    ac.buildUserResponse(&user),
 	})
 }
@@ -229,6 +263,7 @@ func (ac *AuthController) createUserFromRequest(req *RegisterRequest, role model
 	user := model.User{
 		Name:         req.Name,
 		EmployeeID:   req.EmployeeID,
+		Phone:        req.Phone,
 		Email:        req.Email,
 		DepartmentID: req.DepartmentID,
 		Position:     req.Position,
@@ -249,6 +284,7 @@ func (ac *AuthController) buildUserResponse(user *model.User) fiber.Map {
 		"role":       user.Role,
 		"status":     user.Status,
 		"position":   user.Position,
+		"phone":      user.Phone,
 	}
 
 	if user.Department != nil {
