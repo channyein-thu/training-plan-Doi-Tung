@@ -159,6 +159,13 @@ func (r *RecordRepositoryImpl) Save(record *model.Record) error {
 	return r.Db.Create(record).Error
 }
 
+func (r *RecordRepositoryImpl) IncreaseNumberOfPerson(trainingPlanID int) error {
+	return r.Db.Model(&model.TrainingPlan{}).
+		Where("id = ?", trainingPlanID).
+		UpdateColumn("number_of_person", gorm.Expr("number_of_person + ?", 1)).
+		Error
+}
+
 // Update implements RecordRepository.
 func (r *RecordRepositoryImpl) Update(record *model.Record) error {
 	return r.Db.Save(record).Error

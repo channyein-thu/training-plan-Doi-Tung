@@ -201,8 +201,15 @@ func (s *RecordServiceImpl) RegisterStaff(
 			TrainingPlanID: trainingPlanId,
 			Status:         model.RecordStatusRegister,
 		}
+	
+		err := s.repo.Save(record)
+		if err != nil {
+			return err
+		}
 
-		if err := s.repo.Save(record); err != nil {
+		// Increase number of person in training plan
+		err = s.repo.IncreaseNumberOfPerson(int(trainingPlanId))
+		if err != nil {
 			return err
 		}
 	}

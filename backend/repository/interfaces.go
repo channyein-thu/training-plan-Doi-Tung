@@ -66,4 +66,5 @@ type RecordRepository interface {
 	FindByManagerDepartment(departmetnID int, offset, limit int) ([]model.Record, int64, error)
 	FindByUserId(userID uint, offset, limit int) ([]model.Record, int64, error)
 	Search(req request.RecordFilterRequest) ([]model.Record, int64, error)
+	IncreaseNumberOfPerson(trainingPlanID int) error
 }
