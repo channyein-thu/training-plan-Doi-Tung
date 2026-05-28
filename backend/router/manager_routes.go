@@ -38,7 +38,7 @@ func ManagerRoutes(r fiber.Router, deps *container.AppDependencies) {
 	r.Delete("/records/:id", deps.RecordController.Delete)
 
 
-	//as staff 
+	//as staff
 		// // Records (own)
 	r.Get("/staffrecords", deps.RecordController.FindByCurrentUser)
 	r.Get("/staffrecords/:id", deps.RecordController.FindById)
@@ -47,4 +47,15 @@ func ManagerRoutes(r fiber.Router, deps *container.AppDependencies) {
 	r.Get("/certificates", deps.CertificateController.FindByCurrentUser) // only approved certificates
 	r.Post("/certificates", deps.CertificateController.Upload)
 	r.Delete("/certificates/:id", deps.CertificateController.Delete)
+
+	// Notifications
+	r.Get("/notifications", deps.NotificationController.FindByCurrentUser)
+	r.Get("/notifications/unread-count", deps.NotificationController.CountUnread)
+	r.Get("/notifications/vapid-public-key", deps.NotificationController.GetVAPIDPublicKey)
+	r.Post("/notifications/push-subscribe", deps.NotificationController.SubscribePush)
+	r.Post("/notifications/push-unsubscribe", deps.NotificationController.UnsubscribePush)
+	r.Post("/notifications/push-test", deps.NotificationController.SendTestPush)
+	r.Put("/notifications/read-all", deps.NotificationController.MarkAllRead)
+	r.Put("/notifications/:id/read", deps.NotificationController.MarkAsRead)
+	r.Delete("/notifications/:id", deps.NotificationController.Delete)
 }

@@ -49,9 +49,20 @@ func main() {
 	}))
 
 	app.Use(limiter.New(limiter.Config{
-		Max:               20,
-		Expiration:        30 * time.Second,
+		Max:               300,
+		Expiration:        60 * time.Second,
 		LimiterMiddleware: limiter.SlidingWindow{},
+		// Skip rate limiting for static uploads so file viewing never gets throttled
+		Next: func(c *fiber.Ctx) bool {
+			return len(c.Path()) >= 8 && c.Path()[:8] == "/uploads"
+		},
+		// Return JSON so the frontend's response.json() never blows up
+		LimitReached: func(c *fiber.Ctx) error {
+			return c.Status(fiber.StatusTooManyRequests).JSON(fiber.Map{
+				"status":  "ERROR",
+				"message": "Too many requests. Please slow down and try again in a moment.",
+			})
+		},
 	}))
 	//  Validator
 	validate := validator.New()

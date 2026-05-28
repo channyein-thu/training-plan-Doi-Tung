@@ -68,3 +68,20 @@ type RecordRepository interface {
 	Search(req request.RecordFilterRequest) ([]model.Record, int64, error)
 	IncreaseNumberOfPerson(trainingPlanID int) error
 }
+
+type NotificationRepository interface {
+	Save(n *model.Notification) error
+	FindByUserID(userID uint, offset, limit int) ([]model.Notification, int64, error)
+	FindByIDAndUserID(id, userID uint) (*model.Notification, error)
+	CountUnreadByUserID(userID uint) (int64, error)
+	MarkAsRead(id uint) error
+	MarkAllReadByUser(userID uint) error
+	Delete(id uint) error
+}
+
+type PushSubscriptionRepository interface {
+	Save(sub *model.PushSubscription) error
+	FindByUserID(userID uint) ([]model.PushSubscription, error)
+	DeleteByEndpoint(endpoint string) error
+	DeleteByUserAndEndpoint(userID uint, endpoint string) error
+}

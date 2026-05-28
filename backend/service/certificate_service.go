@@ -18,19 +18,23 @@ import (
 )
 
 type CertificateServiceImpl struct {
-	repo     repository.CertificateRepository
-	validate *validator.Validate
-	storage  helper.Storage
+	repo         repository.CertificateRepository
+	validate     *validator.Validate
+	storage      helper.Storage
+	notifService NotificationService
 }
+
 func NewCertificateServiceImpl(
 	repo repository.CertificateRepository,
 	validate *validator.Validate,
 	storage helper.Storage,
+	notifService NotificationService,
 ) CertificateService {
 	return &CertificateServiceImpl{
-		repo:     repo,
-		validate: validate,
-		storage:  storage,
+		repo:         repo,
+		validate:     validate,
+		storage:      storage,
+		notifService: notifService,
 	}
 }
 
@@ -48,7 +52,24 @@ func (c *CertificateServiceImpl) Approve(certificateID int) error {
 		return helper.BadRequest("certificate is not pending")
 	}
 
-	return c.repo.UpdateStatus(certificateID, model.CertApproved)
+	if err := c.repo.UpdateStatus(certificateID, model.CertApproved); err != nil {
+		return err
+	}
+
+	trainingName := "your training"
+	if cert.Training != nil {
+		trainingName = cert.Training.Name
+	}
+	if err := c.notifService.Create(
+		cert.UserID,
+		model.NotifCertificateApproved,
+		"Certificate Approved",
+		fmt.Sprintf("Your certificate for \"%s\" has been approved.", trainingName),
+	); err != nil {
+		log.Println("⚠ failed to create approval notification:", err)
+	}
+
+	return nil
 }
 
 func (c *CertificateServiceImpl) Reject(certificateID int) error {
@@ -69,6 +90,19 @@ func (c *CertificateServiceImpl) Reject(certificateID int) error {
 		if err := c.storage.Delete(cert.Image); err != nil {
 			log.Println("⚠ failed to delete certificate file:", err)
 		}
+	}
+
+	trainingName := "your training"
+	if cert.Training != nil {
+		trainingName = cert.Training.Name
+	}
+	if err := c.notifService.Create(
+		cert.UserID,
+		model.NotifCertificateRejected,
+		"Certificate Rejected",
+		fmt.Sprintf("Your certificate for \"%s\" has been rejected.", trainingName),
+	); err != nil {
+		log.Println("⚠ failed to create rejection notification:", err)
 	}
 
 	return nil

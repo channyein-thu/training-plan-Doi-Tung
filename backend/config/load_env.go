@@ -12,6 +12,9 @@ type Config struct {
 	GoogleClientID     string `mapstructure:"GOOGLE_CLIENT_ID"`
 	GoogleClientSecret string `mapstructure:"GOOGLE_CLIENT_SECRET"`
 	GoogleRedirectURL  string `mapstructure:"GOOGLE_REDIRECT_URL"`
+	VAPIDPublicKey     string `mapstructure:"VAPID_PUBLIC_KEY"`
+	VAPIDPrivateKey    string `mapstructure:"VAPID_PRIVATE_KEY"`
+	VAPIDSubject       string `mapstructure:"VAPID_SUBJECT"`
 }
 
 func LoadConfig(path string) (Config, error) {

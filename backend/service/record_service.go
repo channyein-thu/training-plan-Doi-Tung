@@ -1,6 +1,8 @@
 package service
 
 import (
+	"fmt"
+	"log"
 	"math"
 	"training-plan-api/data/request"
 	"training-plan-api/data/response"
@@ -14,20 +16,26 @@ import (
 )
 
 type RecordServiceImpl struct {
-	repo     repository.RecordRepository
-	userRepo repository.UserRepository
-	validate *validator.Validate
+	repo             repository.RecordRepository
+	userRepo         repository.UserRepository
+	trainingPlanRepo repository.TrainingPlanRepository
+	notifService     NotificationService
+	validate         *validator.Validate
 }
 
 func NewRecordServiceImpl(
 	repo repository.RecordRepository,
 	userRepo repository.UserRepository,
+	trainingPlanRepo repository.TrainingPlanRepository,
+	notifService NotificationService,
 	validate *validator.Validate,
 ) RecordService {
 	return &RecordServiceImpl{
-		repo:     repo,
-		userRepo: userRepo,
-		validate: validate,
+		repo:             repo,
+		userRepo:         userRepo,
+		trainingPlanRepo: trainingPlanRepo,
+		notifService:     notifService,
+		validate:         validate,
 	}
 }
 
@@ -191,6 +199,11 @@ func (s *RecordServiceImpl) RegisterStaff(
 		return helper.ValidationError(helper.FormatValidationError(err))
 	}
 
+	planName := "a training plan"
+	if plan, err := s.trainingPlanRepo.FindById(int(trainingPlanId)); err == nil {
+		planName = plan.Name
+	}
+
 	for _, userId := range req.UserIDs {
 		if s.repo.Exists(userId, trainingPlanId) {
 			continue // prevent duplicate registration
@@ -201,16 +214,23 @@ func (s *RecordServiceImpl) RegisterStaff(
 			TrainingPlanID: trainingPlanId,
 			Status:         model.RecordStatusRegister,
 		}
-	
-		err := s.repo.Save(record)
-		if err != nil {
+
+		if err := s.repo.Save(record); err != nil {
 			return err
 		}
 
 		// Increase number of person in training plan
-		err = s.repo.IncreaseNumberOfPerson(int(trainingPlanId))
-		if err != nil {
+		if err := s.repo.IncreaseNumberOfPerson(int(trainingPlanId)); err != nil {
 			return err
+		}
+
+		if err := s.notifService.Create(
+			userId,
+			model.NotifTrainingRegistered,
+			"Training Registration",
+			fmt.Sprintf("You have been registered for \"%s\".", planName),
+		); err != nil {
+			log.Println("⚠ failed to create registration notification:", err)
 		}
 	}
 

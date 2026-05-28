@@ -14,14 +14,15 @@ import (
 )
 
 type AppDependencies struct {
-	DepartmentController *controller.DepartmentController
+	DepartmentController       *controller.DepartmentController
 	TrainingPlanController     *controller.TrainingPlanController
-	AuthController       *controller.AuthController
-	AuthOAuthController  *controller.AuthOAuthController
-	UserController       *controller.UserController
-	CertificateController *controller.CertificateController
-	RecordController     *controller.RecordController
-	UserRepository       repository.UserRepository
+	AuthController             *controller.AuthController
+	AuthOAuthController        *controller.AuthOAuthController
+	UserController             *controller.UserController
+	CertificateController      *controller.CertificateController
+	RecordController           *controller.RecordController
+	NotificationController     *controller.NotificationController
+	UserRepository             repository.UserRepository
 }
 
 func NewAppDependencies(
@@ -37,22 +38,11 @@ func NewAppDependencies(
 	departmentRepo := repository.NewDepartmentRepositoryImpl(db)
 	departmentService := service.NewDepartmentServiceImpl(departmentRepo, validate)
 	departmentController := controller.NewDepartmentController(departmentService)
+
 		// ---------- User ----------
 	userRepo := repository.NewUserRepositoryImpl(db)
 	userService := service.NewUserServiceImpl(userRepo, departmentRepo, validate)
 	userController := controller.NewUserController(userService, db)
-
-	// ---------- Record ----------
-	recordRepo := repository.NewRecordRepositoryImpl(db)
-	recordService := service.NewRecordServiceImpl(recordRepo, userRepo, validate)
-	recordController := controller.NewRecordController(recordService)
-
-	// ---------- Certificate ----------
-	certificateRepo := repository.NewCertificateRepositoryImpl(db)
-	certificateService := service.NewCertificateServiceImpl(certificateRepo, validate, storage)
-	certificateController := controller.NewCertificateController(certificateService)
-
-
 
 	// ---------- TrainingPlan ----------
 	trainingPlanRepo := repository.NewTrainingPlanRepositoryImpl(db)
@@ -63,6 +53,28 @@ func NewAppDependencies(
 		location,
 	)
 	trainingPlanController := controller.NewTrainingPlanController(trainingPlanService)
+
+	// ---------- Notification ----------
+	notificationRepo := repository.NewNotificationRepositoryImpl(db)
+	pushSubRepo := repository.NewPushSubscriptionRepositoryImpl(db)
+	notificationService := service.NewNotificationServiceImpl(
+		notificationRepo,
+		pushSubRepo,
+		appConfig.VAPIDPublicKey,
+		appConfig.VAPIDPrivateKey,
+		appConfig.VAPIDSubject,
+	)
+	notificationController := controller.NewNotificationController(notificationService)
+
+	// ---------- Record ----------
+	recordRepo := repository.NewRecordRepositoryImpl(db)
+	recordService := service.NewRecordServiceImpl(recordRepo, userRepo, trainingPlanRepo, notificationService, validate)
+	recordController := controller.NewRecordController(recordService)
+
+	// ---------- Certificate ----------
+	certificateRepo := repository.NewCertificateRepositoryImpl(db)
+	certificateService := service.NewCertificateServiceImpl(certificateRepo, validate, storage, notificationService)
+	certificateController := controller.NewCertificateController(certificateService)
 
 	// ---------- Auth ----------
 	authController := controller.NewAuthController(db)
@@ -76,13 +88,14 @@ func NewAppDependencies(
 
 
 	return &AppDependencies{
-		DepartmentController: departmentController,
-		TrainingPlanController:     trainingPlanController,
-		AuthController:       authController,
-		AuthOAuthController:  authOAuthController,
-		UserController:       userController,
-		CertificateController: certificateController,
-		RecordController:     recordController,
-		UserRepository:       userRepo,
+		DepartmentController:   departmentController,
+		TrainingPlanController: trainingPlanController,
+		AuthController:         authController,
+		AuthOAuthController:    authOAuthController,
+		UserController:         userController,
+		CertificateController:  certificateController,
+		RecordController:       recordController,
+		NotificationController: notificationController,
+		UserRepository:         userRepo,
 	}
 }

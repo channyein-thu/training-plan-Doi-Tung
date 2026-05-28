@@ -3,3 +3,9 @@ app.env
 .env
 uploads/
 dump.rdb
+CLAUDE.md
+
+# Environment initialization
+.tmp/
+credentials.json
+token.json

@@ -57,9 +57,35 @@ type RecordService interface {
 	FindById(id int) (response.RecordResponseFinal, error)
 	Update(id int, req request.UpdateRecordRequest) error
 	Delete(id int) error
- 	FindByManager(managerID uint,page int,limit int,) (response.PaginatedResponse[response.AdminRecordResponse], error)	
+ 	FindByManager(managerID uint,page int,limit int,) (response.PaginatedResponse[response.AdminRecordResponse], error)
 	FindByUser(userID uint, page int, limit int) (response.PaginatedResponse[response.StaffRecordResponse], error)
 	Search(req request.RecordFilterRequest) (response.PaginatedResponse[response.AdminRecordResponse], error)
 	Export(req request.RecordFilterRequest) (*excelize.File, error)
+}
 
+type NotificationService interface {
+	Create(userID uint, notifType model.NotificationType, title, message string) error
+	FindByUser(userID uint, page, limit int) (response.PaginatedResponse[response.NotificationResponse], error)
+	CountUnread(userID uint) (int64, error)
+	MarkAsRead(id, userID uint) error
+	MarkAllRead(userID uint) error
+	Delete(id, userID uint) error
+
+	// Web Push
+	GetVAPIDPublicKey() string
+	SubscribePush(userID uint, endpoint, p256dh, auth, userAgent string) error
+	UnsubscribePush(userID uint, endpoint string) error
+	SendTestPush(userID uint) PushTestResult
+}
+
+type PushTestResult struct {
+	VAPIDConfigured    bool                     `json:"vapidConfigured"`
+	SubscriptionsFound int                      `json:"subscriptionsFound"`
+	Results            []PushSubscriptionResult `json:"results"`
+}
+
+type PushSubscriptionResult struct {
+	EndpointPrefix string `json:"endpoint"`
+	StatusCode     int    `json:"statusCode"`
+	Error          string `json:"error,omitempty"`
 }
