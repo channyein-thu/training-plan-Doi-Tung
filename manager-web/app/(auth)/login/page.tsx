@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useActionState, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -19,8 +20,23 @@ import { Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
 import { LoginAction, State } from "@/lib/actions/login";
 
+// Human-readable messages for the ?oauth_error= query param set by the callback
+const OAUTH_ERRORS: Record<string, string> = {
+  access_denied: "You cancelled the Google sign-in.",
+  exchange_failed: "Google sign-in failed at the server. Check the backend logs.",
+  no_token: "Google sign-in returned no token.",
+  missing_code: "Google did not return an authorization code.",
+  unexpected: "Unexpected error during Google sign-in.",
+};
+
 export default function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
+  const searchParams = useSearchParams();
+  const oauthErrorKey = searchParams.get("oauth_error");
+  const oauthErrorMsg = oauthErrorKey
+    ? OAUTH_ERRORS[oauthErrorKey] ?? `Google sign-in failed (${oauthErrorKey}).`
+    : null;
+
   const initialState: State = {
     message: "",
   };
@@ -61,6 +77,11 @@ export default function LoginForm() {
             >
               Continue with Google
             </a>
+            {oauthErrorMsg && (
+              <p className="mt-3 text-sm text-red-600 text-center">
+                {oauthErrorMsg}
+              </p>
+            )}
           </div>
           <form action={formAction} className="w-full">
             <FieldGroup>

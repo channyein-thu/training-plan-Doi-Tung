@@ -1,28 +1,40 @@
 import { API_BASE_URL } from "@/lib/api/api";
 import { authFetch } from "@/lib/api/authFetch";
-import { cookies } from "next/headers";
 
-export async function getStaff() {
-  const cookieStore = await cookies(); //  await
+type StaffListResponse = {
+  data?: {
+    items?: unknown[];
+    meta?: unknown;
+  };
+};
 
-  // build cookie string manually
-  const cookieHeader = cookieStore
-    .getAll()
-    .map((c) => `${c.name}=${c.value}`)
-    .join("; ");
+// Safe paginated shape. Never throws — returns { data: { items: [], meta: {} } } on any error.
+export async function getStaff(): Promise<StaffListResponse> {
+  const empty: StaffListResponse = { data: { items: [], meta: {} } };
 
-  const { response } = await authFetch(`${API_BASE_URL}/manager/users`, {
-    method: "GET",
-    credentials: "include", //include credentials
-    headers: {
-      Cookie: cookieHeader, // correct now
-    },
-  });
-  console.log("Response:", response.status); //log status for debugging
+  try {
+    const { response } = await authFetch(`${API_BASE_URL}/manager/users`, {
+      method: "GET",
+      cache: "no-store",
+    });
 
-  if (!response.ok) {
-    throw new Error("Failed to fetch staff members");
+    if (!response.ok) {
+      console.warn(`getStaff (register-staff): backend ${response.status}`);
+      return empty;
+    }
+
+    const payload = (await response.json().catch(() => null)) as
+      | StaffListResponse
+      | null;
+    if (!payload) return empty;
+    return {
+      data: {
+        items: payload.data?.items ?? [],
+        meta: payload.data?.meta ?? {},
+      },
+    };
+  } catch (err) {
+    console.error("getStaff: unexpected error", err);
+    return empty;
   }
-
-  return response.json();
 }

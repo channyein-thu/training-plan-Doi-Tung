@@ -3,27 +3,24 @@
 import { API_BASE_URL } from "@/lib/api/api";
 import { authFetch } from "@/lib/api/authFetch";
 import { TrainingPlanStaff } from "@/types/staff";
-import { cookies } from "next/headers";
 
+// Always returns an array. Never throws — on any error returns [].
 export async function getStaff(): Promise<TrainingPlanStaff[]> {
-  const cookieStore = await cookies();
-  // build cookie string manually
-  const cookieHeader = cookieStore
-    .getAll()
-    .map((c) => `${c.name}=${c.value}`)
-    .join("; ");
+  try {
+    const { response } = await authFetch(`${API_BASE_URL}/manager/users`, {
+      method: "GET",
+      next: { tags: ["users"] },
+    });
 
-  const { response } = await authFetch(`${API_BASE_URL}/manager/users`, {
-    method: "GET",
-    credentials: "include",
-    headers: { "Content-Type": "application/json", Cookie: cookieHeader },
-    next: { tags: ["users"] },
-  });
+    if (!response.ok) {
+      console.warn(`getStaff (department-staff): backend ${response.status}`);
+      return [];
+    }
 
-  if (!response.ok) {
-    throw new Error("Failed to fetch staff members");
+    const payload = await response.json().catch(() => null);
+    return ((payload?.data?.items ?? []) as TrainingPlanStaff[]) || [];
+  } catch (err) {
+    console.error("getStaff: unexpected error", err);
+    return [];
   }
-
-  const payload = await response.json();
-  return (payload.data.items ?? []) as TrainingPlanStaff[];
 }

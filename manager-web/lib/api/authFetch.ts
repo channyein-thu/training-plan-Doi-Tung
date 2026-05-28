@@ -38,3 +38,25 @@ export async function authFetch(
 
   return { response, unauthorized };
 }
+
+/**
+ * Safely parse a Response as JSON.
+ *
+ * Returns the parsed body, or null if the body is missing or not JSON
+ * (e.g. plain-text "Too Many Requests" from a rate limiter, gateway HTML
+ * error pages, empty 204 responses, etc.).
+ *
+ * Use this instead of `await response.json()` anywhere a non-OK response
+ * is being inspected for an error message.
+ */
+export async function safeJson<T = unknown>(
+  response: Response,
+): Promise<T | null> {
+  try {
+    const text = await response.text();
+    if (!text) return null;
+    return JSON.parse(text) as T;
+  } catch {
+    return null;
+  }
+}

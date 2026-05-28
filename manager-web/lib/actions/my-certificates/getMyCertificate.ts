@@ -3,27 +3,24 @@
 import { API_BASE_URL } from "@/lib/api/api";
 import { authFetch } from "@/lib/api/authFetch";
 import { Certificate } from "@/types/certificate";
-import { cookies } from "next/headers";
 
+// Always returns an array. Never throws — on any error returns [].
 export async function getCertificates(): Promise<Certificate[]> {
-  const cookieStore = await cookies();
-  // build cookie string manually
-  const cookieHeader = cookieStore
-    .getAll()
-    .map((c) => `${c.name}=${c.value}`)
-    .join("; ");
+  try {
+    const { response } = await authFetch(`${API_BASE_URL}/staff/certificates`, {
+      method: "GET",
+      next: { tags: ["certificates"] },
+    });
 
-  const { response } = await authFetch(`${API_BASE_URL}/staff/certificates`, {
-    method: "GET",
-    credentials: "include",
-    headers: { "Content-Type": "application/json", Cookie: cookieHeader },
-    next: { tags: ["certificates"] },
-  });
+    if (!response.ok) {
+      console.warn(`getCertificates: backend returned ${response.status}`);
+      return [];
+    }
 
-  if (!response.ok) {
-    throw new Error("Failed to fetch certificates");
+    const payload = await response.json().catch(() => null);
+    return ((payload?.data ?? []) as Certificate[]) || [];
+  } catch (err) {
+    console.error("getCertificates: unexpected error", err);
+    return [];
   }
-
-  const payload = await response.json();
-  return (payload.data ?? []) as Certificate[];
 }

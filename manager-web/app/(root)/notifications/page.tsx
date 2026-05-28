@@ -1,20 +1,18 @@
 import PageHeader from "@/components/dashboard/pageHeader";
-import NotificationCard from "@/components/notification/notificationCard";
-import { BellIcon } from "lucide-react";
-import React from "react";
+import NotificationsClient from "@/components/notification/NotificationsClient";
+import PushToggle from "@/components/notification/PushToggle";
+import { getNotifications } from "@/lib/actions/notifications/getNotifications";
 
-function NotificationPage() {
+export default async function NotificationPage() {
+  const data = await getNotifications();
+
   return (
     <div className="min-h-screen space-y-4 m-2">
-      <PageHeader title="Notifications" subtitle="View your notifications" />
-
-      <NotificationCard
-        icon={<BellIcon />}
-        title="New Message"
-        subtitle="You have received a new message."
-      />
+      <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-3">
+        <PageHeader title="Notifications" subtitle="View your notifications" />
+        <PushToggle />
+      </div>
+      <NotificationsClient initialData={data} />
     </div>
   );
 }
-
-export default NotificationPage;

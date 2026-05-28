@@ -1,7 +1,6 @@
 import PlanDetails from "@/components/register-staff/planDetails";
 import StaffList from "@/components/register-staff/staffList";
 import { Button } from "@/components/ui/button";
-import { courses, trainingPlanStaff } from "@/data/data";
 import { getPlanById } from "@/lib/actions/register-staff/getPlanAction";
 import { getStaff } from "@/lib/actions/register-staff/getStaffAction";
 import { ArrowLeftIcon } from "lucide-react";
@@ -13,16 +12,20 @@ async function PlanDetailsRegister({
   params: Promise<{ planId: string }>;
 }) {
   const resolvedParams = await params;
-  console.log("Resolved Params:", resolvedParams); // Log the resolved params for debugging
   const id = Number(resolvedParams.planId);
-  console.log("Fetching details for plan ID:", id); // Log the plan ID being fetched for debugging
 
-  const planDetails = await getPlanById(id);
-  console.log("Plan Details:", planDetails); // Log the fetched plan details for debugging
-  const staff = await getStaff();
+  const [planDetails, staff] = await Promise.all([getPlanById(id), getStaff()]);
 
-  if (!planDetails) {
-    return <div>Training Plan not found</div>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const plan = (planDetails?.data as any) ?? null;
+  const staffItems = (staff?.data?.items as unknown[]) ?? [];
+
+  if (!plan) {
+    return (
+      <div className="p-6 text-center text-gray-500">
+        Training Plan not found or could not be loaded.
+      </div>
+    );
   }
 
   return (
@@ -43,22 +46,20 @@ async function PlanDetailsRegister({
 
       <div className="border rounded-md m-2 bg-[#E8F7EC] p-4 space-y-4">
         <p className="font-medium mb-2">Training Details</p>
-        <h1>{planDetails.data.name}</h1>
+        <h1>{plan.name}</h1>
 
         <div className="flex p-2 justify-between gap-3">
-          <PlanDetails title="Date" subtitle={planDetails.data.date} />
-          <PlanDetails title="Type" subtitle={planDetails.data.type} />
-          <PlanDetails title="Category" subtitle={planDetails.data.category} />
-          <PlanDetails
-            title="Speaker"
-            subtitle={planDetails.data.speakerInstitute}
-          />
+          <PlanDetails title="Date" subtitle={plan.date} />
+          <PlanDetails title="Type" subtitle={plan.type} />
+          <PlanDetails title="Category" subtitle={plan.category} />
+          <PlanDetails title="Speaker" subtitle={plan.speakerInstitute} />
         </div>
       </div>
       {/* Staff List */}
       <div className="border rounded-md m-2 p-4 mt-4">
         <p className="font-medium mb-2">Staff List</p>
-        <StaffList staff={staff.data.items} planId={planDetails.data.id} />
+        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+        <StaffList staff={staffItems as any} planId={plan.id} />
       </div>
     </div>
   );
