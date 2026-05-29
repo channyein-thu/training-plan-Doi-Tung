@@ -2,7 +2,6 @@
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
@@ -34,7 +33,6 @@ function OjtTable({ ojtRecords }: { ojtRecords: OjtRecord[] }) {
     <>
       <div className="overflow-x-auto border rounded-md">
         <Table className="table-fixed w-full rounded-t-md ">
-          <TableCaption>A list of OJT records</TableCaption>
           <TableHeader className={`bg-[#E8F7EC] rounded-t-md`}>
             <TableRow>
               <TableHead className="w-[250px] font-bold">Plan Name</TableHead>

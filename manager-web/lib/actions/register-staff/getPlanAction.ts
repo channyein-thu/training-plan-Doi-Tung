@@ -1,58 +1,66 @@
 import { API_BASE_URL } from "@/lib/api/api";
 import { authFetch } from "@/lib/api/authFetch";
-import { cookies } from "next/headers";
 
-export async function getPlans() {
-  const cookieStore = await cookies(); //  await
+type PlansListResponse = {
+  data?: { items?: unknown[]; meta?: unknown };
+};
 
-  // build cookie string manually
-  const cookieHeader = cookieStore
-    .getAll()
-    .map((c) => `${c.name}=${c.value}`)
-    .join("; ");
+type PlanDetailResponse = {
+  data?: Record<string, unknown>;
+} | null;
 
-  const { response } = await authFetch(
-    `${API_BASE_URL}/manager/training-plans`,
-    {
-      method: "GET",
-      credentials: "include", //include credentials
-      headers: {
-        Cookie: cookieHeader, // correct now
+// Safe paginated shape for the list view. Never throws.
+export async function getPlans(): Promise<PlansListResponse> {
+  const empty: PlansListResponse = { data: { items: [], meta: {} } };
+
+  try {
+    const { response } = await authFetch(
+      `${API_BASE_URL}/manager/training-plans`,
+      { method: "GET", cache: "no-store" },
+    );
+
+    if (!response.ok) {
+      console.warn(`getPlans: backend ${response.status}`);
+      return empty;
+    }
+
+    const payload = (await response.json().catch(() => null)) as
+      | PlansListResponse
+      | null;
+    if (!payload) return empty;
+    return {
+      data: {
+        items: payload.data?.items ?? [],
+        meta: payload.data?.meta ?? {},
       },
-    },
-  );
-  console.log("Response:", response.status); //log status for debugging
-
-  if (!response.ok) {
-    throw new Error("Failed to fetch training plans");
+    };
+  } catch (err) {
+    console.error("getPlans: unexpected error", err);
+    return empty;
   }
-
-  return response.json();
 }
 
-export async function getPlanById(id: number) {
-  const cookieStore = await cookies();
-
-  const cookieHeader = cookieStore
-    .getAll()
-    .map((c) => `${c.name}=${c.value}`)
-    .join("; ");
-
-  const { response } = await authFetch(
-    `${API_BASE_URL}/manager/training-plans/${id}`,
-    {
-      method: "GET",
-      credentials: "include", // ✅ send cookies
-      headers: {
-        Cookie: cookieHeader,
+// Returns null on any error (including 404). Page should check and render "not found".
+export async function getPlanById(id: number): Promise<PlanDetailResponse> {
+  try {
+    const { response } = await authFetch(
+      `${API_BASE_URL}/manager/training-plans/${id}`,
+      {
+        method: "GET",
+        cache: "no-store",
+        next: { tags: ["training-plans"] },
       },
-      next: { tags: ["training-plans"] },
-    },
-  );
+    );
 
-  if (!response.ok) {
-    throw new Error("Failed to fetch training plan details");
+    if (!response.ok) {
+      console.warn(`getPlanById(${id}): backend ${response.status}`);
+      return null;
+    }
+
+    const payload = await response.json().catch(() => null);
+    return payload as PlanDetailResponse;
+  } catch (err) {
+    console.error("getPlanById: unexpected error", err);
+    return null;
   }
-
-  return response.json();
 }

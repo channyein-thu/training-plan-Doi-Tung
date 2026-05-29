@@ -1,34 +1,47 @@
 import { NextResponse } from "next/server";
-import { authFetch } from "@/lib/api/authFetch";
 
 const GOOGLE_EXCHANGE_URL = "http://localhost:8080/auth/google/exchange";
 
 export async function GET(request: Request) {
-  try {
-    const url = new URL(request.url);
-    const code = url.searchParams.get("code");
+  const url = new URL(request.url);
 
-    if (!code) {
-      return NextResponse.redirect(new URL("/login", url));
+  try {
+    const code = url.searchParams.get("code");
+    const googleError = url.searchParams.get("error");
+
+    // Google returned an error (access_denied, etc.) or no code at all
+    if (googleError || !code) {
+      const reason = googleError ?? "missing_code";
+      return NextResponse.redirect(
+        new URL(`/login?oauth_error=${encodeURIComponent(reason)}`, url),
+      );
     }
 
-    const { response } = await authFetch(GOOGLE_EXCHANGE_URL, {
+    // Exchange the code with our backend.
+    // This is a public endpoint — no auth header needed.
+    const exchangeRes = await fetch(GOOGLE_EXCHANGE_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ code }),
       cache: "no-store",
     });
 
-    if (!response.ok) {
-      return NextResponse.redirect(new URL("/login", url));
+    if (!exchangeRes.ok) {
+      const text = await exchangeRes.text().catch(() => "");
+      console.error("OAuth exchange failed:", exchangeRes.status, text);
+      return NextResponse.redirect(
+        new URL("/login?oauth_error=exchange_failed", url),
+      );
     }
 
-    const data = await response.json();
+    const data = await exchangeRes.json();
     const accessToken = data?.accessToken;
     const isProfileComplete = data?.isProfileComplete;
 
     if (!accessToken) {
-      return NextResponse.redirect(new URL("/login", url));
+      return NextResponse.redirect(
+        new URL("/login?oauth_error=no_token", url),
+      );
     }
 
     const redirectPath =
@@ -42,31 +55,15 @@ export async function GET(request: Request) {
       sameSite: "lax",
       secure: process.env.NODE_ENV === "production",
       path: "/",
+      // Match JWT lifetime (7 days) so OAuth users stay logged in
+      maxAge: 60 * 60 * 24 * 7,
     });
 
     return nextResponse;
-  } catch {
-    return NextResponse.redirect(new URL("/login", request.url));
+  } catch (err) {
+    console.error("OAuth callback unexpected error:", err);
+    return NextResponse.redirect(
+      new URL("/login?oauth_error=unexpected", url),
+    );
   }
 }
-
-// import { NextResponse } from "next/server";
-// import type { NextRequest } from "next/server";
-
-// export function middleware(request: NextRequest) {
-//   const token = request.cookies.get("token")?.value;
-
-//   if (!token) {
-//     return NextResponse.redirect(new URL("/login", request.url));
-//   }
-
-//   return NextResponse.next();
-// }
-
-// export const config = {
-//   matcher: [
-//     "/dashboard/:path*",
-//     "/my-certificates/:path*",
-//     "/my-training-records/:path*",
-//   ],
-// };

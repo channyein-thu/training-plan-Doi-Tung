@@ -33,14 +33,19 @@ import UserInfo from "../dashboard/userInfo";
 import { usePathname } from "next/navigation";
 import { Button } from "./button";
 import { logoutAction } from "@/lib/actions/logout";
+import { useEffect, useState } from "react";
+import { getUnreadCount } from "@/lib/actions/notifications/getUnreadCount";
 
 // Menu items.
-const managerFunctions = [
+const generalNav = [
   {
     title: "Dashboard",
     url: "/dashboard",
     icon: Home,
   },
+];
+
+const managerFunctions = [
   {
     title: "Department Staff",
     url: "/department-staff",
@@ -89,13 +94,31 @@ type AppSidebarProps = {
 export function AppSidebar({ user }: AppSidebarProps) {
   const pathname = usePathname();
   const isManager = user.role === "DepartmentHead(manager)";
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  // Poll the backend for the unread notification count.
+  // - Fetches once on mount
+  // - Re-fetches whenever the user navigates (so leaving /notifications drops the badge)
+  // - Polls every 30s for new notifications while the tab is open
+  useEffect(() => {
+    let cancelled = false;
+    const refresh = async () => {
+      const count = await getUnreadCount();
+      if (!cancelled) setUnreadCount(count);
+    };
+    refresh();
+    const id = setInterval(refresh, 30000);
+    return () => {
+      cancelled = true;
+      clearInterval(id);
+    };
+  }, [pathname]);
 
   return (
     <Sidebar collapsible="offcanvas">
       <SidebarContent>
-        {/* Application / Profile */}
+        {/* Logo + Profile */}
         <SidebarGroup>
-          <SidebarGroupLabel>Application</SidebarGroupLabel>
           <SidebarGroupContent>
             <div className="m-4 space-y-4">
               <LogoCard />
@@ -105,6 +128,36 @@ export function AppSidebar({ user }: AppSidebarProps) {
                 employeeID={user.employeeID}
               />
             </div>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        {/* General (visible to all roles) */}
+        <SidebarGroup>
+          <SidebarGroupLabel>General</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {generalNav.map((item) => {
+                const isActive = pathname === item.url;
+                return (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={isActive}
+                      className="
+                        data-[active=true]:bg-[#006022]
+                        data-[active=true]:text-white
+                        px-3 py-4 rounded-md
+                      "
+                    >
+                      <Link href={item.url} className="flex items-center gap-2">
+                        <item.icon className="h-4 w-4" />
+                        <span>{item.title}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
+            </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
 
@@ -151,6 +204,8 @@ export function AppSidebar({ user }: AppSidebarProps) {
             <SidebarMenu>
               {myTraining.map((item) => {
                 const isActive = pathname === item.url;
+                const isNotifications = item.url === "/notifications";
+                const showBadge = isNotifications && unreadCount > 0;
 
                 return (
                   <SidebarMenuItem key={item.title}>
@@ -163,9 +218,17 @@ export function AppSidebar({ user }: AppSidebarProps) {
                         px-3 py-4 rounded-md
                       "
                     >
-                      <Link href={item.url} className="flex items-center gap-2">
+                      <Link
+                        href={item.url}
+                        className="flex items-center gap-2 w-full"
+                      >
                         <item.icon className="h-4 w-4" />
-                        <span>{item.title}</span>
+                        <span className="flex-1">{item.title}</span>
+                        {showBadge && (
+                          <span className="ml-auto inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full bg-red-500 text-white text-[11px] font-semibold leading-none">
+                            {unreadCount > 99 ? "99+" : unreadCount}
+                          </span>
+                        )}
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>

@@ -1,28 +1,47 @@
 import { API_BASE_URL } from "@/lib/api/api";
 import { authFetch } from "@/lib/api/authFetch";
-import { cookies } from "next/headers";
 
-export async function getOjtRecords() {
-  const cookieStore = await cookies(); //  await
+type OjtRecordsResponse = {
+  status?: string;
+  data?: {
+    items?: unknown[];
+    meta?: unknown;
+  };
+};
 
-  // build cookie string manually
-  const cookieHeader = cookieStore
-    .getAll()
-    .map((c) => `${c.name}=${c.value}`)
-    .join("; ");
+// Returns a SAFE default when anything goes wrong (rate limit, auth issue,
+// network blip, unexpected response shape). The page that consumes this never
+// has to worry about crashing the render — it always gets a structured object.
+export async function getOjtRecords(): Promise<OjtRecordsResponse> {
+  const empty: OjtRecordsResponse = { data: { items: [], meta: {} } };
 
-  const { response } = await authFetch(`${API_BASE_URL}/manager/records`, {
-    method: "GET",
-    credentials: "include", //include credentials
-    headers: {
-      Cookie: cookieHeader, // correct now
-    },
-  });
-  console.log("Response:", response.status); //log status for debugging
+  try {
+    const { response } = await authFetch(`${API_BASE_URL}/manager/records`, {
+      method: "GET",
+      cache: "no-store",
+    });
 
-  if (!response.ok) {
-    throw new Error("Failed to fetch OJT records");
+    if (!response.ok) {
+      console.warn(
+        `getOjtRecords: backend returned ${response.status}`,
+      );
+      return empty;
+    }
+
+    const payload = (await response.json().catch(() => null)) as
+      | OjtRecordsResponse
+      | null;
+
+    if (!payload) return empty;
+    return {
+      ...payload,
+      data: {
+        items: payload.data?.items ?? [],
+        meta: payload.data?.meta ?? {},
+      },
+    };
+  } catch (err) {
+    console.error("getOjtRecords: unexpected error", err);
+    return empty;
   }
-
-  return response.json();
 }

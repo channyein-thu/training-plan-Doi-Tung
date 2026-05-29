@@ -4,7 +4,8 @@ import { getPlans } from "@/lib/actions/register-staff/getPlanAction";
 import { Course } from "@/types/course";
 
 async function RegisterStaffPage() {
-  const plans = await getPlans(); // Fetch training plans on page load
+  const plans = await getPlans();
+  const items = (plans?.data?.items as Course[] | undefined) ?? [];
 
   return (
     <div>
@@ -14,12 +15,17 @@ async function RegisterStaffPage() {
           subtitle="Register department staff to organization training programs"
         />
 
-        <div className="space-y-6">
-          {plans.data.items.map((plan: Course) => (
-            // Log each plan being rendered for debugging
-            <RegisterCard key={plan.id} plan={plan} />
-          ))}
-        </div>
+        {items.length === 0 ? (
+          <p className="text-center text-gray-500 py-12">
+            No training plans available.
+          </p>
+        ) : (
+          <div className="space-y-6">
+            {items.map((plan) => (
+              <RegisterCard key={plan.id} plan={plan} />
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

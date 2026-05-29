@@ -3,8 +3,10 @@ import OjtTable from "@/components/ojt-records/ojtTable";
 import { getOjtRecords } from "@/lib/actions/ojt-records/getOjtAction";
 
 async function OjtRecordsPage() {
-  const ojtRecords = await getOjtRecords(); // Fetch OJT records on page load
-  console.log("Fetched OJT Records:", ojtRecords.data.items); // Log fetched records for debugging
+  const ojtRecords = await getOjtRecords();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const items = (ojtRecords?.data?.items as any[]) ?? [];
+
   return (
     <div className="min-h-screen space-y-4 m-2">
       <PageHeader
@@ -12,9 +14,14 @@ async function OjtRecordsPage() {
         subtitle="View and manage on-the-job training records"
       />
 
-      {/* OJT Records Table */}
       <div>
-        <OjtTable ojtRecords={ojtRecords.data.items} />
+        {items.length === 0 ? (
+          <p className="text-center text-gray-500 py-12">
+            No on-the-job training records found.
+          </p>
+        ) : (
+          <OjtTable ojtRecords={items} />
+        )}
       </div>
     </div>
   );

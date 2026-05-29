@@ -2,7 +2,6 @@
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
@@ -25,7 +24,6 @@ function TrainingRecordTable({ records }: { records: OjtRecord[] }) {
     <>
       <div className="">
         <Table className="w-full table-fixed text-sm">
-          <TableCaption>A list of training records</TableCaption>
           <TableHeader className={`bg-[#E8F7EC] rounded-t-md`}>
             <TableRow>
               <TableHead className="w-[250px] font-semibold">
