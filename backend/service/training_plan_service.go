@@ -18,6 +18,7 @@ import (
 
 type TrainingPlanServiceImpl struct {
 	repo      repository.TrainingPlanRepository
+	recordRepo repository.RecordRepository
 	validate  *validator.Validate
 	calendar  *calendar.Service
 	location  *time.Location
@@ -25,15 +26,17 @@ type TrainingPlanServiceImpl struct {
 
 func NewTrainingPlanServiceImpl(
 	repo repository.TrainingPlanRepository,
+	recordRepo repository.RecordRepository,
 	validate *validator.Validate,
 	calendar *calendar.Service,
 	location *time.Location,
 ) TrainingPlanService {
 	return &TrainingPlanServiceImpl{
-		repo:     repo,
-		validate: validate,
-		calendar: calendar,
-		location: location,
+		repo:       repo,
+		recordRepo: recordRepo,
+		validate:   validate,
+		calendar:   calendar,
+		location:   location,
 	}
 }
 
@@ -95,6 +98,14 @@ func (s *TrainingPlanServiceImpl) Delete(trainingPlanId int) error {
 	trainingPlan, err := s.repo.FindById(trainingPlanId)
 	if err != nil {
 		return err
+	}
+
+	recordCount, err := s.recordRepo.CountByTrainingPlan(trainingPlanId)
+	if err != nil {
+		return err
+	}
+	if recordCount > 0 {
+		return helper.BadRequest("cannot delete training plan with registered staff")
 	}
 
 	// Delete calendar event if exists

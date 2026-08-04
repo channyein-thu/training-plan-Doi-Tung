@@ -67,6 +67,8 @@ type RecordRepository interface {
 	FindByUserId(userID uint, offset, limit int) ([]model.Record, int64, error)
 	Search(req request.RecordFilterRequest) ([]model.Record, int64, error)
 	IncreaseNumberOfPerson(trainingPlanID int) error
+	DecreaseNumberOfPerson(trainingPlanID int) error
+	CountByTrainingPlan(trainingPlanID int) (int64, error)
 }
 
 type NotificationRepository interface {

@@ -46,8 +46,10 @@ func NewAppDependencies(
 
 	// ---------- TrainingPlan ----------
 	trainingPlanRepo := repository.NewTrainingPlanRepositoryImpl(db)
+	recordRepo := repository.NewRecordRepositoryImpl(db)
 	trainingPlanService := service.NewTrainingPlanServiceImpl(
 		trainingPlanRepo,
+		recordRepo,
 		validate,
 		calendarService,
 		location,
@@ -67,7 +69,6 @@ func NewAppDependencies(
 	notificationController := controller.NewNotificationController(notificationService)
 
 	// ---------- Record ----------
-	recordRepo := repository.NewRecordRepositoryImpl(db)
 	recordService := service.NewRecordServiceImpl(recordRepo, userRepo, trainingPlanRepo, notificationService, validate)
 	recordController := controller.NewRecordController(recordService)
 

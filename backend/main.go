@@ -22,6 +22,10 @@ import (
 func main() {
 	app := fiber.New(fiber.Config{
 		ErrorHandler: middleware.ErrorHandler,
+		// Caps the entire request body (including multipart file uploads).
+		// Keep in sync with helper.MaxCertificateFileSize — this is a hard
+		// ceiling enforced before our handlers ever run.
+		BodyLimit: 6 * 1024 * 1024, // 6MB
 	})
 
 	//  Load config

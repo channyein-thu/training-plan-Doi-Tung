@@ -166,6 +166,21 @@ func (r *RecordRepositoryImpl) IncreaseNumberOfPerson(trainingPlanID int) error 
 		Error
 }
 
+func (r *RecordRepositoryImpl) DecreaseNumberOfPerson(trainingPlanID int) error {
+	return r.Db.Model(&model.TrainingPlan{}).
+		Where("id = ? AND number_of_person > 0", trainingPlanID).
+		UpdateColumn("number_of_person", gorm.Expr("number_of_person - ?", 1)).
+		Error
+}
+
+func (r *RecordRepositoryImpl) CountByTrainingPlan(trainingPlanID int) (int64, error) {
+	var count int64
+	err := r.Db.Model(&model.Record{}).
+		Where("training_plan_id = ?", trainingPlanID).
+		Count(&count).Error
+	return count, err
+}
+
 // Update implements RecordRepository.
 func (r *RecordRepositoryImpl) Update(record *model.Record) error {
 	return r.Db.Save(record).Error

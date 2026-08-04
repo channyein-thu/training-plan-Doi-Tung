@@ -17,7 +17,7 @@ type CreateTrainingPlanRequest struct {
 	Location        *string `json:"location" validate:"omitempty"`
 	TotalCost       *int `json:"totalCost" validate:"omitempty,gte=0"`
 	BudgetCode      *string `json:"budgetCode" validate:"omitempty"`
-	NumberOfPerson  *int `json:"numberOfPerson" validate:"omitempty,gte=0"`
+	// NumberOfPerson  *int `json:"numberOfPerson" validate:"omitempty,gte=0"`
 	CostPerPerson   *int `json:"costPerPerson" validate:"omitempty,gte=0"`
 }
 
@@ -39,7 +39,6 @@ type UpdateTrainingPlanRequest struct {
 	Location       *string `json:"location" validate:"omitempty"`
 	TotalCost      *int    `json:"totalCost" validate:"omitempty,gte=0"`
 	BudgetCode     *string `json:"budgetCode" validate:"omitempty"`
-	NumberOfPerson *int    `json:"numberOfPerson" validate:"omitempty,gte=0"`
 	CostPerPerson  *int    `json:"costPerPerson" validate:"omitempty,gte=0"`
 }
 

@@ -24,9 +24,9 @@ func ToTrainingPlanModel(req request.CreateTrainingPlanRequest) model.TrainingPl
 		CostPerPerson:  req.CostPerPerson,
 	}
 
-	if req.NumberOfPerson != nil {
-		trainingPlan.NumberOfPerson = *req.NumberOfPerson
-	}
+	// if req.NumberOfPerson != nil {
+	// 	trainingPlan.NumberOfPerson = *req.NumberOfPerson
+	// }
 
 	return trainingPlan
 }
@@ -101,10 +101,6 @@ if req.NumberOfDays != nil {
 
 	if req.BudgetCode != nil {
 		trainingPlan.BudgetCode = req.BudgetCode
-	}
-
-	if req.NumberOfPerson != nil {
-		trainingPlan.NumberOfPerson = *req.NumberOfPerson
 	}
 
 	if req.CostPerPerson != nil {

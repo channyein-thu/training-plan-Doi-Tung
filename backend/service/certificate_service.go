@@ -5,7 +5,6 @@ import (
 	"log"
 	"math"
 	"mime/multipart"
-	"path/filepath"
 	"time"
 
 	"training-plan-api/data/request"
@@ -220,13 +219,15 @@ func (c *CertificateServiceImpl) Upload(
 		return helper.ValidationError(helper.FormatValidationError(err))
 	}
 
-	file, err := fileHeader.Open()
+	// Enforces a size cap and an extension whitelist, and sniffs the file's
+	// actual leading bytes to confirm they match the claimed type — the
+	// client-supplied filename and Content-Type header are not trusted.
+	file, ext, mimeType, err := helper.ValidateCertificateFile(fileHeader)
 	if err != nil {
-		return helper.BadRequest("Failed to open uploaded file")
+		return err
 	}
 	defer file.Close()
 
-	ext := filepath.Ext(fileHeader.Filename)
 	objectPath := fmt.Sprintf(
 		"certificates/user_%d/%d%s",
 		userID,
@@ -237,7 +238,7 @@ func (c *CertificateServiceImpl) Upload(
 	if _, err := c.storage.Upload(
 		objectPath,
 		file,
-		fileHeader.Header.Get("Content-Type"),
+		mimeType,
 	); err != nil {
 		return helper.Internal("Failed to upload certificate")
 	}

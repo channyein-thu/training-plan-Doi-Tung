@@ -353,7 +353,16 @@ func (s *RecordServiceImpl) Update(
 }
 
 func (s *RecordServiceImpl) Delete(id int) error {
-	return s.repo.Delete(id)
+	record, err := s.repo.FindById(id)
+	if err != nil {
+		return err
+	}
+
+	if err := s.repo.Delete(id); err != nil {
+		return err
+	}
+
+	return s.repo.DecreaseNumberOfPerson(int(record.TrainingPlanID))
 }
 
 func (s *RecordServiceImpl) FindByManager(
