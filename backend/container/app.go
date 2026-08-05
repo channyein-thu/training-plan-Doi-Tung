@@ -22,6 +22,7 @@ type AppDependencies struct {
 	CertificateController      *controller.CertificateController
 	RecordController           *controller.RecordController
 	NotificationController     *controller.NotificationController
+	DashboardController        *controller.DashboardController
 	UserRepository             repository.UserRepository
 }
 
@@ -87,6 +88,9 @@ func NewAppDependencies(
 	)
 	authOAuthController := controller.NewAuthOAuthController(authOAuthService)
 
+	// ---------- Dashboard ----------
+	dashboardController := controller.NewDashboardController(db)
+
 
 	return &AppDependencies{
 		DepartmentController:   departmentController,
@@ -97,6 +101,7 @@ func NewAppDependencies(
 		CertificateController:  certificateController,
 		RecordController:       recordController,
 		NotificationController: notificationController,
+		DashboardController:    dashboardController,
 		UserRepository:         userRepo,
 	}
 }

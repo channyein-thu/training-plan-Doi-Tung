@@ -10,7 +10,17 @@ import (
 	"gorm.io/gorm"
 )
 
-func SeedAdmin(db *gorm.DB) {
+// SeedAdmin creates the initial HR department and admin user for local
+// development. The admin password must be supplied by the caller (from
+// ADMIN_SEED_PASSWORD) — there is no hardcoded default, so a deployment can
+// never end up with a well-known "admin123" account. Callers should only invoke
+// this in development (see main.go).
+func SeedAdmin(db *gorm.DB, adminPassword string) {
+
+	if adminPassword == "" {
+		log.Println(" Skipping admin seed: ADMIN_SEED_PASSWORD is not set")
+		return
+	}
 
 	//  Ensure HR Department exists
 	var department model.Department
@@ -46,7 +56,7 @@ func SeedAdmin(db *gorm.DB) {
 
 	//  Hash password
 	hashed, err := bcrypt.GenerateFromPassword(
-		[]byte("admin123"),
+		[]byte(adminPassword),
 		bcrypt.DefaultCost,
 	)
 	if err != nil {

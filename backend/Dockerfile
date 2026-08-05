@@ -22,8 +22,11 @@ WORKDIR /app
 
 COPY --from=builder /app/server .
 
-COPY app.env .
-COPY service-account.json .
+# NOTE: secrets are intentionally NOT baked into the image.
+#   - app.env values are injected at runtime (compose env_file/environment).
+#   - service-account.json is mounted read-only at runtime.
+# See docker-compose.yml. This keeps credentials out of image layers and any
+# registry the image is pushed to.
 
 RUN mkdir -p uploads
 

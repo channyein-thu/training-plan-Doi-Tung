@@ -50,13 +50,17 @@ type CertificateService interface {
 	FindAllPending(	page int,limit int,) (response.PaginatedResponse[response.CertificateResponse], error)
 	Approve(certificateID int) error
 	Reject(certificateID int) error
+	// GetCertificateFilePath authorizes the caller and returns the on-disk
+	// path of the certificate image so it can be streamed by an authenticated
+	// handler (never served as an open static file).
+	GetCertificateFilePath(certificateID int, callerID uint, callerRole string) (string, error)
 }
 
 type RecordService interface {
 	RegisterStaff(trainingPlanId uint, req request.RegisterStaffRequest) error
-	FindById(id int) (response.RecordResponseFinal, error)
-	Update(id int, req request.UpdateRecordRequest) error
-	Delete(id int) error
+	FindById(id int, callerID uint, callerRole string) (response.RecordResponseFinal, error)
+	Update(id int, req request.UpdateRecordRequest, callerID uint, callerRole string) error
+	Delete(id int, callerID uint, callerRole string) error
  	FindByManager(managerID uint,page int,limit int,) (response.PaginatedResponse[response.AdminRecordResponse], error)
 	FindByUser(userID uint, page int, limit int) (response.PaginatedResponse[response.StaffRecordResponse], error)
 	Search(req request.RecordFilterRequest) (response.PaginatedResponse[response.AdminRecordResponse], error)

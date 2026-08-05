@@ -46,7 +46,10 @@ func (c *RecordController) FindById(ctx *fiber.Ctx) error {
 		return helper.BadRequest("Invalid record ID")
 	}
 
-	result, err := c.service.FindById(id)
+	callerID := ctx.Locals("user_id").(uint)
+	callerRole := ctx.Locals("user_role").(string)
+
+	result, err := c.service.FindById(id, callerID, callerRole)
 	if err != nil {
 		return err
 	}
@@ -69,7 +72,10 @@ func (c *RecordController) Update(ctx *fiber.Ctx) error {
 		return helper.BadRequest("Invalid request body")
 	}
 
-	if err := c.service.Update(id, req); err != nil {
+	callerID := ctx.Locals("user_id").(uint)
+	callerRole := ctx.Locals("user_role").(string)
+
+	if err := c.service.Update(id, req, callerID, callerRole); err != nil {
 		return err
 	}
 
@@ -85,7 +91,10 @@ func (c *RecordController) Delete(ctx *fiber.Ctx) error {
 		return helper.BadRequest("Invalid record ID")
 	}
 
-	if err := c.service.Delete(id); err != nil {
+	callerID := ctx.Locals("user_id").(uint)
+	callerRole := ctx.Locals("user_role").(string)
+
+	if err := c.service.Delete(id, callerID, callerRole); err != nil {
 		return err
 	}
 

@@ -17,6 +17,9 @@ func StaffRoutes(r fiber.Router, deps *container.AppDependencies) {
 
 	
 
+	// Dashboard stats
+	r.Get("/dashboard-stats", deps.DashboardController.StaffStats)
+
 	// // Records (own)
 	r.Get("/records", deps.RecordController.FindByCurrentUser)
 	r.Get("/records/:id", deps.RecordController.FindById)

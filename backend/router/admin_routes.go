@@ -15,8 +15,8 @@ func AdminRoutes(r fiber.Router, deps *container.AppDependencies) {
 		})
 	})
 
-	// // Dashboard / stats
-	// r.Get("/stats", deps.DepartmentController.GetStats)
+	// Dashboard stats
+	r.Get("/dashboard-stats", deps.DashboardController.AdminStats)
 
 	// Department management
 	r.Post("/departments", deps.DepartmentController.Create)

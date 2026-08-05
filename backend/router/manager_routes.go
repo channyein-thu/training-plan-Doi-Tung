@@ -15,6 +15,9 @@ func ManagerRoutes(r fiber.Router, deps *container.AppDependencies) {
 		})
 	})
 
+	// Dashboard stats
+	r.Get("/dashboard-stats", deps.DashboardController.ManagerStats)
+
 	// User management (Manager can only create users in their department)
 	r.Post("/users", deps.UserController.ManagerCreate)
 	r.Get("/users", deps.UserController.ManagerFindDepartmentUsers)

@@ -86,6 +86,28 @@ func (c *CertificateController) Delete(ctx *fiber.Ctx) error {
 	})
 }
 
+// ServeFile streams a certificate image to the caller after an ownership/admin
+// check. This replaces the old open `app.Static("/uploads")` route so
+// certificate documents can no longer be fetched (or enumerated) without auth.
+func (c *CertificateController) ServeFile(ctx *fiber.Ctx) error {
+	id, err := strconv.Atoi(ctx.Params("id"))
+	if err != nil {
+		return helper.BadRequest("Invalid certificate ID")
+	}
+
+	callerID := ctx.Locals("user_id").(uint)
+	callerRole := ctx.Locals("user_role").(string)
+
+	imagePath, err := c.service.GetCertificateFilePath(id, callerID, callerRole)
+	if err != nil {
+		return err
+	}
+
+	// imagePath is a server-generated, cwd-relative path like
+	// "uploads/certificates/user_5/173...jpeg".
+	return ctx.SendFile(imagePath)
+}
+
 // ================= ADMIN =================
 
 func (c *CertificateController) FindAllPending(ctx *fiber.Ctx) error {

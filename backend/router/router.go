@@ -17,6 +17,10 @@ func RegisterRoutes(app *fiber.App, deps *container.AppDependencies) {
 	app.Post("/auth/google/exchange", deps.AuthOAuthController.GoogleExchange)
 	app.Post("/user/complete-profile", middleware.JWTProtected, deps.UserController.CompleteProfile)
     api.Get("/departments-list", deps.DepartmentController.GetDepartmentsList)
+
+	// Authenticated certificate file access (replaces the open /uploads static
+	// route). Any logged-in user may hit it; the handler enforces owner-or-admin.
+	api.Get("/certificates/:id/file", middleware.JWTProtected, deps.CertificateController.ServeFile)
 	
 	AuthRoutes(api, deps.AuthController, deps.AuthOAuthController)
 	// Role-based routes with JWT and role middleware
@@ -31,7 +35,7 @@ func RegisterRoutes(app *fiber.App, deps *container.AppDependencies) {
 	)
 
 	StaffRoutes(
-		api.Group("/staff", middleware.JWTProtected, middleware.RequireProfileComplete(deps.UserRepository) ),
+		api.Group("/staff", middleware.JWTProtected, middleware.StaffOnly, middleware.RequireProfileComplete(deps.UserRepository) ),
 		deps,
 	)
 }

@@ -20,18 +20,23 @@ func NewAuthOAuthController(authOAuthService service.AuthOAuthService) *AuthOAut
 }
 
 func (c *AuthOAuthController) GoogleLogin(ctx *fiber.Ctx) error {
-	state, err := generateStateToken()
-	if err != nil {
-		return helper.InternalServerError("Failed to initialize OAuth login")
+	// The OAuth callback lands on the frontend origin, so the CSRF `state` must
+	// be bound to a cookie on that origin (the frontend sets it and verifies it
+	// on callback). The frontend passes the state it committed to here via the
+	// `state` query param; we simply thread it into the Google auth URL so the
+	// value Google echoes back matches the frontend's cookie.
+	//
+	// We keep a locally generated fallback only so a direct hit to this endpoint
+	// without a state still produces a valid Google URL (that path is not
+	// CSRF-protected and should not be linked to from the app).
+	state := ctx.Query("state")
+	if state == "" {
+		generated, err := generateStateToken()
+		if err != nil {
+			return helper.InternalServerError("Failed to initialize OAuth login")
+		}
+		state = generated
 	}
-
-	ctx.Cookie(&fiber.Cookie{
-		Name:     oauthStateCookie,
-		Value:    state,
-		HTTPOnly: true,
-		SameSite: "Lax",
-		Path:     "/",
-	})
 
 	loginURL := c.authOAuthService.GetGoogleLoginURL(state)
 	return ctx.Redirect(loginURL, fiber.StatusTemporaryRedirect)

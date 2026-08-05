@@ -237,10 +237,44 @@ func (s *RecordServiceImpl) RegisterStaff(
 	return nil
 }
 
-func (s *RecordServiceImpl) FindById(id int) (response.RecordResponseFinal, error) {
+// authorizeRecordAccess enforces who may read/modify a given record.
+//   - Admin: any record.
+//   - Manager: only records whose owner is in the manager's own department.
+//   - Staff: only records they own.
+//
+// This is the single choke point that prevents cross-department / cross-user
+// IDOR on the record ID coming straight from the URL.
+func (s *RecordServiceImpl) authorizeRecordAccess(record *model.Record, callerID uint, callerRole string) error {
+	switch model.Role(callerRole) {
+	case model.RoleHRAdmin:
+		return nil
+	case model.RoleDepartmentManager:
+		manager, err := s.userRepo.FindById(callerID)
+		if err != nil {
+			return err
+		}
+		if record.User == nil || record.User.DepartmentID != manager.DepartmentID {
+			return helper.Forbidden("You don't have permission to access this record")
+		}
+		return nil
+	case model.RoleStaff:
+		if record.UserID != callerID {
+			return helper.Forbidden("You don't have permission to access this record")
+		}
+		return nil
+	default:
+		return helper.Forbidden("You don't have permission to access this record")
+	}
+}
+
+func (s *RecordServiceImpl) FindById(id int, callerID uint, callerRole string) (response.RecordResponseFinal, error) {
 
 	record, err := s.repo.FindById(id)
 	if err != nil {
+		return response.RecordResponseFinal{}, err
+	}
+
+	if err := s.authorizeRecordAccess(record, callerID, callerRole); err != nil {
 		return response.RecordResponseFinal{}, err
 	}
 
@@ -328,6 +362,8 @@ func (s *RecordServiceImpl) FindById(id int) (response.RecordResponseFinal, erro
 func (s *RecordServiceImpl) Update(
 	id int,
 	req request.UpdateRecordRequest,
+	callerID uint,
+	callerRole string,
 ) error {
 
 	if err := s.validate.Struct(req); err != nil {
@@ -336,6 +372,10 @@ func (s *RecordServiceImpl) Update(
 
 	record, err := s.repo.FindById(id)
 	if err != nil {
+		return err
+	}
+
+	if err := s.authorizeRecordAccess(record, callerID, callerRole); err != nil {
 		return err
 	}
 
@@ -352,9 +392,13 @@ func (s *RecordServiceImpl) Update(
 	return s.repo.Update(record)
 }
 
-func (s *RecordServiceImpl) Delete(id int) error {
+func (s *RecordServiceImpl) Delete(id int, callerID uint, callerRole string) error {
 	record, err := s.repo.FindById(id)
 	if err != nil {
+		return err
+	}
+
+	if err := s.authorizeRecordAccess(record, callerID, callerRole); err != nil {
 		return err
 	}
 

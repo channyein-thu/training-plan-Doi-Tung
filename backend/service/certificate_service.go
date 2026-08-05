@@ -5,6 +5,7 @@ import (
 	"log"
 	"math"
 	"mime/multipart"
+	"strings"
 	"time"
 
 	"training-plan-api/data/request"
@@ -15,6 +16,19 @@ import (
 
 	"github.com/go-playground/validator/v10"
 )
+
+// imagePathPrefix is prepended to the storage object path when a certificate is
+// saved (see Upload). The Storage layer works with object paths relative to its
+// own base dir, so this prefix must be stripped back off before calling
+// storage.Delete — otherwise the base path gets doubled up and the file is
+// never actually removed.
+const imagePathPrefix = "uploads/"
+
+// storageObjectPath converts a stored Certificate.Image value back into the
+// storage-relative object path that the Storage layer expects.
+func storageObjectPath(image string) string {
+	return strings.TrimPrefix(image, imagePathPrefix)
+}
 
 type CertificateServiceImpl struct {
 	repo         repository.CertificateRepository
@@ -86,7 +100,7 @@ func (c *CertificateServiceImpl) Reject(certificateID int) error {
 	}
 
 	if cert.Image != "" {
-		if err := c.storage.Delete(cert.Image); err != nil {
+		if err := c.storage.Delete(storageObjectPath(cert.Image)); err != nil {
 			log.Println("⚠ failed to delete certificate file:", err)
 		}
 	}
@@ -140,10 +154,14 @@ func (c *CertificateServiceImpl) FindAllPending(
 		if cert.User != nil {
 			resp.UserName = cert.User.Name
 			resp.EmployeeID = cert.User.EmployeeID
-		}
-		if cert.User.Department != nil {
-			resp.Department = cert.User.Department.Name
-			resp.Division = string(cert.User.Department.Division)
+
+			// Guard Department under the User nil-check — a certificate whose
+			// owner was deleted has a nil User, and reading cert.User.Department
+			// directly would panic (crashing the whole list endpoint).
+			if cert.User.Department != nil {
+				resp.Department = cert.User.Department.Name
+				resp.Division = string(cert.User.Department.Division)
+			}
 		}
 		if cert.Training != nil {
 			resp.TrainingID = cert.TrainingID
@@ -192,10 +210,14 @@ func (c *CertificateServiceImpl) FindByCurrentUser(
 		if cert.User != nil {
 			resp.UserName = cert.User.Name
 			resp.EmployeeID = cert.User.EmployeeID
-		}
-		if cert.User.Department != nil {
-			resp.Department = cert.User.Department.Name
-			resp.Division = string(cert.User.Department.Division)
+
+			// Guard Department under the User nil-check — a certificate whose
+			// owner was deleted has a nil User, and reading cert.User.Department
+			// directly would panic (crashing the whole list endpoint).
+			if cert.User.Department != nil {
+				resp.Department = cert.User.Department.Name
+				resp.Division = string(cert.User.Department.Division)
+			}
 		}
 		if cert.Training != nil {
 			resp.TrainingID = cert.TrainingID
@@ -246,7 +268,7 @@ func (c *CertificateServiceImpl) Upload(
 	certificate := &model.Certificate{
 		UserID:      userID,
 		TrainingID:  req.TrainingID,
-		Image:       "uploads/" + objectPath,
+		Image:       imagePathPrefix + objectPath,
 		Description: req.Description,
 		Status:      model.CertPending,
 	}
@@ -257,6 +279,32 @@ func (c *CertificateServiceImpl) Upload(
 	}
 
 	return nil
+}
+
+// GetCertificateFilePath authorizes the caller and returns the stored image
+// path for streaming. Admins may fetch any certificate file; everyone else may
+// only fetch their own. The returned path is the server-generated Image value
+// (e.g. "uploads/certificates/user_5/173...jpeg") — never a client-supplied
+// path — so there is no traversal risk.
+func (c *CertificateServiceImpl) GetCertificateFilePath(
+	certificateID int,
+	callerID uint,
+	callerRole string,
+) (string, error) {
+	cert, err := c.repo.FindById(certificateID)
+	if err != nil {
+		return "", err
+	}
+
+	if model.Role(callerRole) != model.RoleHRAdmin && cert.UserID != callerID {
+		return "", helper.Forbidden("You don't have permission to view this certificate")
+	}
+
+	if cert.Image == "" {
+		return "", helper.NotFound("certificate file not found")
+	}
+
+	return cert.Image, nil
 }
 
 func (c *CertificateServiceImpl) Delete(
@@ -278,7 +326,9 @@ func (c *CertificateServiceImpl) Delete(
 	}
 
 	if certificate.Image != "" {
-		_ = c.storage.Delete(certificate.Image)
+		if err := c.storage.Delete(storageObjectPath(certificate.Image)); err != nil {
+			log.Println("⚠ failed to delete certificate file:", err)
+		}
 	}
 
 	return nil
