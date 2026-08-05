@@ -15,7 +15,6 @@ import TrainingRecordTable from "@/components/my-training-records/trainingRecord
 export async function MyTrainingRecords() {
   const records = await getRecords();
   const items = records?.data?.items ?? [];
-  console.log("Fetched Training Records:", items); // Log fetched records for debugging
   return (
     <div className="min-h-screen space-y-4 m-2">
       <PageHeader

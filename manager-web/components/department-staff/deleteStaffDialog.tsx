@@ -21,7 +21,7 @@ function DeleteStaffDialog({ staff, onCancel, onConfirm }: props) {
           </DialogHeader>
 
           <p>
-            Are you sure you want to delete <strong>{staff?.fullName}</strong>?
+            Are you sure you want to delete <strong>{staff?.name}</strong>?
             This action cannot be undone.
           </p>
 

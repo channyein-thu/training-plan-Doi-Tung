@@ -2,12 +2,10 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Certificate } from "@/types/certificate";
 import { Award } from "lucide-react";
 
-const CERTIFICATE_ASSET_BASE_URL = "http://127.0.0.1:8080";
-
 function CertificateCard({ certificate }: { certificate: Certificate }) {
-  const imageUrl = certificate.image.startsWith("http")
-    ? certificate.image
-    : `${CERTIFICATE_ASSET_BASE_URL}/${certificate.image}`;
+  // Load the image through the authenticated same-origin proxy instead of the
+  // (now removed) open backend /uploads route.
+  const imageUrl = `/api/certificate-file/${certificate.id}`;
   const statusClassName =
     certificate.status === "Approved"
       ? "bg-green-100 text-green-700"

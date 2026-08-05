@@ -11,7 +11,6 @@ function RouterButton({
   buttonText: string;
 }) {
   const router = useRouter();
-  console.log("RouterButton Props:", { routerPath, buttonText }); // Log props for debugging
   return (
     <div>
       <Button

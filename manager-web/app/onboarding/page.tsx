@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { API_BASE_URL } from "@/app/api/api";
+import { PUBLIC_API_BASE_URL } from "@/app/api/api";
 import { completeProfileAction } from "@/lib/actions/completeProfile";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -46,7 +46,7 @@ export default function OnboardingPage() {
 
     const loadDepartments = async () => {
       try {
-        const response = await fetch(`${API_BASE_URL}/departments-list`, {
+        const response = await fetch(`${PUBLIC_API_BASE_URL}/departments-list`, {
           method: "GET",
           headers: { "Content-Type": "application/json" },
           cache: "no-store",

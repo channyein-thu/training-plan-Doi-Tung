@@ -16,11 +16,19 @@ export default async function DashboardLayout({
 }) {
   const me = await getMe();
   const user = me?.user;
-  console.log("DashboardLayout - User Info:", user); // Debug log to check user info
 
   if (!user) {
     redirect("/login");
   }
+
+  // This app is for managers and staff only. An admin token must not render the
+  // manager/staff shell — send them back to login. Backend role strings, see
+  // model/user.go: manager = "DepartmentHead(manager)", staff = "Staff".
+  const ALLOWED_ROLES = ["DepartmentHead(manager)", "Staff"];
+  if (!ALLOWED_ROLES.includes(user.role)) {
+    redirect("/login");
+  }
+
   return (
     <SidebarProvider>
       <div className="flex min-h-screen w-full">

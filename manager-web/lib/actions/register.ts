@@ -74,7 +74,6 @@ export async function RegisterAction(prevState: State, formData: FormData) {
       body: JSON.stringify(requestBody),
       cache: "no-store",
     });
-    console.log("Register payload:", requestBody);
 
     return {
       message: "Registration successful!",

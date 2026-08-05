@@ -1,5 +1,9 @@
 export type OjtRecord = {
   id: number;
+  // Present on manager/admin record responses (AdminRecordResponse); absent on
+  // a staff member's own records, hence optional.
+  employeeId?: string;
+  employeeName?: string;
   division: string;
   department: string;
   budgetCode: string;

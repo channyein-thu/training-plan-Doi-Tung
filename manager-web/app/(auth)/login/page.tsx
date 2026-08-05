@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useActionState, useState } from "react";
+import React, { Suspense, useActionState, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -29,7 +29,7 @@ const OAUTH_ERRORS: Record<string, string> = {
   unexpected: "Unexpected error during Google sign-in.",
 };
 
-export default function LoginForm() {
+function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
   const searchParams = useSearchParams();
   const oauthErrorKey = searchParams.get("oauth_error");
@@ -72,7 +72,7 @@ export default function LoginForm() {
           {/* Form */}
           <div className="mb-6">
             <a
-              href="http://localhost:8080/auth/google/login"
+              href="/api/auth/google/login"
               className="w-full inline-flex items-center justify-center rounded-md border border-[#006022] px-4 py-2 text-sm font-medium text-[#006022] transition hover:bg-[#E8F7EC]"
             >
               Continue with Google
@@ -170,5 +170,14 @@ export default function LoginForm() {
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+// useSearchParams() requires a Suspense boundary for static prerendering.
+export default function LoginPage() {
+  return (
+    <Suspense fallback={null}>
+      <LoginForm />
+    </Suspense>
   );
 }

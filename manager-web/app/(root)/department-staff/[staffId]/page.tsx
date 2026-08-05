@@ -12,7 +12,6 @@ type StaffPageProps = {
 async function EditStaffPage({ params }: StaffPageProps) {
   const staff = await getStaff(); // Fetch OJT records on page load
   const { staffId } = await params;
-  console.log("Received Staff ID:", staffId); // Log the received staffId for debugging
   const id = parseInt(staffId);
   const staffMember = staff.find((p: TrainingPlanStaff) => p.id === id);
   if (!staffMember) {

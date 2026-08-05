@@ -25,10 +25,6 @@ export async function DeleteOjtAction(
     .map((c) => `${c.name}=${c.value}`)
     .join("; ");
 
-  console.log("Received form data:", {
-    id,
-  });
-
   let isDeleted = false;
 
   try {

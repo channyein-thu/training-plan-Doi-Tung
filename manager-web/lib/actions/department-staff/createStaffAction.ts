@@ -50,10 +50,6 @@ async function CreateStaffAction(
     .map((c) => `${c.name}=${c.value}`)
     .join("; ");
 
-  console.log("Received form data:", {
-    validatedFields,
-  });
-
   if (!validatedFields.success) {
     const flattened = z.flattenError(validatedFields.error);
 

@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
+import { BACKEND_ORIGIN } from "@/lib/api/api";
 
-const GOOGLE_EXCHANGE_URL = "http://localhost:8080/auth/google/exchange";
+const GOOGLE_EXCHANGE_URL = `${BACKEND_ORIGIN}/auth/google/exchange`;
+const OAUTH_STATE_COOKIE = "oauth_state";
 
 export async function GET(request: Request) {
   const url = new URL(request.url);
@@ -8,6 +11,7 @@ export async function GET(request: Request) {
   try {
     const code = url.searchParams.get("code");
     const googleError = url.searchParams.get("error");
+    const returnedState = url.searchParams.get("state");
 
     // Google returned an error (access_denied, etc.) or no code at all
     if (googleError || !code) {
@@ -15,6 +19,20 @@ export async function GET(request: Request) {
       return NextResponse.redirect(
         new URL(`/login?oauth_error=${encodeURIComponent(reason)}`, url),
       );
+    }
+
+    // CSRF protection: the `state` echoed back by Google must match the
+    // one-time value we committed to a cookie when starting the flow. A missing
+    // or mismatched state means this callback was not initiated by this browser
+    // — reject it before doing anything with the code.
+    const cookieStore = await cookies();
+    const expectedState = cookieStore.get(OAUTH_STATE_COOKIE)?.value;
+    if (!expectedState || !returnedState || returnedState !== expectedState) {
+      const res = NextResponse.redirect(
+        new URL("/login?oauth_error=state_mismatch", url),
+      );
+      res.cookies.delete(OAUTH_STATE_COOKIE);
+      return res;
     }
 
     // Exchange the code with our backend.
@@ -58,6 +76,9 @@ export async function GET(request: Request) {
       // Match JWT lifetime (7 days) so OAuth users stay logged in
       maxAge: 60 * 60 * 24 * 7,
     });
+
+    // The one-time state has served its purpose; clear it.
+    nextResponse.cookies.delete(OAUTH_STATE_COOKIE);
 
     return nextResponse;
   } catch (err) {

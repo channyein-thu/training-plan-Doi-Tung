@@ -1,7 +1,17 @@
-import { BookOpenIcon, LineChartIcon, UsersIcon } from "lucide-react";
+import {
+  BookOpenIcon,
+  UsersIcon,
+  AwardIcon,
+  CheckCircleIcon,
+  GraduationCapIcon,
+} from "lucide-react";
 import PageHeader from "@/components/dashboard/pageHeader";
 import DashboardCard from "@/components/dashboard/dashboardCard";
 import { getMe } from "@/lib/api/getMe";
+import {
+  getManagerDashboardStats,
+  getStaffDashboardStats,
+} from "@/lib/api/getDashboardStats";
 
 export default async function DashboardPage() {
   const me = await getMe();
@@ -9,39 +19,63 @@ export default async function DashboardPage() {
   let title = "Dashboard";
   let subtitle = "Overview";
 
-  if (user?.role === "DepartmentHead(manager)") {
+  const isManager = user?.role === "DepartmentHead(manager)";
+  const isStaff = user?.role === "Staff";
+
+  if (isManager) {
     title = "Manager Dashboard";
     subtitle = "Department overview and personal training management";
   }
 
-  if (user?.role === "Staff") {
+  if (isStaff) {
     title = "Staff Dashboard";
     subtitle = "Your training progress and assigned tasks";
   }
+
+  const managerStats = isManager ? await getManagerDashboardStats() : null;
+  const staffStats = isStaff ? await getStaffDashboardStats() : null;
+
   return (
     <div className="min-h-screen space-y-4 m-2">
       <PageHeader title={title} subtitle={subtitle} />
       <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
-        <DashboardCard
-          icon={<UsersIcon className="w-6 h-6" />}
-          percentChange="+12%"
-          count={245}
-          description="Department Staff"
-        />
-
-        <DashboardCard
-          icon={<BookOpenIcon className="w-6 h-6" />}
-          percentChange="+8%"
-          count={120}
-          description="Active Training"
-        />
-
-        <DashboardCard
-          icon={<LineChartIcon className="w-6 h-6" />}
-          percentChange="+5%"
-          count={32}
-          description="Avg Training Hours"
-        />
+        {isManager ? (
+          <>
+            <DashboardCard
+              icon={<UsersIcon className="w-6 h-6" />}
+              count={managerStats?.departmentStaff ?? 0}
+              description="Department Staff"
+            />
+            <DashboardCard
+              icon={<BookOpenIcon className="w-6 h-6" />}
+              count={managerStats?.activeTrainings ?? 0}
+              description="Active Trainings"
+            />
+            <DashboardCard
+              icon={<AwardIcon className="w-6 h-6" />}
+              count={managerStats?.pendingCertificates ?? 0}
+              description="My Pending Certificates"
+            />
+          </>
+        ) : (
+          <>
+            <DashboardCard
+              icon={<GraduationCapIcon className="w-6 h-6" />}
+              count={staffStats?.myTrainings ?? 0}
+              description="My Trainings"
+            />
+            <DashboardCard
+              icon={<AwardIcon className="w-6 h-6" />}
+              count={staffStats?.pendingCertificates ?? 0}
+              description="Pending Certificates"
+            />
+            <DashboardCard
+              icon={<CheckCircleIcon className="w-6 h-6" />}
+              count={staffStats?.approvedCertificates ?? 0}
+              description="Approved Certificates"
+            />
+          </>
+        )}
       </div>
       {/* Training Calendar */}
       <div className="space-y-2">

@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { authFetch } from "@/lib/api/authFetch";
+import { BACKEND_ORIGIN } from "@/lib/api/api";
 
-const COMPLETE_PROFILE_URL = "http://localhost:8080/user/complete-profile";
+const COMPLETE_PROFILE_URL = `${BACKEND_ORIGIN}/user/complete-profile`;
 
 export async function POST(request: Request) {
   const cookieStore = await cookies();

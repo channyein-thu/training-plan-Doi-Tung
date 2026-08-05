@@ -41,7 +41,6 @@ function EditStaffDialog({ staff, onClose }: Props) {
 
   const onSubmit = (values: z.infer<typeof schema>) => {
     // call UPDATE API here
-    console.log("Update staff:", staff?.employeeID, values);
     onClose();
   };
 
