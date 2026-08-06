@@ -36,6 +36,19 @@ type ManagerCreateUserRequest struct {
 	Password   string           `json:"password" validate:"required,min=6"`
 }
 
+// ManagerUpdateUserRequest is the subset of user fields a department manager may
+// edit on one of their own staff. Department and role are intentionally not
+// editable here (a manager only manages their own department, and staff stay
+// staff); password changes are also out of scope.
+type ManagerUpdateUserRequest struct {
+	Name       string           `json:"name" validate:"required,min=2,max=52"`
+	EmployeeID string           `json:"employeeID" validate:"required,min=1,max=52"`
+	Email      string           `json:"email" validate:"required,email,max=52"`
+	Phone      string           `json:"phone" validate:"max=20"`
+	Position   string           `json:"position" validate:"required,min=1,max=100"`
+	Status     model.UserStatus `json:"status" validate:"required,oneof=Active Inactive Suspended"`
+}
+
 type UserTableQueryParams struct {
 	Search       string `query:"search"`
 	DepartmentID int    `query:"departmentId"`

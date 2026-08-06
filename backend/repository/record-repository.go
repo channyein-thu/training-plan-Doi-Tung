@@ -2,6 +2,7 @@ package repository
 
 import (
 	"errors"
+	"strings"
 	"training-plan-api/data/request"
 	"training-plan-api/helper"
 	"training-plan-api/model"
@@ -48,9 +49,24 @@ func (r *RecordRepositoryImpl) Search(
 		query = query.Where("records.status = ?", *req.Status)
 	}
 
-	// Date range filter
-	if req.StartDate != nil && req.EndDate != nil {
-		query = query.Where("training_plans.date BETWEEN ? AND ?", req.StartDate, req.EndDate)
+	// Date range filter. Values are date-only strings ("2026-08-05"); MySQL
+	// compares them directly against the training_plans.date DATE column. Handle
+	// a start-only or end-only range too, not just a full BETWEEN.
+	start := ""
+	end := ""
+	if req.StartDate != nil {
+		start = strings.TrimSpace(*req.StartDate)
+	}
+	if req.EndDate != nil {
+		end = strings.TrimSpace(*req.EndDate)
+	}
+	switch {
+	case start != "" && end != "":
+		query = query.Where("training_plans.date BETWEEN ? AND ?", start, end)
+	case start != "":
+		query = query.Where("training_plans.date >= ?", start)
+	case end != "":
+		query = query.Where("training_plans.date <= ?", end)
 	}
 
 	// Count first

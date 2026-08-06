@@ -35,7 +35,7 @@ func RegisterRoutes(app *fiber.App, deps *container.AppDependencies) {
 	)
 
 	StaffRoutes(
-		api.Group("/staff", middleware.JWTProtected, middleware.StaffOnly, middleware.RequireProfileComplete(deps.UserRepository) ),
+		api.Group("/staff", middleware.JWTProtected, middleware.RequireProfileComplete(deps.UserRepository) ),
 		deps,
 	)
 }

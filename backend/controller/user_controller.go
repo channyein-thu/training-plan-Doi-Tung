@@ -154,6 +154,34 @@ func (uc *UserController) ManagerCreate(c *fiber.Ctx) error {
 	})
 }
 
+func (uc *UserController) ManagerUpdate(c *fiber.Ctx) error {
+	userID, err := strconv.ParseUint(c.Params("id"), 10, 32)
+	if err != nil {
+		return helper.BadRequest("Invalid user ID")
+	}
+
+	var req request.ManagerUpdateUserRequest
+	if err := c.BodyParser(&req); err != nil {
+		return helper.BadRequest("Invalid request body")
+	}
+
+	managerID := c.Locals("user_id").(uint)
+
+	managerDepartmentID, err := uc.getManagerDepartmentID(managerID)
+	if err != nil {
+		return helper.InternalServerError("Failed to get manager department")
+	}
+
+	if err := uc.userService.ManagerUpdate(uint(userID), req, managerDepartmentID); err != nil {
+		return err
+	}
+
+	return c.JSON(fiber.Map{
+		"success": true,
+		"message": "Staff updated successfully",
+	})
+}
+
 func (uc *UserController) ManagerFindDepartmentUsers(c *fiber.Ctx) error {
 	managerID := c.Locals("user_id").(uint)
 

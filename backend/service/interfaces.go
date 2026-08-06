@@ -34,6 +34,7 @@ type UserService interface {
 	AdminFindById(userID uint) (response.UserResponse, error)
 	AdminFindAllForTable(params request.UserTableQueryParams) (response.PaginatedResponse[response.UserTableResponse], error)
 	ManagerCreate(req request.ManagerCreateUserRequest, managerID uint, managerDepartmentID int) error
+	ManagerUpdate(userID uint, req request.ManagerUpdateUserRequest, managerDepartmentID int) error
 	ManagerFindByDepartment(departmentID, page, pageSize int) (response.PaginatedResponse[response.UserListResponse], error)
 	CompleteProfile(userID uint, req request.CompleteProfileRequest) error
 }

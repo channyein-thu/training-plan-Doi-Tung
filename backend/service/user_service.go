@@ -191,6 +191,43 @@ func (s *UserServiceImpl) ManagerCreate(req request.ManagerCreateUserRequest, ma
 	return s.userRepo.Save(user)
 }
 
+func (s *UserServiceImpl) ManagerUpdate(userID uint, req request.ManagerUpdateUserRequest, managerDepartmentID int) error {
+	if err := s.validate.Struct(req); err != nil {
+		return helper.ValidationError(helper.FormatValidationError(err))
+	}
+
+	existingUser, err := s.userRepo.FindById(userID)
+	if err != nil {
+		return err
+	}
+
+	// Authorization: a manager may only edit staff in their own department.
+	if existingUser.DepartmentID != managerDepartmentID {
+		return helper.Forbidden("You can only edit staff in your own department")
+	}
+	if existingUser.Role != model.RoleStaff {
+		return helper.Forbidden("You can only edit staff members")
+	}
+
+	// Uniqueness checks only when the value actually changed.
+	if existingUser.Email != req.Email && s.userRepo.ExistsByEmail(req.Email) {
+		return helper.BadRequest("Email already registered")
+	}
+	if existingUser.EmployeeID != req.EmployeeID && s.userRepo.ExistsByEmployeeID(req.EmployeeID) {
+		return helper.BadRequest("Employee ID already registered")
+	}
+
+	existingUser.Name = req.Name
+	existingUser.EmployeeID = req.EmployeeID
+	existingUser.Email = req.Email
+	existingUser.Phone = req.Phone
+	existingUser.Position = req.Position
+	existingUser.Status = req.Status
+	// DepartmentID and Role are intentionally left unchanged.
+
+	return s.userRepo.Update(existingUser)
+}
+
 func (s *UserServiceImpl) ManagerFindByDepartment(departmentID, page, pageSize int) (response.PaginatedResponse[response.UserListResponse], error) {
 	if page <= 0 {
 		page = 1

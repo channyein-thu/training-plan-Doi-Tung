@@ -289,8 +289,9 @@ func (ac *AuthController) buildUserResponse(user *model.User) fiber.Map {
 
 	if user.Department != nil {
 		response["department"] = fiber.Map{
-			"id":   user.Department.ID,
-			"name": user.Department.Name,
+			"id":       user.Department.ID,
+			"name":     user.Department.Name,
+			"division": user.Department.Division,
 		}
 	}
 

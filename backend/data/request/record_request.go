@@ -1,7 +1,6 @@
 package request
 
 import (
-	"time"
 	"training-plan-api/model"
 )
 
@@ -21,8 +20,9 @@ type RecordFilterRequest struct {
 	Categories    []string `json:"categories"`
 	Status        *string  `json:"status"`
 
-	StartDate *time.Time `json:"startDate"`
-	EndDate   *time.Time `json:"endDate"`
+	// Date-only strings (e.g. "2026-08-05") as sent by the frontend date picker.
+	StartDate *string `json:"startDate"`
+	EndDate   *string `json:"endDate"`
 
 	Page  int `json:"page"`
 	Limit int `json:"limit"`
