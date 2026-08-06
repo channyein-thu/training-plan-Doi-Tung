@@ -10,7 +10,6 @@ import { Button } from "../ui/button";
 
 import { TrainingPlanStaff } from "../../types/staff";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import Link from "next/link";
 
 type DepartmentCardProps = {
   staff: TrainingPlanStaff;
@@ -38,14 +37,9 @@ function DepartmentCard({ staff, onEdit, onDelete }: DepartmentCardProps) {
         </CardTitle>
 
         <CardAction className="flex flex-row items-center gap-1 text-[#006022] font-medium">
-          <Link
-            href={`/department-staff/${staff.id}`}
-            className="flex items-center"
-          >
-            <Button variant="ghost" size="icon-sm">
-              <Edit2Icon />
-            </Button>
-          </Link>
+          <Button variant="ghost" size="icon-sm" onClick={() => onEdit(staff)}>
+            <Edit2Icon />
+          </Button>
           <Button
             variant="ghost"
             size="icon-sm"
@@ -59,9 +53,9 @@ function DepartmentCard({ staff, onEdit, onDelete }: DepartmentCardProps) {
       <CardContent className="space-y-1">
         <p className="text-black text-md">{staff.role}</p>
         <p className="text-gray-600 text-sm ">
-          {""}Division: {staff.department}
+          {""}Department: {staff.department}
         </p>
-        <p className="text-gray-600 text-sm "> Manager: {staff.phone}</p>
+        <p className="text-gray-600 text-sm "> Phone: {staff.phone}</p>
         {/* <Separator className="w-24 self-center mt-4" /> */}
       </CardContent>
 

@@ -39,6 +39,8 @@ export default async function DashboardLayout({
             position: user.position,
             employeeID: user.employeeID,
             role: user.role,
+            department: user.department?.name,
+            division: user.department?.division,
           }}
         />
 

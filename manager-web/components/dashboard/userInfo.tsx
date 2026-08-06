@@ -5,10 +5,14 @@ function UserInfo({
   name,
   position,
   employeeID,
+  department,
+  division,
 }: {
   name: string;
   position: string;
   employeeID: string;
+  department?: string;
+  division?: string;
 }) {
   return (
     <div>
@@ -19,6 +23,16 @@ function UserInfo({
           <p className="text-sm text-muted-foreground">
             Employee ID - {employeeID}
           </p>
+          {department ? (
+            <p className="text-sm text-muted-foreground">
+              Department - {department}
+            </p>
+          ) : null}
+          {division ? (
+            <p className="text-sm text-muted-foreground">
+              Division - {division}
+            </p>
+          ) : null}
         </CardContent>
       </Card>
     </div>

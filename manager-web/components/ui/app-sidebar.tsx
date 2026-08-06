@@ -88,6 +88,8 @@ type AppSidebarProps = {
     position: string;
     employeeID: string;
     role: string;
+    department?: string;
+    division?: string;
   };
 };
 
@@ -126,6 +128,8 @@ export function AppSidebar({ user }: AppSidebarProps) {
                 name={user.name}
                 position={user.position}
                 employeeID={user.employeeID}
+                department={user.department}
+                division={user.division}
               />
             </div>
           </SidebarGroupContent>

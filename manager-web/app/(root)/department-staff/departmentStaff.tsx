@@ -74,16 +74,15 @@ export default function DepartmentStaffClient({ initialStaff }: Props) {
       </div>
 
       {/* EDIT */}
-      {/* {activeDialog === "edit" && selectedStaff && 
-        // <EditStaffDialog
-        //   staff={selectedStaff}
-        //   onClose={() => {
-        //     setActiveDialog(null);
-        //     setSelectedStaff(null);
-        //   }}
-        // />
-
-      } */}
+      {activeDialog === "edit" && selectedStaff && (
+        <EditStaffDialog
+          staff={selectedStaff}
+          onClose={() => {
+            setActiveDialog(null);
+            setSelectedStaff(null);
+          }}
+        />
+      )}
 
       {/* DELETE */}
       {activeDialog === "delete" && selectedStaff && (
