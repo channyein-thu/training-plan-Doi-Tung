@@ -1,0 +1,20 @@
+.git
+.gitignore
+node_modules
+*.log
+tmp
+dist
+
+# Secrets — must never enter the build context or image layers.
+# Provided at runtime via compose env_file/environment and a read-only mount.
+app.env
+*.env
+service-account.json
+credentials.json
+token.json
+
+uploads/*
+!uploads/.keep
+
+dump.rdb
+certificates/

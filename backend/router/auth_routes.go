@@ -1,0 +1,36 @@
+package router
+
+import (
+	"training-plan-api/controller"
+	"training-plan-api/middleware"
+
+	"github.com/gofiber/fiber/v2"
+)
+
+func AuthRoutes(r fiber.Router, authController *controller.AuthController, oauthController *controller.AuthOAuthController) {
+	r.Get("/healthchecker", func(c *fiber.Ctx) error {
+		return c.Status(200).JSON(fiber.Map{
+			"status":  "success",
+			"message": "Training Plan API is running",
+		})
+	})
+
+	auth := r.Group("/auth")
+
+	auth.Post("/admin/login", authController.AdminLogin)
+	auth.Post("/manager/login", authController.ManagerLogin)
+	auth.Post("/manager/register", authController.ManagerRegister)
+	auth.Post("/staff/login", authController.StaffLogin)
+	auth.Post("/staff/register", authController.StaffRegister)
+
+	// auth.Post("/refresh", authController.Refresh)
+
+	// auth.Post("/logout", authController.Logout)
+
+	auth.Post("/login", authController.Login)
+
+	auth.Get("/me", middleware.JWTProtected, authController.GetMe)
+
+	// auth.Get("/google/login", oauthController.GoogleLogin)
+	// auth.Get("/google/exchange", oauthController.GoogleExchange)
+}

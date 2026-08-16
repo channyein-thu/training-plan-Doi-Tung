@@ -1,0 +1,354 @@
+Naming Variables (Go)
+
+Clear, complete, and meaningful names make the code more readable and minimize the
+need for comments.
+
+Names of variables should be nouns with or without modifiers and follow the style
+already used in this project.
+
+  lowerCamelCase for local variables and params
+  UpperCamelCase for exported types and fields
+  Common initialisms kept together (ID, URL, HTTP)
+
+Example:
+
++----------------------+-------------+--------------+-------------------+
+| variable name        | return type | adjective    | noun              |
++----------------------+-------------+--------------+-------------------+
+| userID               | uint        |              | user_id           |
+| departmentID         | int         |              | department_id     |
+| managerDepartmentID  | int         | manager      | department_id     |
+| pageSize             | int         |              | page_size         |
+| accessToken          | string      | access       | token             |
+| refreshToken         | string      | refresh      | token             |
+| existingUser         | User        | existing     | user              |
+| userRepo             | UserRepo    |              | user_repository   |
+| deptRepo             | DeptRepo    |              | department_repo   |
+| completeProfileReq   | struct      | complete     | profile_request   |
++----------------------+-------------+--------------+-------------------+
+
+Naming Convention for Functions (Go)
+
+Function without return type:
+
+Name of functions should consist of a verb and (whenever appropriate) an object.
+
+  [verb][Object]
+
+Example:
+
++------------------------+-----------+-------------------+
+| function name          | verb      | object            |
++------------------------+-----------+-------------------+
+| CompleteProfile        | Complete  | Profile           |
+| RegisterStaff          | Register  | Staff             |
+| GenerateAccessToken    | Generate  | AccessToken       |
+| Refresh                | Refresh   | Token             |
++------------------------+-----------+-------------------+
+
+Function with return type:
+
+Name of functions should use a prefix to identify the return type on functions that
+return values.
+
+  [return_type]_[verb]_[noun]
+
+Example:
+
++---------------------------+-------------+-----------+-----------+
+| function name             | return type | verb      | noun      |
++---------------------------+-------------+-----------+-----------+
+| s_GenerateAccessToken     | string      | Generate  | AccessTok |
+| b_VerifyToken             | boolean     | Verify    | Token     |
+| i_FindUserTotal           | integer     | Find      | UserTotal |
++---------------------------+-------------+-----------+-----------+
+
+Naming Constants (Go)
+
+Names of constants should be nouns, uppercase, with or without modifiers.
+
+  [ADJECTIVE]_[NOUN]
+
+Example:
+
++--------------------+-----------+----------------+
+| variable name      | adjective | noun           |
++--------------------+-----------+----------------+
+| ACCESS_TOKEN_EXP   | ACCESS    | TOKEN_EXP      |
+| REFRESH_TOKEN_EXP  | REFRESH   | TOKEN_EXP      |
+| JWT_SECRET         |           | JWT_SECRET     |
++--------------------+-----------+----------------+
+
+Naming Boolean Variables (Go)
+
+Name of boolean variables should start with a verb or adjective and use a boolean
+prefix when needed for clarity.
+
+  [verb][Noun]
+  [adjective][Noun]
+  b_[verb]_[noun]
+
+Example:
+
++--------------------+-------------+-----------+-----------------+
+| variable name      | return type | verb      | adjective/noun  |
++--------------------+-------------+-----------+-----------------+
+| isProfileComplete  | boolean     | is        | profileComplete |
+| isTokenValid       | boolean     | is        | tokenValid      |
+| b_is_active        | boolean     | is        | active          |
++--------------------+-------------+-----------+-----------------+
+
+Naming Types (Go)
+
+Type names should be nouns and use UpperCamelCase. Avoid adding the word "Type" at the
+end unless it is truly part of the domain language.
+
+  [Noun]
+
+Example:
+
++-----------------------+----------------+
+| type name             | noun           |
++-----------------------+----------------+
+| User                  | user           |
+| Department            | department     |
+| TrainingPlan          | training plan  |
+| UserService           | user service   |
++-----------------------+----------------+
+
+Identifying Variable Types (Go)
+
++------------------+----------------------+
+| type             | prefix               |
++------------------+----------------------+
+| boolean          | is, has, can, should |
+| string           | s                    |
+| int              | i                    |
+| uint             | u                    |
+| float64          | f                    |
+| time.Time        | dt                   |
+| time.Duration    | t                    |
+| []T (slice)      | arr                  |
+| map[K]V (map)    | m                    |
+| error            | err                  |
++------------------+----------------------+
+
+Conditionals and Comparisons (Go)
+
+- When using if, always include an else when there is a meaningful alternative path.
+- Add a brief comment before conditionals or loops when intent is not obvious.
+- Comment calls to external functions when inputs or outputs are not self-explanatory.
+
+Example:
+
+// check token validity before fetching user
+if isTokenValid {
+  user, err := userRepo.FindById(userID)
+  if err != nil {
+    // handle lookup error
+    return err
+  }
+  _ = user
+} else {
+  // token invalid, return unauthorized
+  return helper.Unauthorized("Invalid token")
+}
+
+Error Handling (Go)
+
+- Always handle returned errors immediately.
+- Wrap errors with context so failures are traceable.
+- Return domain-specific errors from helper where possible.
+
+Example:
+
+user, err := userRepo.FindById(userID)
+if err != nil {
+  return helper.NotFound("User not found")
+}
+
+token, err := utils.GenerateAccessToken(user.ID, string(user.Role))
+if err != nil {
+  return helper.InternalServerError("Failed to generate access token")
+}
+_ = token
+
+Function/Procedure (Go)
+
+- Put a short comment before a function to describe the objective, inputs, and outputs.
+- Validate input parameters early and return clear errors.
+
+Example:
+
+// CompleteProfile updates staff profile fields and marks the profile complete.
+// Inputs: userID (uint), req (CompleteProfileRequest)
+// Returns: error
+func (uc *UserController) CompleteProfile(c *fiber.Ctx) error {
+  userID := c.Locals("user_id").(uint)
+
+  var req request.CompleteProfileRequest
+  if err := c.BodyParser(&req); err != nil {
+    return helper.BadRequest("Invalid request body")
+  }
+
+  if err := uc.userService.CompleteProfile(userID, req); err != nil {
+    return err
+  }
+
+  return c.JSON(fiber.Map{
+    "success": true,
+    "message": "Profile completed successfully",
+  })
+}
+
+Project Structure (Go)
+
+- controller: HTTP handlers and request parsing.
+- service: business logic and validation rules.
+- repository: DB access and query logic.
+- model: database entities and domain structs.
+- data/request, data/response: transport DTOs only.
+- middleware: auth, role checks, cross-cutting concerns.
+
+Example:
+
+controller -> service -> repository -> database
+
+API Design (Go)
+
+- Use REST-style resources and plural nouns.
+- Use versioned base path: /api/v1.
+- Use HTTP verbs for actions (GET, POST, PUT, DELETE).
+- Pagination uses query params: page, limit.
+
+Example:
+
+GET    /api/v1/users?page=1&limit=10
+POST   /api/v1/users
+GET    /api/v1/users/{id}
+PUT    /api/v1/users/{id}
+DELETE /api/v1/users/{id}
+
+Request/Response Format (Go)
+
+- Use JSON with lowerCamelCase fields.
+- Response must include success and message or data.
+- Error responses use helper errors.
+
+Example:
+
+{ "success": true, "data": { "id": 1 } }
+{ "success": false, "message": "Invalid request" }
+
+Validation Rules (Go)
+
+- Validate DTOs in the service layer using validator.
+- Return validation errors with helper.ValidationError.
+- Required fields must be checked before DB calls.
+
+Example:
+
+if err := s.validate.Struct(req); err != nil {
+  return helper.ValidationError(helper.FormatValidationError(err))
+}
+
+Logging Standard (Go)
+
+- Log errors with clear context and identifiers.
+- Do not log passwords, tokens, or secrets.
+- Include request ID if available.
+
+Example:
+
+logger.Errorf("user lookup failed", "userID", userID, "err", err)
+
+Authentication and Authorization (Go)
+
+- JWT middleware must run before role checks.
+- Read access token from cookie or Authorization header.
+- Role checks use AdminOnly, ManagerOnly, StaffOnly.
+
+Example:
+
+app.Post("/staff/records", middleware.JWTProtected, middleware.StaffOnly, handler)
+
+Database Conventions (Go)
+
+- Table and column names use snake_case.
+- Use foreign keys where possible.
+- Index fields used in filters (email, employee_id).
+
+Example:
+
+employee_id, department_id, created_at
+
+Error Handling Patterns (Go)
+
+- Return early on error.
+- Map repository errors to helper errors.
+- Do not swallow errors silently.
+
+Example:
+
+user, err := repo.FindById(id)
+if err != nil {
+  return err
+}
+
+Concurrency and Context (Go)
+
+- Use context for external calls with timeouts.
+- Avoid goroutines inside handlers unless necessary.
+- Clean up resources with defer.
+
+Example:
+
+ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+defer cancel()
+
+Testing Guidelines (Go)
+
+- Unit test services and repositories.
+- Name tests TestXxx.
+- Use table-driven tests for multiple cases.
+
+Example:
+
+func TestCompleteProfile(t *testing.T) { ... }
+
+Code Review Checklist (Go)
+
+- Correctness and edge cases.
+- Validation and error handling.
+- Security of inputs and secrets.
+- Performance and query efficiency.
+- Tests added or updated.
+
+Security Guidelines (Go)
+
+- Never commit secrets to git.
+- Validate all user input.
+- Hash passwords before storage.
+- Use HTTPS in production.
+
+Performance Guidelines (Go)
+
+- Apply pagination for list endpoints.
+- Avoid N+1 queries; use preload where needed.
+- Use indexes for frequent filters.
+
+Documentation Style (Go)
+
+- Public functions should have comments in GoDoc style.
+- Keep README updated with run and deploy steps.
+
+Example:
+
+// UserService handles user-related operations.
+type UserService interface { ... }
+
+Dependency Policy (Go)
+
+- Prefer stable, maintained libraries.
+- Pin versions in go.mod.
+- Avoid adding new dependencies without review.

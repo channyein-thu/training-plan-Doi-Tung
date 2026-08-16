@@ -1,0 +1,325 @@
+package service
+
+import (
+	"net/http"
+	"training-plan-api/data/request"
+	"training-plan-api/data/response"
+	"training-plan-api/helper"
+	"training-plan-api/model"
+	"training-plan-api/repository"
+
+	"github.com/go-playground/validator/v10"
+)
+
+type UserServiceImpl struct {
+	userRepo repository.UserRepository
+	deptRepo repository.DepartmentRepository
+	validate *validator.Validate
+}
+
+func NewUserServiceImpl(
+	userRepo repository.UserRepository,
+	deptRepo repository.DepartmentRepository,
+	validate *validator.Validate,
+) UserService {
+	return &UserServiceImpl{
+		userRepo: userRepo,
+		deptRepo: deptRepo,
+		validate: validate,
+	}
+}
+
+func (s *UserServiceImpl) AdminCreate(req request.CreateUserRequest, creatorID uint) error {
+	if err := s.validate.Struct(req); err != nil {
+		return helper.ValidationError(helper.FormatValidationError(err))
+	}
+
+	if !req.Role.IsValid() {
+		return helper.BadRequest("Invalid system role specified")
+	}
+
+	if _, err := s.deptRepo.FindById(req.DepartmentID); err != nil {
+		return helper.BadRequest("Invalid department selected")
+	}
+
+	if s.userRepo.ExistsByEmail(req.Email) {
+		return helper.BadRequest("Email already registered")
+	}
+	if s.userRepo.ExistsByEmployeeID(req.EmployeeID) {
+		return helper.BadRequest("Employee ID already registered")
+	}
+	if s.userRepo.ExistsByPhone(req.Phone) {
+		return helper.BadRequest("Phone already registered")
+	}
+
+	workStartDate, err := helper.ParseDateOnly(req.WorkStartDate)
+	if err != nil {
+		return helper.BadRequest("Invalid work start date (expected YYYY-MM-DD)")
+	}
+
+	user := &model.User{
+		Name:         req.Name,
+		EmployeeID:   req.EmployeeID,
+		Email:        req.Email,
+		Phone:        req.Phone,
+		DepartmentID: req.DepartmentID,
+		Role:         req.Role,
+		Position:     req.Position,
+		Status:       req.Status,
+		Password:     helper.GeneratePassword(req.Password),
+		WorkStartDate: workStartDate,
+		CreatedBy:    model.CreatedByAdmin,
+		CreatedByID:  &creatorID,
+		IsProfileComplete: true,
+	}
+
+	return s.userRepo.Save(user)
+}
+
+func (s *UserServiceImpl) AdminUpdate(userID uint, req request.UpdateUserRequest) error {
+	if err := s.validate.Struct(req); err != nil {
+		return helper.ValidationError(helper.FormatValidationError(err))
+	}
+
+	if !req.Role.IsValid() {
+		return helper.BadRequest("Invalid system role specified")
+	}
+
+	existingUser, err := s.userRepo.FindById(userID)
+	if err != nil {
+		return err
+	}
+
+	if _, err := s.deptRepo.FindById(req.DepartmentID); err != nil {
+		return helper.BadRequest("Invalid department selected")
+	}
+
+	if existingUser.Phone != req.Phone && s.userRepo.ExistsByPhone(req.Phone) {
+		return helper.BadRequest("Phone already registered")
+	}
+
+	existingUser.Name = req.Name
+	existingUser.EmployeeID = req.EmployeeID
+	existingUser.Email = req.Email
+	existingUser.Phone = req.Phone
+	existingUser.DepartmentID = req.DepartmentID
+	existingUser.Role = req.Role
+	existingUser.Position = req.Position
+	existingUser.Status = req.Status
+
+	return s.userRepo.Update(existingUser)
+}
+
+func (s *UserServiceImpl) AdminDelete(userID uint) error {
+	return s.userRepo.Delete(userID)
+}
+
+func (s *UserServiceImpl) AdminFindAll(page, pageSize int) (response.PaginatedResponse[response.UserListResponse], error) {
+	if page <= 0 {
+		page = 1
+	}
+	if pageSize <= 0 || pageSize > 100 {
+		pageSize = 10
+	}
+
+	offset := (page - 1) * pageSize
+	users, total, err := s.userRepo.FindAllPaginated(offset, pageSize)
+	if err != nil {
+		return response.PaginatedResponse[response.UserListResponse]{}, err
+	}
+
+	return response.PaginatedResponse[response.UserListResponse]{
+		Items: response.ToUserListResponses(users),
+		Meta: response.PaginationMeta{
+			Page:       page,
+			Limit:      pageSize,
+			TotalItems: total,
+			TotalPages: int((total + int64(pageSize) - 1) / int64(pageSize)),
+		},
+	}, nil
+}
+
+func (s *UserServiceImpl) AdminFindById(userID uint) (response.UserResponse, error) {
+	user, err := s.userRepo.FindByIdWithDepartment(userID)
+	if err != nil {
+		return response.UserResponse{}, err
+	}
+	return response.ToUserResponse(*user), nil
+}
+
+func (s *UserServiceImpl) AdminFindAllForTable(params request.UserTableQueryParams) (response.PaginatedResponse[response.UserTableResponse], error) {
+	if params.Page <= 0 {
+		params.Page = 1
+	}
+	if params.Limit <= 0 {
+		params.Limit = 10
+	}
+	if params.Limit > 100 {
+		params.Limit = 100
+	}
+
+	users, total, err := s.userRepo.FindAllWithFilters(params)
+	if err != nil {
+		return response.PaginatedResponse[response.UserTableResponse]{}, err
+	}
+
+	return response.PaginatedResponse[response.UserTableResponse]{
+		Items: response.ToUserTableResponses(users),
+		Meta: response.PaginationMeta{
+			Page:       params.Page,
+			Limit:      params.Limit,
+			TotalItems: total,
+			TotalPages: int((total + int64(params.Limit) - 1) / int64(params.Limit)),
+		},
+	}, nil
+}
+
+func (s *UserServiceImpl) ManagerCreate(req request.ManagerCreateUserRequest, managerID uint, managerDepartmentID int) error {
+	if err := s.validate.Struct(req); err != nil {
+		return helper.ValidationError(helper.FormatValidationError(err))
+	}
+
+	if s.userRepo.ExistsByEmail(req.Email) {
+		return helper.BadRequest("Email already registered")
+	}
+	if s.userRepo.ExistsByEmployeeID(req.EmployeeID) {
+		return helper.BadRequest("Employee ID already registered")
+	}
+	if s.userRepo.ExistsByPhone(req.Phone) {
+		return helper.BadRequest("Phone already registered")
+	}
+
+	workStartDate, err := helper.ParseDateOnly(req.WorkStartDate)
+	if err != nil {
+		return helper.BadRequest("Invalid work start date (expected YYYY-MM-DD)")
+	}
+
+	user := &model.User{
+		Name:         req.Name,
+		EmployeeID:   req.EmployeeID,
+		Email:        req.Email,
+		Phone:        req.Phone,
+		DepartmentID: managerDepartmentID,
+		Role:         model.RoleStaff,
+		Position:     req.Position,
+		Status:       req.Status,
+		Password:     helper.GeneratePassword(req.Password),
+		WorkStartDate: workStartDate,
+		CreatedBy:    model.CreatedByManager,
+		CreatedByID:  &managerID,
+		IsProfileComplete: true,
+	}
+
+	return s.userRepo.Save(user)
+}
+
+func (s *UserServiceImpl) ManagerUpdate(userID uint, req request.ManagerUpdateUserRequest, managerDepartmentID int) error {
+	if err := s.validate.Struct(req); err != nil {
+		return helper.ValidationError(helper.FormatValidationError(err))
+	}
+
+	existingUser, err := s.userRepo.FindById(userID)
+	if err != nil {
+		return err
+	}
+
+	// Authorization: a manager may only edit staff in their own department.
+	if existingUser.DepartmentID != managerDepartmentID {
+		return helper.Forbidden("You can only edit staff in your own department")
+	}
+	if existingUser.Role != model.RoleStaff {
+		return helper.Forbidden("You can only edit staff members")
+	}
+
+	// Uniqueness checks only when the value actually changed.
+	if existingUser.Email != req.Email && s.userRepo.ExistsByEmail(req.Email) {
+		return helper.BadRequest("Email already registered")
+	}
+	if existingUser.EmployeeID != req.EmployeeID && s.userRepo.ExistsByEmployeeID(req.EmployeeID) {
+		return helper.BadRequest("Employee ID already registered")
+	}
+	if existingUser.Phone != req.Phone && s.userRepo.ExistsByPhone(req.Phone) {
+		return helper.BadRequest("Phone already registered")
+	}
+
+	existingUser.Name = req.Name
+	existingUser.EmployeeID = req.EmployeeID
+	existingUser.Email = req.Email
+	existingUser.Phone = req.Phone
+	existingUser.Position = req.Position
+	existingUser.Status = req.Status
+	// DepartmentID and Role are intentionally left unchanged.
+
+	return s.userRepo.Update(existingUser)
+}
+
+func (s *UserServiceImpl) ManagerFindByDepartment(departmentID, page, pageSize int) (response.PaginatedResponse[response.UserListResponse], error) {
+	if page <= 0 {
+		page = 1
+	}
+	if pageSize <= 0 || pageSize > 100 {
+		pageSize = 10
+	}
+
+	offset := (page - 1) * pageSize
+	users, total, err := s.userRepo.FindByDepartmentPaginated(departmentID, offset, pageSize)
+	if err != nil {
+		return response.PaginatedResponse[response.UserListResponse]{}, err
+	}
+
+	return response.PaginatedResponse[response.UserListResponse]{
+		Items: response.ToUserListResponses(users),
+		Meta: response.PaginationMeta{
+			Page:       page,
+			Limit:      pageSize,
+			TotalItems: total,
+			TotalPages: int((total + int64(pageSize) - 1) / int64(pageSize)),
+		},
+	}, nil
+}
+
+func (s *UserServiceImpl) CompleteProfile(userID uint, req request.CompleteProfileRequest) error {
+	if err := s.validate.Struct(req); err != nil {
+		return helper.ValidationError(helper.FormatValidationError(err))
+	}
+
+	if _, err := s.deptRepo.FindById(req.DepartmentID); err != nil {
+		return helper.BadRequest("Invalid department selected")
+	}
+
+	if existingUser, err := s.userRepo.FindByEmployeeID(req.EmployeeID); err == nil {
+		if existingUser.ID != userID {
+			return helper.BadRequest("Employee ID already in use")
+		}
+	} else {
+		if appErr, ok := err.(*helper.AppError); ok {
+			if appErr.StatusCode != http.StatusNotFound {
+				return err
+			}
+		} else {
+			return err
+		}
+	}
+
+	// Phone must be unique. Compare against the user's current phone so
+	// resubmitting the same value isn't rejected.
+	if currentUser, err := s.userRepo.FindById(userID); err != nil {
+		return err
+	} else if currentUser.Phone != req.Phone && s.userRepo.ExistsByPhone(req.Phone) {
+		return helper.BadRequest("Phone already in use")
+	}
+
+	updates := map[string]interface{}{
+		"employee_id":         req.EmployeeID,
+		"department_id":       req.DepartmentID,
+		"is_profile_complete": true,
+	}
+	if req.Phone != "" {
+		updates["phone"] = req.Phone
+	}
+	if req.Position != "" {
+		updates["position"] = req.Position
+	}
+
+	return s.userRepo.UpdateProfile(userID, updates)
+}

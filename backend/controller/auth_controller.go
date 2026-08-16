@@ -1,0 +1,332 @@
+package controller
+
+import (
+	"training-plan-api/helper"
+	"training-plan-api/model"
+
+	"github.com/gofiber/fiber/v2"
+	"gorm.io/gorm"
+)
+
+type AuthController struct {
+	db *gorm.DB
+}
+
+func NewAuthController(db *gorm.DB) *AuthController {
+	return &AuthController{db: db}
+}
+
+type LoginRequest struct {
+	// Identifier is the email OR phone the user logs in with.
+	Identifier string `json:"identifier"`
+	// Email is kept for backward compatibility; treated as the identifier when
+	// Identifier is not provided.
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
+// loginIdentifier returns the email-or-phone value to look the user up by.
+func (r LoginRequest) loginIdentifier() string {
+	if r.Identifier != "" {
+		return r.Identifier
+	}
+	return r.Email
+}
+
+type RegisterRequest struct {
+	Name            string `json:"name"`
+	EmployeeID      string `json:"employeeID"`
+	Email           string `json:"email"`
+	DepartmentID    int    `json:"departmentId"`
+	Phone		   string `json:"phone"`
+	Position        string `json:"position"`
+	Password        string `json:"password"`
+	ConfirmPassword string `json:"confirmPassword"`
+	WorkStartDate   string `json:"workStartDate"`
+}
+
+func (ac *AuthController) AdminLogin(c *fiber.Ctx) error {
+	return ac.handleLogin(c, model.RoleHRAdmin)
+}
+
+func (ac *AuthController) ManagerLogin(c *fiber.Ctx) error {
+	return ac.handleLogin(c, model.RoleDepartmentManager)
+}
+
+func (ac *AuthController) ManagerRegister(c *fiber.Ctx) error {
+	return ac.handleRegister(c, model.RoleDepartmentManager, "Manager registration successful")
+}
+
+func (ac *AuthController) StaffLogin(c *fiber.Ctx) error {
+	return ac.handleLogin(c, model.RoleStaff)
+}
+
+func (ac *AuthController) StaffRegister(c *fiber.Ctx) error {
+	return ac.handleRegister(c, model.RoleStaff, "Staff registration successful")
+}
+
+func (ac *AuthController) GetMe(c *fiber.Ctx) error {
+	userID := c.Locals("user_id").(uint)
+
+	var user model.User
+	if err := ac.db.Preload("Department").First(&user, userID).Error; err != nil {
+		return helper.NotFound("User not found")
+	}
+
+	return c.JSON(fiber.Map{
+		"success": true,
+		"user":    ac.buildUserResponse(&user),
+	})
+}
+
+func (ac *AuthController) Login(c *fiber.Ctx) error {	
+	var req LoginRequest
+	if err := c.BodyParser(&req); err != nil {
+		return helper.BadRequest("Invalid request body")
+	}
+
+	identifier := req.loginIdentifier()
+	if identifier == "" {
+		return helper.Unauthorized("Invalid credentials")
+	}
+
+	var user model.User
+	query := ac.db.Preload("Department").Where("email = ? OR phone = ?", identifier, identifier)
+	if err := query.First(&user).Error; err != nil {
+		return helper.Unauthorized("Invalid credentials")
+	}
+
+	if user.Status != model.UserStatusActive {
+		return helper.Unauthorized("Account is deactivated")
+	}
+
+	if !helper.ComparePassword(user.Password, req.Password) {
+		return helper.Unauthorized("Invalid credentials")
+	}
+
+	accessToken, err := helper.GenerateAccessToken(user.ID, string(user.Role))
+	if err != nil {
+		return helper.InternalServerError("Failed to generate access token")
+	}
+
+	return c.JSON(fiber.Map{
+		"success": true,
+		"message": "Login successful",
+		"accessToken": accessToken,
+		"user":    ac.buildUserResponse(&user),
+	})
+}
+
+func (ac *AuthController) handleLogin(c *fiber.Ctx, role model.Role) error {
+	var req LoginRequest
+	if err := c.BodyParser(&req); err != nil {
+		return helper.BadRequest("Invalid request body")
+	}
+
+	identifier := req.loginIdentifier()
+	if identifier == "" {
+		return helper.Unauthorized("Invalid credentials")
+	}
+
+	var user model.User
+	query := ac.db.Preload("Department").Where("(email = ? OR phone = ?) AND role = ?", identifier, identifier, role)
+	if err := query.First(&user).Error; err != nil {
+		return helper.Unauthorized("Invalid credentials")
+	}
+
+	if user.Status != model.UserStatusActive {
+		return helper.Unauthorized("Account is deactivated")
+	}
+
+	if !helper.ComparePassword(user.Password, req.Password) {
+		return helper.Unauthorized("Invalid credentials")
+	}
+
+	accessToken, err := helper.GenerateAccessToken(user.ID, string(user.Role))
+	if err != nil {
+		return helper.InternalServerError("Failed to generate access token")
+	}
+
+	return c.JSON(fiber.Map{
+	"success": true,
+	"message": "Login successful",
+	"accessToken": accessToken,
+	"user":    ac.buildUserResponse(&user),
+})
+}
+
+// func (ac *AuthController) Refresh(c *fiber.Ctx) error {
+// 	refreshToken := utils.GetRefreshTokenFromCookie(c)
+// 	if refreshToken == "" {
+// 		return helper.Unauthorized("Refresh token required")
+// 	}
+
+// 	var tokenRecord model.RefreshToken
+// 	if err := ac.db.Where("token = ?", refreshToken).First(&tokenRecord).Error; err != nil {
+// 		return helper.Unauthorized("Invalid refresh token")
+// 	}
+
+// 	if !tokenRecord.IsValid() {
+// 		utils.ClearAuthCookies(c)
+// 		return helper.Unauthorized("Refresh token is invalid or expired")
+// 	}
+
+// 	var user model.User
+// 	if err := ac.db.First(&user, tokenRecord.UserID).Error; err != nil {
+// 		return helper.Unauthorized("User not found")
+// 	}
+
+// 	if user.Status != model.UserStatusActive {
+// 		ac.db.Model(&tokenRecord).Update("revoked", true)
+// 		utils.ClearAuthCookies(c)
+// 		return helper.Unauthorized("Account is deactivated")
+// 	}
+
+// 	ac.db.Model(&tokenRecord).Update("revoked", true)
+
+// 	newAccessToken, err := utils.GenerateAccessToken(user.ID, string(user.Role))
+// 	if err != nil {
+// 		return helper.InternalServerError("Failed to generate access token")
+// 	}
+
+// 	newRefreshToken, err := utils.GenerateRefreshToken()
+// 	if err != nil {
+// 		return helper.InternalServerError("Failed to generate refresh token")
+// 	}
+
+// 	newTokenRecord := model.RefreshToken{
+// 		UserID:    user.ID,
+// 		Token:     newRefreshToken,
+// 		ExpiresAt: time.Now().Add(utils.RefreshTokenExpiry),
+// 		Revoked:   false,
+// 	}
+// 	if err := ac.db.Create(&newTokenRecord).Error; err != nil {
+// 		return helper.InternalServerError("Failed to store refresh token")
+// 	}
+
+// 	utils.SetAccessTokenCookie(c, newAccessToken)
+// 	utils.SetRefreshTokenCookie(c, newRefreshToken)
+
+// 	return c.JSON(fiber.Map{
+// 		"success": true,
+// 		"message": "Tokens refreshed successfully",
+// 	})
+// }
+
+// func (ac *AuthController) Logout(c *fiber.Ctx) error {
+// 	refreshToken := utils.GetRefreshTokenFromCookie(c)
+
+// 	if refreshToken != "" {
+// 		ac.db.Model(&model.RefreshToken{}).
+// 			Where("token = ?", refreshToken).
+// 			Update("revoked", true)
+// 	}
+
+// 	utils.ClearAuthCookies(c)
+
+// 	return c.JSON(fiber.Map{
+// 		"success": true,
+// 		"message": "Logged out successfully",
+// 	})
+// }
+
+func (ac *AuthController) handleRegister(c *fiber.Ctx, role model.Role, successMsg string) error {
+	var req RegisterRequest
+	if err := c.BodyParser(&req); err != nil {
+		return helper.BadRequest("Invalid request body")
+	}
+
+	if err := ac.validateRegisterRequest(&req); err != nil {
+		return err
+	}
+
+	if err := ac.checkDuplicateUser(req.Email, req.EmployeeID, req.Phone); err != nil {
+		return err
+	}
+
+	var department model.Department
+	if err := ac.db.First(&department, req.DepartmentID).Error; err != nil {
+		return helper.BadRequest("Invalid department selected")
+	}
+
+	workStartDate, err := helper.ParseDateOnly(req.WorkStartDate)
+	if err != nil {
+		return helper.BadRequest("Invalid work start date (expected YYYY-MM-DD)")
+	}
+
+	user := ac.createUserFromRequest(&req, role)
+	user.WorkStartDate = workStartDate
+	if err := ac.db.Create(&user).Error; err != nil {
+		return helper.BadRequest("Failed to create user")
+	}
+
+	return c.Status(201).JSON(fiber.Map{
+		"success": true,
+		"message": successMsg,
+	})
+}
+
+func (ac *AuthController) validateRegisterRequest(req *RegisterRequest) error {
+	if req.Name == "" || req.EmployeeID == "" || req.Email == "" ||
+		req.Position == "" || req.Password == "" || req.DepartmentID == 0 ||
+		req.WorkStartDate == "" || req.Phone == "" {
+		return helper.BadRequest("All required fields must be filled")
+	}
+	if req.Password != req.ConfirmPassword {
+		return helper.BadRequest("Passwords do not match")
+	}
+	return nil
+}
+
+func (ac *AuthController) checkDuplicateUser(email, employeeID, phone string) error {
+	var existingUser model.User
+	if ac.db.Where("email = ?", email).First(&existingUser).Error == nil {
+		return helper.BadRequest("Email already registered")
+	}
+	if ac.db.Where("employee_id = ?", employeeID).First(&existingUser).Error == nil {
+		return helper.BadRequest("Employee ID already registered")
+	}
+	if ac.db.Where("phone = ?", phone).First(&existingUser).Error == nil {
+		return helper.BadRequest("Phone already registered")
+	}
+	return nil
+}
+
+func (ac *AuthController) createUserFromRequest(req *RegisterRequest, role model.Role) model.User {
+	user := model.User{
+		Name:         req.Name,
+		EmployeeID:   req.EmployeeID,
+		Phone:        req.Phone,
+		Email:        req.Email,
+		DepartmentID: req.DepartmentID,
+		Position:     req.Position,
+		Role:         role,
+		Password:     helper.GeneratePassword(req.Password),
+		Status:       model.UserStatusActive,
+		IsProfileComplete: true,
+	}
+	return user
+}
+
+func (ac *AuthController) buildUserResponse(user *model.User) fiber.Map {
+	response := fiber.Map{
+		"id":         user.ID,
+		"name":       user.Name,
+		"email":      user.Email,
+		"employeeID": user.EmployeeID,
+		"role":       user.Role,
+		"status":     user.Status,
+		"position":   user.Position,
+		"phone":      user.Phone,
+	}
+
+	if user.Department != nil {
+		response["department"] = fiber.Map{
+			"id":       user.Department.ID,
+			"name":     user.Department.Name,
+			"division": user.Department.Division,
+		}
+	}
+
+	return response
+}

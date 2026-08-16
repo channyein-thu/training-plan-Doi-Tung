@@ -1,0 +1,107 @@
+package container
+
+import (
+	"time"
+	"training-plan-api/config"
+	"training-plan-api/controller"
+	"training-plan-api/helper"
+	"training-plan-api/repository"
+	"training-plan-api/service"
+
+	"github.com/go-playground/validator/v10"
+	"google.golang.org/api/calendar/v3"
+	"gorm.io/gorm"
+)
+
+type AppDependencies struct {
+	DepartmentController       *controller.DepartmentController
+	TrainingPlanController     *controller.TrainingPlanController
+	AuthController             *controller.AuthController
+	AuthOAuthController        *controller.AuthOAuthController
+	UserController             *controller.UserController
+	CertificateController      *controller.CertificateController
+	RecordController           *controller.RecordController
+	NotificationController     *controller.NotificationController
+	DashboardController        *controller.DashboardController
+	UserRepository             repository.UserRepository
+}
+
+func NewAppDependencies(
+	db *gorm.DB,
+	validate *validator.Validate,
+	calendarService *calendar.Service,
+	location *time.Location,
+	storage helper.Storage,
+	appConfig config.Config,
+) *AppDependencies {
+
+		// ---------- Department ----------
+	departmentRepo := repository.NewDepartmentRepositoryImpl(db)
+	departmentService := service.NewDepartmentServiceImpl(departmentRepo, validate)
+	departmentController := controller.NewDepartmentController(departmentService)
+
+		// ---------- User ----------
+	userRepo := repository.NewUserRepositoryImpl(db)
+	userService := service.NewUserServiceImpl(userRepo, departmentRepo, validate)
+	userController := controller.NewUserController(userService, db)
+
+	// ---------- TrainingPlan ----------
+	trainingPlanRepo := repository.NewTrainingPlanRepositoryImpl(db)
+	recordRepo := repository.NewRecordRepositoryImpl(db)
+	trainingPlanService := service.NewTrainingPlanServiceImpl(
+		trainingPlanRepo,
+		recordRepo,
+		validate,
+		calendarService,
+		location,
+	)
+	trainingPlanController := controller.NewTrainingPlanController(trainingPlanService)
+
+	// ---------- Notification ----------
+	notificationRepo := repository.NewNotificationRepositoryImpl(db)
+	pushSubRepo := repository.NewPushSubscriptionRepositoryImpl(db)
+	notificationService := service.NewNotificationServiceImpl(
+		notificationRepo,
+		pushSubRepo,
+		appConfig.VAPIDPublicKey,
+		appConfig.VAPIDPrivateKey,
+		appConfig.VAPIDSubject,
+	)
+	notificationController := controller.NewNotificationController(notificationService)
+
+	// ---------- Record ----------
+	recordService := service.NewRecordServiceImpl(recordRepo, userRepo, trainingPlanRepo, notificationService, validate)
+	recordController := controller.NewRecordController(recordService)
+
+	// ---------- Certificate ----------
+	certificateRepo := repository.NewCertificateRepositoryImpl(db)
+	certificateService := service.NewCertificateServiceImpl(certificateRepo, validate, storage, notificationService)
+	certificateController := controller.NewCertificateController(certificateService)
+
+	// ---------- Auth ----------
+	authController := controller.NewAuthController(db)
+	authOAuthService := service.NewAuthOAuthServiceImpl(
+		userRepo,
+		appConfig.GoogleClientID,
+		appConfig.GoogleClientSecret,
+		appConfig.GoogleRedirectURL,
+	)
+	authOAuthController := controller.NewAuthOAuthController(authOAuthService)
+
+	// ---------- Dashboard ----------
+	dashboardController := controller.NewDashboardController(db)
+
+
+	return &AppDependencies{
+		DepartmentController:   departmentController,
+		TrainingPlanController: trainingPlanController,
+		AuthController:         authController,
+		AuthOAuthController:    authOAuthController,
+		UserController:         userController,
+		CertificateController:  certificateController,
+		RecordController:       recordController,
+		NotificationController: notificationController,
+		DashboardController:    dashboardController,
+		UserRepository:         userRepo,
+	}
+}
