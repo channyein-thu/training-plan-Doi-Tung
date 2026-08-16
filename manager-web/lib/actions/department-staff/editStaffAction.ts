@@ -21,7 +21,7 @@ const formSchema = z.object({
   name: z.string().trim().min(2).max(52),
   employeeID: z.string().trim().min(1).max(52),
   email: z.string().trim().email().max(52),
-  phone: z.string().trim().max(20),
+  phone: z.string().trim().min(1, "Phone is required").max(20),
   position: z.string().trim().min(1).max(100),
   status: z.enum(["Active", "Inactive", "Suspended"]),
 });

@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 import PageHeader from "@/components/dashboard/pageHeader";
 import DashboardCard from "@/components/dashboard/dashboardCard";
+import TrainingStatusChart from "@/components/dashboard/trainingStatusChart";
 import { getMe } from "@/lib/api/getMe";
 import {
   getManagerDashboardStats,
@@ -60,23 +61,33 @@ export default async function DashboardPage() {
         ) : (
           <>
             <DashboardCard
-              icon={<GraduationCapIcon className="w-6 h-6" />}
-              count={staffStats?.myTrainings ?? 0}
-              description="My Trainings"
-            />
-            <DashboardCard
               icon={<AwardIcon className="w-6 h-6" />}
-              count={staffStats?.pendingCertificates ?? 0}
-              description="Pending Certificates"
+              count={staffStats?.approvedCertificates ?? 0}
+              description="Certificates"
             />
             <DashboardCard
               icon={<CheckCircleIcon className="w-6 h-6" />}
-              count={staffStats?.approvedCertificates ?? 0}
-              description="Approved Certificates"
+              count={staffStats?.attendedTrainings ?? 0}
+              description="Finished Trainings"
+            />
+            <DashboardCard
+              icon={<GraduationCapIcon className="w-6 h-6" />}
+              count={staffStats?.registeredTrainings ?? 0}
+              description="Left Trainings"
             />
           </>
         )}
       </div>
+
+      {/* Staff training performance chart */}
+      {isStaff && (
+        <TrainingStatusChart
+          registered={staffStats?.registeredTrainings ?? 0}
+          attended={staffStats?.attendedTrainings ?? 0}
+          absent={staffStats?.absentTrainings ?? 0}
+        />
+      )}
+
       {/* Training Calendar */}
       <div className="space-y-2">
         <h2 className="text-2xl font-bold tracking-tight">Training Calendar</h2>

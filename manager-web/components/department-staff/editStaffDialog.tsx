@@ -75,7 +75,12 @@ function EditStaffDialog({ staff, onClose }: Props) {
             <FieldGroup>
               <Field>
                 <FieldLabel htmlFor="phone">Phone</FieldLabel>
-                <Input id="phone" name="phone" defaultValue={staff.phone} />
+                <Input
+                  id="phone"
+                  name="phone"
+                  defaultValue={staff.phone}
+                  required
+                />
               </Field>
             </FieldGroup>
           </div>

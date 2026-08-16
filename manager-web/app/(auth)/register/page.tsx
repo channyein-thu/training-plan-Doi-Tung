@@ -21,7 +21,7 @@ export default async function RegisterPage() {
               <Users size={28} />
             </div>
             <div>
-              <h2 className="text-2xl font-semibold">Manager Registration</h2>
+              <h2 className="text-2xl font-semibold">Account Registration</h2>
               <p className="text-gray-500 text-sm">
                 Fill in your details below
               </p>

@@ -45,6 +45,8 @@ function OjtTable({ ojtRecords }: { ojtRecords: OjtRecord[] }) {
               <TableHead className=" w-[150px] font-bold">Department</TableHead>
               <TableHead className="w-[120px] font-bold">Division</TableHead>
               <TableHead className="w-[100px] font-bold">Status</TableHead>
+              <TableHead className="w-[110px] font-bold">Pre-Test</TableHead>
+              <TableHead className="w-[110px] font-bold">Post-Test</TableHead>
               <TableHead className="w-[150px] font-bold">Location</TableHead>
 
               <TableHead className="w-[150px] font-bold">
@@ -52,6 +54,8 @@ function OjtTable({ ojtRecords }: { ojtRecords: OjtRecord[] }) {
               </TableHead>
 
               <TableHead className="w-[100px] font-bold">Budget Code</TableHead>
+
+              <TableHead className="w-[220px] font-bold">Evaluation</TableHead>
 
               <TableHead className="w-[100px] font-bold">Actions</TableHead>
             </TableRow>
@@ -76,11 +80,16 @@ function OjtTable({ ojtRecords }: { ojtRecords: OjtRecord[] }) {
                   {record.division}
                 </TableCell>
                 <TableCell>{record.status.replace("_", " ")}</TableCell>
+                <TableCell>{record.preTestScore ?? "—"}</TableCell>
+                <TableCell>{record.postTestScore ?? "—"}</TableCell>
                 <TableCell className="break-words whitespace-normal">
                   {record.location}
                 </TableCell>
                 <TableCell>{record.costPerPerson}</TableCell>
                 <TableCell>{record.budgetCode}</TableCell>
+                <TableCell className="break-words whitespace-normal max-w-[240px]">
+                  {record.evaluation || "—"}
+                </TableCell>
 
                 <TableCell className="">
                   <DropdownMenu>

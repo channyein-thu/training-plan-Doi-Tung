@@ -92,6 +92,32 @@ function StaffList({ staff, planId }: StaffSelectProps) {
 
   return (
     <>
+      {/* Select all + selected count */}
+      {staff.length > 0 && (
+        <div className="flex items-center justify-between mb-3">
+          <label className="flex items-center gap-2 cursor-pointer">
+            <Checkbox
+              checked={
+                selectedStaff.length === 0
+                  ? false
+                  : selectedStaff.length === staff.length
+                    ? true
+                    : "indeterminate"
+              }
+              onCheckedChange={(checked) =>
+                setSelectedStaff(
+                  checked ? staff.map((s) => Number(s.id)) : [],
+                )
+              }
+            />
+            <span className="text-sm font-medium">Select all</span>
+          </label>
+          <span className="text-sm text-gray-600">
+            {selectedStaff.length} of {staff.length} selected
+          </span>
+        </div>
+      )}
+
       <div className="grid grid-cols-2 gap-4">
         {staff.map((s) => (
           <div

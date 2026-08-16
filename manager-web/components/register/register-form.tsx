@@ -95,7 +95,10 @@ export default function RegisterForm({ departments }: RegisterFormProps) {
                 <SelectContent>
                   {departments.length > 0 ? (
                     departments.map((department) => (
-                      <SelectItem key={department.id} value={department.id}>
+                      <SelectItem
+                        key={department.id}
+                        value={String(department.id)}
+                      >
                         {department.name}
                       </SelectItem>
                     ))
@@ -115,6 +118,11 @@ export default function RegisterForm({ departments }: RegisterFormProps) {
                 placeholder="e.g., Senior Developer"
                 required
               />
+            </Field>
+
+            <Field>
+              <FieldLabel>Work Start Date *</FieldLabel>
+              <Input name="workStartDate" type="date" required />
             </Field>
           </FieldGroup>
         </FieldSet>

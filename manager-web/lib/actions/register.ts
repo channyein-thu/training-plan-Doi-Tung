@@ -13,6 +13,7 @@ export type State = {
     position?: string[];
     confirmPassword?: string[];
     password?: string[];
+    workStartDate?: string[];
   };
   message?: string | null;
 };
@@ -39,6 +40,7 @@ const FormSchema = z
       .trim()
       .min(6, "Password must be at least 6 characters!"),
     confirmPassword: z.string().trim().min(6, "Confirm your password!"),
+    workStartDate: z.string().trim().min(1, "Work start date is required!"),
   })
   .refine((values) => values.password === values.confirmPassword, {
     message: "Passwords do not match.",
@@ -55,6 +57,7 @@ export async function RegisterAction(prevState: State, formData: FormData) {
     position: formData.get("position"),
     password: formData.get("password"),
     confirmPassword: formData.get("confirmPassword"),
+    workStartDate: formData.get("workStartDate"),
   });
 
   if (!validatedFields.success) {

@@ -23,7 +23,8 @@ import { LoginAction, State } from "@/lib/actions/login";
 // Human-readable messages for the ?oauth_error= query param set by the callback
 const OAUTH_ERRORS: Record<string, string> = {
   access_denied: "You cancelled the Google sign-in.",
-  exchange_failed: "Google sign-in failed at the server. Check the backend logs.",
+  exchange_failed:
+    "Google sign-in failed at the server. Check the backend logs.",
   no_token: "Google sign-in returned no token.",
   missing_code: "Google did not return an authorization code.",
   unexpected: "Unexpected error during Google sign-in.",
@@ -34,7 +35,8 @@ function LoginForm() {
   const searchParams = useSearchParams();
   const oauthErrorKey = searchParams.get("oauth_error");
   const oauthErrorMsg = oauthErrorKey
-    ? OAUTH_ERRORS[oauthErrorKey] ?? `Google sign-in failed (${oauthErrorKey}).`
+    ? (OAUTH_ERRORS[oauthErrorKey] ??
+      `Google sign-in failed (${oauthErrorKey}).`)
     : null;
 
   const initialState: State = {
@@ -64,8 +66,10 @@ function LoginForm() {
               <Users size={32} />
             </div>
             <div>
-              <h2 className="text-2xl font-semibold mt-2">Manager Login</h2>
-              <p className="text-gray-500 text-sm">Department manager login</p>
+              <h2 className="text-2xl font-semibold mt-2">Login</h2>
+              <p className="text-gray-500 text-sm">
+                Please enter your credentials to access the system.
+              </p>
             </div>
           </div>
 
@@ -92,13 +96,13 @@ function LoginForm() {
                 </FieldDescription> */}
 
                 <FieldGroup className="mt-4">
-                  {/* Email */}
+                  {/* Email or phone */}
                   <Field>
-                    <FieldLabel htmlFor="email">Email Address</FieldLabel>
+                    <FieldLabel htmlFor="email">Email or Phone</FieldLabel>
                     <Input
                       id="email"
-                      type="email"
-                      placeholder="Enter Email"
+                      type="text"
+                      placeholder="Enter email or phone"
                       name="email"
                       required
                     />

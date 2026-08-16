@@ -14,9 +14,11 @@ import {
   UpdateOjtRecordAction,
 } from "@/lib/actions/ojt-records/updateOjtRecord";
 import { useActionState, useState } from "react";
+import { useRouter } from "next/navigation";
 import { OjtRecord } from "@/types/records";
 
 function EditOJTdetails({ record }: { record: OjtRecord }) {
+  const router = useRouter();
   const initialState: State = { errors: {}, message: "" };
   const [status, setStatus] = useState(record.status);
 
@@ -59,6 +61,7 @@ function EditOJTdetails({ record }: { record: OjtRecord }) {
 
         <textarea
           name="evaluation"
+          defaultValue={record.evaluation ?? ""}
           className="w-full border rounded-md p-2"
           rows={4}
           placeholder="Describe how the training knowledge is applied..."
@@ -81,6 +84,7 @@ function EditOJTdetails({ record }: { record: OjtRecord }) {
               type="number"
               min={0}
               max={100}
+              defaultValue={record.preTestScore ?? ""}
               className="h-14 text-xl rounded-xl pr-10"
             />
 
@@ -106,6 +110,7 @@ function EditOJTdetails({ record }: { record: OjtRecord }) {
               type="number"
               min={0}
               max={100}
+              defaultValue={record.postTestScore ?? ""}
               className="h-14 text-xl rounded-xl pr-10"
             />
 
@@ -124,7 +129,12 @@ function EditOJTdetails({ record }: { record: OjtRecord }) {
 
       {/* Action Buttons */}
       <div className="px-6 py-4 flex gap-4">
-        <Button type="button" variant="outline" className="flex-1">
+        <Button
+          type="button"
+          variant="outline"
+          className="flex-1"
+          onClick={() => router.push("/ojt-records")}
+        >
           Cancel
         </Button>
 

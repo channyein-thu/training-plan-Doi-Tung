@@ -148,7 +148,7 @@ function DialogForm() {
         </FieldGroup>
       </div>
 
-      <div className="flex flex-col gap-4 mt-4 w-[270px]">
+      <div className="grid grid-cols-2 gap-4 mt-4">
         <FieldGroup>
           <Field>
             <FieldLabel htmlFor="status">Select Status</FieldLabel>
@@ -165,6 +165,17 @@ function DialogForm() {
 
               <option value="Suspended">Suspended</option>
             </select>
+          </Field>
+        </FieldGroup>
+        <FieldGroup>
+          <Field>
+            <FieldLabel htmlFor="workStartDate">Work Start Date</FieldLabel>
+            <Input
+              id="workStartDate"
+              name="workStartDate"
+              type="date"
+              required
+            />
           </Field>
         </FieldGroup>
       </div>

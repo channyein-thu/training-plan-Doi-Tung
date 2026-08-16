@@ -10,6 +10,9 @@ export type ManagerDashboardStats = {
 
 export type StaffDashboardStats = {
   myTrainings: number;
+  registeredTrainings: number;
+  attendedTrainings: number;
+  absentTrainings: number;
   pendingCertificates: number;
   approvedCertificates: number;
 };

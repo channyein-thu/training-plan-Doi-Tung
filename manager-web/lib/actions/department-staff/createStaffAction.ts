@@ -14,6 +14,7 @@ export type State = {
     position?: string[];
     password?: string[];
     status?: string[];
+    workStartDate?: string[];
   };
   message?: string | null;
 };
@@ -22,10 +23,11 @@ const formSchema = z.object({
   name: z.string().trim().min(2).max(52),
   employeeID: z.string().trim().min(1).max(52),
   email: z.string().trim().email().max(52),
-  phone: z.string().trim().max(20),
+  phone: z.string().trim().min(1, "Phone is required").max(20),
   position: z.string().trim().min(1).max(100),
   password: z.string().min(6).max(100),
   status: z.enum(["Active", "Inactive", "Suspended"]),
+  workStartDate: z.string().trim().min(1, "Work start date is required"),
 });
 
 async function CreateStaffAction(
@@ -40,6 +42,7 @@ async function CreateStaffAction(
     position: formData.get("position"),
     password: formData.get("password"),
     status: formData.get("status"),
+    workStartDate: formData.get("workStartDate"),
   });
 
   const cookieStore = await cookies(); //  await
@@ -59,8 +62,16 @@ async function CreateStaffAction(
     };
   }
 
-  const { name, employeeID, email, phone, position, password, status } =
-    validatedFields.data;
+  const {
+    name,
+    employeeID,
+    email,
+    phone,
+    position,
+    password,
+    status,
+    workStartDate,
+  } = validatedFields.data;
   let isCreated = false;
 
   try {
@@ -76,6 +87,7 @@ async function CreateStaffAction(
         position,
         password,
         status,
+        workStartDate,
       }),
       cache: "no-store",
     });
