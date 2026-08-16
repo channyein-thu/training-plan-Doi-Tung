@@ -17,8 +17,20 @@ func NewAuthController(db *gorm.DB) *AuthController {
 }
 
 type LoginRequest struct {
+	// Identifier is the email OR phone the user logs in with.
+	Identifier string `json:"identifier"`
+	// Email is kept for backward compatibility; treated as the identifier when
+	// Identifier is not provided.
 	Email    string `json:"email"`
 	Password string `json:"password"`
+}
+
+// loginIdentifier returns the email-or-phone value to look the user up by.
+func (r LoginRequest) loginIdentifier() string {
+	if r.Identifier != "" {
+		return r.Identifier
+	}
+	return r.Email
 }
 
 type RegisterRequest struct {
@@ -30,6 +42,7 @@ type RegisterRequest struct {
 	Position        string `json:"position"`
 	Password        string `json:"password"`
 	ConfirmPassword string `json:"confirmPassword"`
+	WorkStartDate   string `json:"workStartDate"`
 }
 
 func (ac *AuthController) AdminLogin(c *fiber.Ctx) error {
@@ -72,8 +85,13 @@ func (ac *AuthController) Login(c *fiber.Ctx) error {
 		return helper.BadRequest("Invalid request body")
 	}
 
+	identifier := req.loginIdentifier()
+	if identifier == "" {
+		return helper.Unauthorized("Invalid credentials")
+	}
+
 	var user model.User
-	query := ac.db.Preload("Department").Where("email = ?", req.Email)
+	query := ac.db.Preload("Department").Where("email = ? OR phone = ?", identifier, identifier)
 	if err := query.First(&user).Error; err != nil {
 		return helper.Unauthorized("Invalid credentials")
 	}
@@ -105,8 +123,13 @@ func (ac *AuthController) handleLogin(c *fiber.Ctx, role model.Role) error {
 		return helper.BadRequest("Invalid request body")
 	}
 
+	identifier := req.loginIdentifier()
+	if identifier == "" {
+		return helper.Unauthorized("Invalid credentials")
+	}
+
 	var user model.User
-	query := ac.db.Preload("Department").Where("email = ? AND role = ?", req.Email, role)
+	query := ac.db.Preload("Department").Where("(email = ? OR phone = ?) AND role = ?", identifier, identifier, role)
 	if err := query.First(&user).Error; err != nil {
 		return helper.Unauthorized("Invalid credentials")
 	}
@@ -217,7 +240,7 @@ func (ac *AuthController) handleRegister(c *fiber.Ctx, role model.Role, successM
 		return err
 	}
 
-	if err := ac.checkDuplicateUser(req.Email, req.EmployeeID); err != nil {
+	if err := ac.checkDuplicateUser(req.Email, req.EmployeeID, req.Phone); err != nil {
 		return err
 	}
 
@@ -226,7 +249,13 @@ func (ac *AuthController) handleRegister(c *fiber.Ctx, role model.Role, successM
 		return helper.BadRequest("Invalid department selected")
 	}
 
+	workStartDate, err := helper.ParseDateOnly(req.WorkStartDate)
+	if err != nil {
+		return helper.BadRequest("Invalid work start date (expected YYYY-MM-DD)")
+	}
+
 	user := ac.createUserFromRequest(&req, role)
+	user.WorkStartDate = workStartDate
 	if err := ac.db.Create(&user).Error; err != nil {
 		return helper.BadRequest("Failed to create user")
 	}
@@ -239,7 +268,8 @@ func (ac *AuthController) handleRegister(c *fiber.Ctx, role model.Role, successM
 
 func (ac *AuthController) validateRegisterRequest(req *RegisterRequest) error {
 	if req.Name == "" || req.EmployeeID == "" || req.Email == "" ||
-		req.Position == "" || req.Password == "" || req.DepartmentID == 0 {
+		req.Position == "" || req.Password == "" || req.DepartmentID == 0 ||
+		req.WorkStartDate == "" || req.Phone == "" {
 		return helper.BadRequest("All required fields must be filled")
 	}
 	if req.Password != req.ConfirmPassword {
@@ -248,13 +278,16 @@ func (ac *AuthController) validateRegisterRequest(req *RegisterRequest) error {
 	return nil
 }
 
-func (ac *AuthController) checkDuplicateUser(email, employeeID string) error {
+func (ac *AuthController) checkDuplicateUser(email, employeeID, phone string) error {
 	var existingUser model.User
 	if ac.db.Where("email = ?", email).First(&existingUser).Error == nil {
 		return helper.BadRequest("Email already registered")
 	}
 	if ac.db.Where("employee_id = ?", employeeID).First(&existingUser).Error == nil {
 		return helper.BadRequest("Employee ID already registered")
+	}
+	if ac.db.Where("phone = ?", phone).First(&existingUser).Error == nil {
+		return helper.BadRequest("Phone already registered")
 	}
 	return nil
 }

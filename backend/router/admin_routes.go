@@ -42,6 +42,12 @@ func AdminRoutes(r fiber.Router, deps *container.AppDependencies) {
 	r.Get("/training-plans", deps.TrainingPlanController.FindPaginated)
 	r.Get("/training-plans/:trainingPlanId", deps.TrainingPlanController.FindById)
 
+	// Register users to a training plan (admin can register any user).
+	r.Post(
+		"/training-plans/:trainingPlanId/registrations",
+		deps.RecordController.RegisterStaff,
+	)
+
 	// // Records
 	// r.Get("/records", deps.RecordController.FindAllPaginated)
 	r.Post("/records/search", deps.RecordController.Search)

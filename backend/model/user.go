@@ -34,7 +34,7 @@ type User struct {
 	Password      string        `gorm:"type:text;not null" json:"-"`
 	Email         string        `gorm:"type:varchar(52);unique;not null" json:"email"`
 	EmployeeID    string        `gorm:"type:varchar(52);unique;not null" json:"employeeID"`
-	Phone         string        `gorm:"type:varchar(20)" json:"phone"`
+	Phone         string        `gorm:"type:varchar(20);uniqueIndex;not null" json:"phone"`
 	Role          Role          `gorm:"type:enum('Hr(admin)','DepartmentHead(manager)','Staff');not null;default:'Staff'" json:"role"`
 	Status        UserStatus    `gorm:"type:enum('Active','Inactive','Suspended');not null;default:'Active'" json:"status"`
 	Position      string        `gorm:"type:varchar(100)" json:"position"`

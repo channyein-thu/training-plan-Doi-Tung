@@ -3,8 +3,10 @@ package service
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strings"
+	"time"
 	"training-plan-api/helper"
 	"training-plan-api/model"
 	"training-plan-api/repository"
@@ -73,8 +75,13 @@ newUser := &model.User{
 	Email:      userInfo.Email,
 	Password:   "",
 
-	EmployeeID: "google_" + userInfo.ID, 
+	EmployeeID: "google_" + userInfo.ID,
 	DepartmentID: 1,
+
+	// Phone is required and unique; OAuth users have none yet, so give them a
+	// unique placeholder (fits varchar(20)). They set a real phone during
+	// onboarding / complete-profile.
+	Phone: fmt.Sprintf("g%d", time.Now().UnixNano()),
 
 	Role:      model.RoleStaff,
 	Status:    model.UserStatusActive,

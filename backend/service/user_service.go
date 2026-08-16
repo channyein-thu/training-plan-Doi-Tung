@@ -48,6 +48,14 @@ func (s *UserServiceImpl) AdminCreate(req request.CreateUserRequest, creatorID u
 	if s.userRepo.ExistsByEmployeeID(req.EmployeeID) {
 		return helper.BadRequest("Employee ID already registered")
 	}
+	if s.userRepo.ExistsByPhone(req.Phone) {
+		return helper.BadRequest("Phone already registered")
+	}
+
+	workStartDate, err := helper.ParseDateOnly(req.WorkStartDate)
+	if err != nil {
+		return helper.BadRequest("Invalid work start date (expected YYYY-MM-DD)")
+	}
 
 	user := &model.User{
 		Name:         req.Name,
@@ -59,6 +67,7 @@ func (s *UserServiceImpl) AdminCreate(req request.CreateUserRequest, creatorID u
 		Position:     req.Position,
 		Status:       req.Status,
 		Password:     helper.GeneratePassword(req.Password),
+		WorkStartDate: workStartDate,
 		CreatedBy:    model.CreatedByAdmin,
 		CreatedByID:  &creatorID,
 		IsProfileComplete: true,
@@ -83,6 +92,10 @@ func (s *UserServiceImpl) AdminUpdate(userID uint, req request.UpdateUserRequest
 
 	if _, err := s.deptRepo.FindById(req.DepartmentID); err != nil {
 		return helper.BadRequest("Invalid department selected")
+	}
+
+	if existingUser.Phone != req.Phone && s.userRepo.ExistsByPhone(req.Phone) {
+		return helper.BadRequest("Phone already registered")
 	}
 
 	existingUser.Name = req.Name
@@ -172,6 +185,14 @@ func (s *UserServiceImpl) ManagerCreate(req request.ManagerCreateUserRequest, ma
 	if s.userRepo.ExistsByEmployeeID(req.EmployeeID) {
 		return helper.BadRequest("Employee ID already registered")
 	}
+	if s.userRepo.ExistsByPhone(req.Phone) {
+		return helper.BadRequest("Phone already registered")
+	}
+
+	workStartDate, err := helper.ParseDateOnly(req.WorkStartDate)
+	if err != nil {
+		return helper.BadRequest("Invalid work start date (expected YYYY-MM-DD)")
+	}
 
 	user := &model.User{
 		Name:         req.Name,
@@ -183,6 +204,7 @@ func (s *UserServiceImpl) ManagerCreate(req request.ManagerCreateUserRequest, ma
 		Position:     req.Position,
 		Status:       req.Status,
 		Password:     helper.GeneratePassword(req.Password),
+		WorkStartDate: workStartDate,
 		CreatedBy:    model.CreatedByManager,
 		CreatedByID:  &managerID,
 		IsProfileComplete: true,
@@ -215,6 +237,9 @@ func (s *UserServiceImpl) ManagerUpdate(userID uint, req request.ManagerUpdateUs
 	}
 	if existingUser.EmployeeID != req.EmployeeID && s.userRepo.ExistsByEmployeeID(req.EmployeeID) {
 		return helper.BadRequest("Employee ID already registered")
+	}
+	if existingUser.Phone != req.Phone && s.userRepo.ExistsByPhone(req.Phone) {
+		return helper.BadRequest("Phone already registered")
 	}
 
 	existingUser.Name = req.Name
@@ -274,6 +299,14 @@ func (s *UserServiceImpl) CompleteProfile(userID uint, req request.CompleteProfi
 		} else {
 			return err
 		}
+	}
+
+	// Phone must be unique. Compare against the user's current phone so
+	// resubmitting the same value isn't rejected.
+	if currentUser, err := s.userRepo.FindById(userID); err != nil {
+		return err
+	} else if currentUser.Phone != req.Phone && s.userRepo.ExistsByPhone(req.Phone) {
+		return helper.BadRequest("Phone already in use")
 	}
 
 	updates := map[string]interface{}{

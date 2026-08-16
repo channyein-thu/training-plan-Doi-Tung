@@ -82,11 +82,24 @@ func (dc *DashboardController) ManagerStats(c *fiber.Ctx) error {
 func (dc *DashboardController) StaffStats(c *fiber.Ctx) error {
 	userID := c.Locals("user_id").(uint)
 
-	var myTrainings, pendingCertificates, approvedCertificates int64
+	var myTrainings, registeredTrainings, attendedTrainings, absentTrainings int64
+	var pendingCertificates, approvedCertificates int64
 
 	dc.db.Model(&model.Record{}).
 		Where("user_id = ?", userID).
 		Count(&myTrainings)
+
+	dc.db.Model(&model.Record{}).
+		Where("user_id = ? AND status = ?", userID, model.RecordStatusRegister).
+		Count(&registeredTrainings)
+
+	dc.db.Model(&model.Record{}).
+		Where("user_id = ? AND status = ?", userID, model.RecordStatusAttended).
+		Count(&attendedTrainings)
+
+	dc.db.Model(&model.Record{}).
+		Where("user_id = ? AND status = ?", userID, model.RecordStatusAbsent).
+		Count(&absentTrainings)
 
 	dc.db.Model(&model.Certificate{}).
 		Where("user_id = ? AND status = ?", userID, model.CertPending).
@@ -100,6 +113,9 @@ func (dc *DashboardController) StaffStats(c *fiber.Ctx) error {
 		Status: "SUCCESS",
 		Data: fiber.Map{
 			"myTrainings":          myTrainings,
+			"registeredTrainings":  registeredTrainings,
+			"attendedTrainings":    attendedTrainings,
+			"absentTrainings":      absentTrainings,
 			"pendingCertificates":  pendingCertificates,
 			"approvedCertificates": approvedCertificates,
 		},

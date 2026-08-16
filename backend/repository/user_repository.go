@@ -199,6 +199,12 @@ func (r *UserRepositoryImpl) ExistsByEmail(email string) bool {
 	return count > 0
 }
 
+func (r *UserRepositoryImpl) ExistsByPhone(phone string) bool {
+	var count int64
+	r.Db.Model(&model.User{}).Where("phone = ?", phone).Count(&count)
+	return count > 0
+}
+
 func (r *UserRepositoryImpl) ExistsByEmployeeID(employeeID string) bool {
 	var count int64
 	r.Db.Model(&model.User{}).Where("employee_id = ?", employeeID).Count(&count)

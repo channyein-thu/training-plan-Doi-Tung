@@ -53,6 +53,7 @@ type UserRepository interface {
 	FindAllPaginated(offset, limit int) ([]model.User, int64, error)
 	FindByDepartmentPaginated(departmentID, offset, limit int) ([]model.User, int64, error)
 	ExistsByEmail(email string) bool
+	ExistsByPhone(phone string) bool
 	ExistsByEmployeeID(employeeID string) bool
 	FindAllWithFilters(params request.UserTableQueryParams) ([]model.User, int64, error)
 }
