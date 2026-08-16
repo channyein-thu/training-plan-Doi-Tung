@@ -1,0 +1,125 @@
+# Full-stack production compose for the training platform.
+#
+# EXPECTED MONOREPO LAYOUT (place this file at the repo root):
+#   training-platform/
+#     docker-compose.yml   <- this file
+#     Caddyfile            <- reverse proxy / TLS (Prod 6)
+#     .env                 <- compose interpolation values (Prod 7 template)
+#     backend/             <- was goProjects/training-server
+#       app.env            <- backend secrets (gitignored, provided on the server)
+#       service-account.json
+#     admin-web/           <- was node/components
+#     manager-web/         <- was node/manager
+#
+# Bring up with:  docker compose up --build -d
+#
+# Secrets are NOT baked into images (see each Dockerfile / .dockerignore); they
+# are injected here at runtime via env_file / environment / mounts.
+
+services:
+  # ---------------- Backend API (Go / Fiber) ----------------
+  backend:
+    build: ./backend
+    restart: unless-stopped
+    env_file:
+      - ./backend/app.env
+    environment:
+      # These override anything in app.env for the containerized environment.
+      GO_ENV: production          # disables the dev admin seeder (Prod 1/12)
+      PORT: "8080"
+      MYSQL_HOST: db
+      MYSQL_PORT: "3306"
+      MYSQL_DB: ${MYSQL_DB}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      # Real front-end origins the browser will use (see Caddyfile / .env).
+      ALLOWED_ORIGINS: "https://${ADMIN_DOMAIN},https://${APP_DOMAIN}"
+      GOOGLE_REDIRECT_URL: "https://${APP_DOMAIN}/api/auth/google/callback"
+    volumes:
+      # Persist uploaded certificate files across redeploys.
+      - uploads:/app/uploads
+      # Provide the Google service account without baking it into the image.
+      - ./backend/service-account.json:/app/service-account.json:ro
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - internal
+
+  # ---------------- Admin web (Next.js) ----------------
+  admin-web:
+    build:
+      context: ./admin-web
+      args:
+        # Browser-facing API origin, inlined into the bundle at build time.
+        NEXT_PUBLIC_BACKEND_ORIGIN: "https://${API_DOMAIN}"
+    restart: unless-stopped
+    depends_on:
+      - backend
+    networks:
+      - internal
+
+  # ---------------- Manager/Staff web (Next.js) ----------------
+  manager-web:
+    build:
+      context: ./manager-web
+      args:
+        NEXT_PUBLIC_BACKEND_ORIGIN: "https://${API_DOMAIN}"
+    restart: unless-stopped
+    depends_on:
+      - backend
+    networks:
+      - internal
+
+  # ---------------- Database (MySQL) ----------------
+  db:
+    image: mysql:8.4
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DB}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - internal
+
+  # ---------------- Reverse proxy + TLS (Caddy) ----------------
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      # Consumed by {$VAR} placeholders in the Caddyfile.
+      API_DOMAIN: ${API_DOMAIN}
+      APP_DOMAIN: ${APP_DOMAIN}
+      ADMIN_DOMAIN: ${ADMIN_DOMAIN}
+      TLS_EMAIL: ${TLS_EMAIL}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - backend
+      - admin-web
+      - manager-web
+    networks:
+      - internal
+
+networks:
+  internal:
+    driver: bridge
+
+volumes:
+  db_data:
+  uploads:
+  caddy_data:
+  caddy_config:

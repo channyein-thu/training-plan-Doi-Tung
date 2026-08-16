@@ -1,0 +1,99 @@
+# LOCAL Docker Desktop stack (no Caddy, no TLS, no real domains).
+# For trying the whole app on your machine:
+#
+#   docker compose -f docker-compose.local.yml up --build
+#
+# Then open:
+#   admin-web    -> http://localhost:3000
+#   manager-web  -> http://localhost:3001
+#   backend API  -> http://localhost:8080
+#
+# Seeded admin login (GO_ENV=development): admin@company.com / ChangeMe_Dev_9x2Qm7Kt
+# (comes from backend/app.env: ADMIN_SEED_PASSWORD).
+#
+# Production uses docker-compose.yml (+ Caddy) instead.
+
+services:
+  db:
+    image: mysql:8.4
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: localdev
+      MYSQL_DATABASE: training_plan_db
+    ports:
+      - "3307:3306"          # host 3307 -> container 3306 (for a local DB client)
+    volumes:
+      - db_data_local:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-plocaldev"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - local
+
+  backend:
+    build: ./backend
+    restart: unless-stopped
+    env_file:
+      - ./backend/app.env            # JWT_SECRET, GOOGLE_*, VAPID_*, GO_ENV, ADMIN_SEED_PASSWORD
+    environment:
+      # Container-specific overrides (win over app.env).
+      GO_ENV: development             # seeds the default admin on first boot
+      PORT: "8080"
+      MYSQL_HOST: db
+      MYSQL_PORT: "3306"
+      MYSQL_USER: root
+      MYSQL_PASSWORD: localdev
+      MYSQL_DB: training_plan_db
+      ALLOWED_ORIGINS: "http://localhost:3000,http://localhost:3001"
+    ports:
+      - "8080:8080"
+    volumes:
+      - uploads_local:/app/uploads
+      - ./backend/service-account.json:/app/service-account.json:ro
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - local
+
+  admin-web:
+    build:
+      context: ./admin-web
+      args:
+        # Browser-facing backend origin (inlined at build time).
+        NEXT_PUBLIC_BACKEND_ORIGIN: "http://localhost:8080"
+    restart: unless-stopped
+    environment:
+      # Server-side (container) backend origin — uses the internal service name.
+      BACKEND_INTERNAL_ORIGIN: "http://backend:8080"
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    networks:
+      - local
+
+  manager-web:
+    build:
+      context: ./manager-web
+      args:
+        NEXT_PUBLIC_BACKEND_ORIGIN: "http://localhost:8080"
+    restart: unless-stopped
+    environment:
+      BACKEND_INTERNAL_ORIGIN: "http://backend:8080"
+    ports:
+      - "3001:3000"          # host 3001 -> container 3000
+    depends_on:
+      - backend
+    networks:
+      - local
+
+networks:
+  local:
+    driver: bridge
+
+volumes:
+  db_data_local:
+  uploads_local:

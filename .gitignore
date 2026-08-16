@@ -1,0 +1,12 @@
+# Compose interpolation secrets.
+.env
+
+# Backend runtime secrets / data (also ignored by backend/.gitignore).
+backend/app.env
+backend/service-account.json
+backend/uploads/
+backend/dump.rdb
+
+# Caddy's persisted certs/state live in named volumes, but if bind-mounted:
+caddy_data/
+caddy_config/

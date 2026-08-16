@@ -1,0 +1,42 @@
+# Reverse proxy + automatic HTTPS for the training platform.
+#
+# Domains and the ACME contact email are read from environment variables passed
+# to the caddy container by docker-compose (see the `caddy` service). Caddy
+# obtains and renews Let's Encrypt certificates automatically on first request.
+{
+	# Contact email for Let's Encrypt (expiry / problem notifications).
+	email {$TLS_EMAIL}
+}
+
+# ---------------- Backend API ----------------
+{$API_DOMAIN} {
+	encode gzip
+	reverse_proxy backend:8080
+}
+
+# ---------------- Manager / Staff web ----------------
+{$APP_DOMAIN} {
+	encode gzip
+
+	header {
+		# Sensible security headers for the app surfaces.
+		Referrer-Policy "strict-origin-when-cross-origin"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "SAMEORIGIN"
+	}
+
+	reverse_proxy manager-web:3000
+}
+
+# ---------------- Admin web ----------------
+{$ADMIN_DOMAIN} {
+	encode gzip
+
+	header {
+		Referrer-Policy "strict-origin-when-cross-origin"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "SAMEORIGIN"
+	}
+
+	reverse_proxy admin-web:3000
+}
