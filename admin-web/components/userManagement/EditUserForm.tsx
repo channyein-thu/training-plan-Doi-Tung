@@ -1,0 +1,254 @@
+"use client";
+
+import { UserList } from "@/app/types/userManagement";
+import { Department } from "@/app/types/department";
+import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
+import { DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog";
+import { Button } from "../ui/button";
+type UserEditFormProps = {
+  user?: UserList;
+  departments: Department[];
+  onClose: () => void;
+};
+import { useActionState } from "react";
+import { EditUserAction, State } from "@/lib/actions/AdminUser/editUser";
+
+const normalizeStatus = (status?: string) => {
+  if (!status) return "Active";
+  const normalized = status.toLowerCase();
+  if (normalized === "inactive") return "Inactive";
+  if (normalized === "suspended") return "Suspended";
+  return "Active";
+};
+
+const normalizeRole = (role?: string) => {
+  if (!role) return "Staff";
+  const normalized = role.toLowerCase();
+  if (normalized.includes("admin")) return "Hr(admin)";
+  if (normalized.includes("manager")) return "DepartmentHead(manager)";
+  return "Staff";
+};
+
+const isHRAdmin = (role?: string) =>
+  !!role && role.toLowerCase().includes("admin");
+
+function EditUserForm({ user, departments, onClose }: UserEditFormProps) {
+  const initialState: State = {
+    errors: {},
+    message: null,
+  };
+
+  const [state, formAction, pending] = useActionState(
+    EditUserAction.bind(null, String(user?.id) ?? ""),
+    initialState,
+  );
+  const safeState = state ?? initialState;
+
+  return (
+    <div>
+      <form action={formAction}>
+        <DialogHeader>
+          <DialogTitle>Edit User</DialogTitle>
+        </DialogHeader>
+
+        <div className="grid grid-cols-2 gap-4 mt-4">
+          <FieldGroup>
+            <Field>
+              <FieldLabel htmlFor="name">Full Name</FieldLabel>
+              <Input
+                id="name"
+                name="name"
+                defaultValue={user?.fullName ?? ""}
+                required
+              />
+              {safeState.errors?.name?.[0] ? (
+                <p className="text-sm text-red-600">
+                  {safeState.errors.name[0]}
+                </p>
+              ) : null}
+            </Field>
+          </FieldGroup>
+
+          <FieldGroup>
+            <Field>
+              <FieldLabel htmlFor="employeeId">Employee ID</FieldLabel>
+              <Input
+                id="employeeId"
+                name="employeeId"
+                defaultValue={user?.employeeId ?? ""}
+                required
+              />
+              {safeState.errors?.employeeId?.[0] ? (
+                <p className="text-sm text-red-600">
+                  {safeState.errors.employeeId[0]}
+                </p>
+              ) : null}
+            </Field>
+          </FieldGroup>
+
+          <FieldGroup>
+            <Field>
+              <FieldLabel htmlFor="departmentId">Department</FieldLabel>
+              <select
+                id="departmentId"
+                name="departmentId"
+                defaultValue={
+                  user?.departmentId != null ? String(user.departmentId) : ""
+                }
+                required
+                className="w-full border border-[#006022] rounded-md px-3 py-2"
+              >
+                <option value="" disabled>
+                  Select department
+                </option>
+                {departments.map((department) => (
+                  <option key={department.id} value={department.id}>
+                    {department.name} ({department.division})
+                  </option>
+                ))}
+              </select>
+              {safeState.errors?.departmentId?.[0] ? (
+                <p className="text-sm text-red-600">
+                  {safeState.errors.departmentId[0]}
+                </p>
+              ) : null}
+            </Field>
+          </FieldGroup>
+
+          <FieldGroup>
+            <Field>
+              <FieldLabel htmlFor="phone">Phone</FieldLabel>
+              <Input
+                id="phone"
+                name="phone"
+                defaultValue={user?.phone ?? ""}
+                required
+              />
+              {safeState.errors?.phone?.[0] ? (
+                <p className="text-sm text-red-600">
+                  {safeState.errors.phone[0]}
+                </p>
+              ) : null}
+            </Field>
+          </FieldGroup>
+
+          <FieldGroup>
+            <Field>
+              <FieldLabel htmlFor="email">Email</FieldLabel>
+              <Input
+                id="email"
+                name="email"
+                type="email"
+                defaultValue={user?.email ?? ""}
+                required
+              />
+              {safeState.errors?.email?.[0] ? (
+                <p className="text-sm text-red-600">
+                  {safeState.errors.email[0]}
+                </p>
+              ) : null}
+            </Field>
+          </FieldGroup>
+
+          <FieldGroup>
+            <Field>
+              <FieldLabel htmlFor="role">Role</FieldLabel>
+              {isHRAdmin(user?.role) ? (
+                <>
+                  <Input
+                    value="HR Admin"
+                    readOnly
+                    disabled
+                    className="bg-gray-100 cursor-not-allowed"
+                  />
+                  {/* Keep submitting the real backend value so the role isn't lost */}
+                  <input type="hidden" name="role" value="Hr(admin)" />
+                  <p className="text-xs text-gray-500">
+                    The HR Admin role cannot be reassigned.
+                  </p>
+                </>
+              ) : (
+                <select
+                  id="role"
+                  name="role"
+                  defaultValue={normalizeRole(user?.role)}
+                  className="w-full border border-[#006022] rounded-md px-3 py-2"
+                  required
+                >
+                  <option value="DepartmentHead(manager)">
+                    Department Manager
+                  </option>
+                  <option value="Staff">Staff</option>
+                </select>
+              )}
+              {safeState.errors?.role?.[0] ? (
+                <p className="text-sm text-red-600">
+                  {safeState.errors.role[0]}
+                </p>
+              ) : null}
+            </Field>
+          </FieldGroup>
+
+          <FieldGroup>
+            <Field>
+              <FieldLabel htmlFor="position">Position</FieldLabel>
+              <Input
+                id="position"
+                name="position"
+                defaultValue={user?.jobRole ?? ""}
+                placeholder="e.g., Senior Developer"
+                required
+              />
+              {safeState.errors?.position?.[0] ? (
+                <p className="text-sm text-red-600">
+                  {safeState.errors.position[0]}
+                </p>
+              ) : null}
+            </Field>
+          </FieldGroup>
+
+          <FieldGroup>
+            <Field>
+              <FieldLabel htmlFor="status">User Status</FieldLabel>
+              <select
+                id="status"
+                name="status"
+                defaultValue={normalizeStatus(user?.status)}
+                className="w-full border border-[#006022] rounded-md px-3 py-2"
+              >
+                <option value="Active">Active</option>
+                <option value="Inactive">Inactive</option>
+                <option value="Suspended">Suspended</option>
+              </select>
+              {safeState.errors?.status?.[0] ? (
+                <p className="text-sm text-red-600">
+                  {safeState.errors.status[0]}
+                </p>
+              ) : null}
+            </Field>
+          </FieldGroup>
+        </div>
+
+        {safeState.message ? (
+          <p className="text-sm text-red-600 mt-4">{safeState.message}</p>
+        ) : null}
+
+        <DialogFooter className="mt-6">
+          <Button type="button" variant="outline" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button
+            type="submit"
+            className="bg-[#006022] text-white hover:bg-[#005018]"
+            disabled={pending}
+          >
+            {pending ? "Saving..." : "Save Changes"}
+          </Button>
+        </DialogFooter>
+      </form>
+    </div>
+  );
+}
+
+export default EditUserForm;

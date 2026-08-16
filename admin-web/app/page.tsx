@@ -1,0 +1,44 @@
+import { redirect } from "next/navigation";
+
+export default function Home() {
+  redirect("/dashboard");
+}
+
+// import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+// import { AppSidebar } from "@/components/ui/app-sidebar";
+// import DashboardCard from "@/components/dashboard/DashboardCard";
+// import PageHeader from "@/components/dashboard/pageHeader";
+// import { UsersIcon } from "lucide-react";
+
+// export default function Layout({ children }: { children: React.ReactNode }) {
+//   return (
+//     <div className="m-6 space-y-4">
+//       <PageHeader
+//         title="Admin Dashboard"
+//         subtitle="Organization-wide training overview and analytics"
+//       />
+//       <div className="flex flex-wrap gap-10">
+//         <DashboardCard
+//           icon={<UsersIcon className="w-6 h-6" />}
+//           percentChange="+12%"
+//           count={245}
+//           description="Total Staff"
+//         />
+
+//         <DashboardCard
+//           icon={<UsersIcon className="w-6 h-6" />}
+//           percentChange="+8%"
+//           count={120}
+//           description="Active Trainers"
+//         />
+
+//         <DashboardCard
+//           icon={<UsersIcon className="w-6 h-6" />}
+//           percentChange="+5%"
+//           count={32}
+//           description="Avg Training Hours"
+//         />
+//       </div>
+//     </div>
+//   );
+// }
